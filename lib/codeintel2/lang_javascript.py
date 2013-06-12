@@ -2591,7 +2591,7 @@ class JavaScriptCiler:
                 parentScope.anonymous_functions.remove(jsfunc)
                 parentScope.anonymous_functions.append(jsclass)
             else:
-                parentScope.functions.pop(funcName)
+                parentScope.functions.pop(funcName, None)
                 parentScope.classes[funcName] = jsclass
             # Fix starting line number
             if jsfunc.line < jsclass.line:
@@ -2667,7 +2667,7 @@ class JavaScriptCiler:
                 jsvariable = jsro
         parent = jsfunc.parent
         if not jsfunc.isAnonymous():
-            parent.functions.pop(funcName)
+            parent.functions.pop(funcName, None)
             parent.variables[funcName] = jsvariable
         return jsvariable
 
