@@ -63,6 +63,7 @@ import operator
 from cStringIO import StringIO
 import weakref
 from glob import glob
+from collections import deque
 
 from ciElementTree import Element, ElementTree, SubElement
 
@@ -1879,7 +1880,7 @@ class JavaScriptCiler:
         # state : used to store the current JS lexing state
         # state_stack : used to store JS state to return to
         self.state = S_DEFAULT
-        self.state_stack = []
+        self.state_stack = deque()
 
         # JScile will store all references for what we scan in
         self.cile = JSFile(path, mtime)
@@ -4032,7 +4033,7 @@ class JavaScriptCiler:
             self.objectArguments = current_arguments
 
     def _pushAndSetState(self, newstate=S_DEFAULT):
-        self.state_stack.append((self.state, self.bracket_depth, self.styles,
+        self.state_stack.appendleft((self.state, self.bracket_depth, self.styles,
                                  self.text, self.lastText, self.comment,
                                  self.argumentPosition,
                                  self.argumentTextPosition,
