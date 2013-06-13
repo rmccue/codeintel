@@ -938,6 +938,7 @@ class JavaScriptImportHandler(ImportHandler):
 
     # The file extensions that this import handler will use when importing.
     import_file_extensions = (".js", )
+    ignore_file_extensions = (".min.js", "-min.js", ".pkg.js", "-pkg.js", )
 
     def setCorePath(self, compiler=None, extra=None):
         self.corePath = []
@@ -957,7 +958,7 @@ class JavaScriptImportHandler(ImportHandler):
             path = os.path.join(dirname, names[i])
             if os.path.isdir(path):
                 pass
-            elif os.path.splitext(names[i])[1] in self.import_file_extensions:
+            elif names[i].endswith(self.import_file_extensions) and not names[i].endswith(self.ignore_file_extensions):
                 # XXX The list of extensions should be settable on
                 #    the ImportHandler and Komodo should set whatever is
                 #    set in prefs.
@@ -1002,7 +1003,7 @@ class JavaScriptImportHandler(ImportHandler):
         importables = {}
         for name in nondirs:
             base, ext = splitext(name)
-            if ext not in self.import_file_extensions:
+            if not name.endswith(self.import_file_extensions) or name.endswith(self.ignore_file_extensions):
                 continue
             if base in dirs:
                 importables[base] = (name, None, True)
