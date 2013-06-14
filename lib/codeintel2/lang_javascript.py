@@ -2611,7 +2611,7 @@ class JavaScriptCiler:
                         isLocal=isLocal, path=self.path)
                     del jsfunc.variables[varName]
         parent = jsfunc.parent
-        for var in jsfunc._parent_assigned_vars:
+        for var in getattr(jsfunc, '_parent_assigned_vars', []):
             log.debug("Converting function: Moved parent assigned variable %r "
                       "into the class instance", var.name)
             jsclass.members[var.name] = var
