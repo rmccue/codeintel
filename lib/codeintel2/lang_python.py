@@ -789,7 +789,7 @@ class PythonBuffer(CitadelBuffer):
 
             # Typing a space is very common so lets have a quick out before
             # doing the more correct processing:
-            if last_pos-1 < 0 or accessor.char_at_pos(last_pos-1) not in "tm,":
+            if last_pos-1 < 0 or accessor.char_at_pos(last_pos-1) not in "etm,":
                 return None
 
             working_text = accessor.text_range(max(0, last_pos-200),
@@ -816,7 +816,7 @@ class PythonBuffer(CitadelBuffer):
                                    "module-members", pos, implicit,
                                    imp_prefix=imp_prefix)
 
-            if line == "except" or line.endswith(" except"):
+            if line == "except" or line == "raise" or line.endswith((" except", " raise")):
                 return Trigger(self.lang, TRG_FORM_CPLN,
                                "available-exceptions", pos, implicit)
 
