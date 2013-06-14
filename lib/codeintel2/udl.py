@@ -600,5 +600,6 @@ class UDLCILEDriver(CILEDriver):
         return self._master_cile_driver
 
     def scan_purelang(self, buf):
+        log.info("scan_purelang: path: %r lang: %s", buf.path, buf.lang)
         return self.master_cile_driver.scan_multilang(
             buf, self.slave_csl_cile_driver)

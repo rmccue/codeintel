@@ -1238,6 +1238,7 @@ class PythonCILEDriver(CILEDriver):
     lang = lang
 
     def scan_purelang(self, buf):
+        log.info("scan_purelang: path: %r lang: %s", buf.path, buf.lang)
         # log.warn("TODO: python cile that uses elementtree")
         content = buf.accessor.text
         if isinstance(content, unicode):
@@ -1251,6 +1252,7 @@ class PythonCILEDriver(CILEDriver):
         return el
 
     def scan_binary(self, buf):
+        log.info("scan_binary: path: %r lang: %s", buf.path, buf.lang)
         from codeintel2 import pybinary
         python = buf.langintel.interpreter_from_env(buf.env)
         if not python:

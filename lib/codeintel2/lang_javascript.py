@@ -1045,7 +1045,7 @@ class JavaScriptCILEDriver(CILEDriver):
         """Given the buffer, scan the buffer tokens for CSL UDL tokens."""
 
         # print >> sys.stderr, buf.path
-        log.info("scan_multilang: path: %r", buf.path)
+        log.info("scan_multilang: path: %r lang: %s", buf.path, buf.lang)
 
         norm_path = buf.path
         if sys.platform == "win32":

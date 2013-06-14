@@ -210,6 +210,7 @@ class TclCILEDriver(CILEDriver):
                                  request.md5sum, request.mtime)
 
     def scan_purelang(self, buf):
+        log.info("scan_purelang: path: %r lang: %s", buf.path, buf.lang)
         return self.tclcile.scan_purelang(buf.accessor.text, buf.path)
 
 
