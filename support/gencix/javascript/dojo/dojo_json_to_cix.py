@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -89,11 +89,13 @@ def print_keys_values(d, depth=0):
         if isinstance(val, dict):
             print_keys_values(val, depth+1)
 
+
 def print_keys(d, depth=0):
     for key, val in d.items():
         print "%s%s" % (" " * depth, key)
         if isinstance(val, dict):
             print_keys(val, depth+1)
+
 
 def verifyType(typename):
     """Ensure the type is a known JS type or a dojo member"""
@@ -112,9 +114,10 @@ def verifyType(typename):
             return typename
     return t
 
+
 def parse_functions(dojoblob, cixclass, funcdict):
     for funcname, d in funcdict.items():
-        #print "  Function: %s" % (funcname)
+        # print "  Function: %s" % (funcname)
         namespace = funcname.split(".")
         cixelement = dojoblob
         for name in namespace[:-1]:
@@ -122,8 +125,9 @@ def parse_functions(dojoblob, cixclass, funcdict):
             cixelement = cixelement.names.get(name)
             if cixelement is None:
                 print "Creating variable: %s for namespace: %r, under cix element: %r" % (
-                        name, namespace[:-1], lastcixelement.get("name"))
-                cixelement = createCixVariable(lastcixelement, name, vartype="Object")
+                    name, namespace[:-1], lastcixelement.get("name"))
+                cixelement = createCixVariable(
+                    lastcixelement, name, vartype="Object")
         cixclass = cixelement
         method_name = namespace[-1]
         tmpclass = cixclass.names.get(method_name)
@@ -133,7 +137,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
             cixclass = tmpclass
             isCtor = True
         cixfunction = createCixFunction(cixclass, method_name)
-        #print_keys(d)
+        # print_keys(d)
         underscore = d.get("_", None)
         if not underscore:
             continue
@@ -178,7 +182,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
         returntype = meta.get("returns", {})
         if returntype:
             # Remove some comments that dojo parsing has missed
-            #print "returntype: %r" % (returntype)
+            # print "returntype: %r" % (returntype)
             if isinstance(returntype, dict):
                 print "Returntype unexpectedly is a dictionary: %r" % (returntype)
             else:
@@ -187,7 +191,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
 
         # Class members
         member_variables = meta.get("protovariables", {})
-        #print "member_variables: %r" % (member_variables)
+        # print "member_variables: %r" % (member_variables)
         # List of tuples (variable name, variable type)
         for varname, vartype in member_variables.items():
             # These go into the class
@@ -195,7 +199,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
 
         # Class variables
         variables = meta.get("variables", {})
-        #print "member_variables: %r" % (member_variables)
+        # print "member_variables: %r" % (member_variables)
         # List of tuples (variable name, variable type)
         for varname, vartype in variables.items():
             # These go into the class
@@ -216,8 +220,8 @@ def parse_functions(dojoblob, cixclass, funcdict):
         inherits = meta.get("inherits", None)
         if inherits:
             # This is for the class
-            #print "  Inherits: %s" % (inherits)
-            #if not isinstance(inherits, list):
+            # print "  Inherits: %s" % (inherits)
+            # if not isinstance(inherits, list):
             #    inherits = [inherits]
             for basename in inherits:
                 if basename.startswith("[") and basename.endswith("]"):
@@ -237,19 +241,21 @@ def parse_functions(dojoblob, cixclass, funcdict):
                            "variables", "object_inherits"):
                 print "%s%s: %r" % ("     ", key, val)
 
-        #print_keys_values(meta, depth=3)
-        #print_keys_values(meta.get("src", {}), depth=3)
+        # print_keys_values(meta, depth=3)
+        # print_keys_values(meta.get("src", {}), depth=3)
+
 
 def parse_class(dojoblob, cixclass, meta, namespace):
     # key is the dojo namespace (ex: "dojo.animation.Timer")
     # val is dictionary containing the namespace properties
     for key, val in meta.items():
-        if   key == "requires":
+        if key == "requires":
             pass
         elif key == "functions":
             parse_functions(dojoblob, cixclass, val)
         else:
             print "  Unhandled key: %s" % (key)
+
 
 def parse_classes(dojoblob, dojomodule, d):
     # key is the dojo namespace (ex: "dojo.animation.Timer")
@@ -263,18 +269,19 @@ def parse_classes(dojoblob, dojomodule, d):
         classname = namesplit[-1]
         namespace = ".".join(namesplit[:-1])
         # Ensure dojo namespace goes into dojo blob
-        #print "Key: %s" % (key)
-        #print "Namespace: %s" % (namespace)
-        #if not key or not namespace or \
+        # print "Key: %s" % (key)
+        # print "Namespace: %s" % (namespace)
+        # if not key or not namespace or \
         #   (len(namesplit) == 2 and classname[0] in string.uppercase):
         #    # Create this under dojo module
         #    print "Placing component %s (%r) under dojo" % (classname, namesplit)
         #    cixmodule = dojomodule
-        #else:
+        # else:
         #    if len(namesplit) == 2:
         #        cixmodule = createOrFindCixModule(dojoblob, key, lang="JavaScript")
         #    else:
-        #        cixmodule = createOrFindCixModule(dojoblob, namespace, lang="JavaScript")
+        # cixmodule = createOrFindCixModule(dojoblob, namespace,
+        # lang="JavaScript")
         cixelement = dojoblob
         for name in namesplit[:-1]:
             subelem = cixelement.names.get(name)
@@ -291,11 +298,13 @@ def parse_classes(dojoblob, dojomodule, d):
                 cixclass = createCixClass(cixelement, classname)
             parse_class(dojoblob, cixclass, meta, namespace)
 
+
 def parseJSONFile(dojoblob, dojomodule, filename):
     f = file(filename, "rb")
     d = simplejson.load(f)
-    #pprint(d)
+    # pprint(d)
     parse_classes(dojoblob, dojomodule, d)
+
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
@@ -307,12 +316,14 @@ def updateCix(filename, content, updatePerforce=False):
             print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
 
 # Main function
+
+
 def main(cix_filename, updatePerforce=False):
-    # 
+    #
     cixroot = createCixRoot(name="%s_v%s" % (library_name,
                                              library_version.replace(".", "")),
                             description="%s JavaScript library - version %s" % (
-                                             library_name, library_version))
+                            library_name, library_version))
     cixfile = createCixFile(cixroot, "dojo.js", lang="JavaScript")
     dojoblob = createCixModule(cixfile, "dojo_v%s" % (library_version),
                                lang="JavaScript")
@@ -326,7 +337,7 @@ def main(cix_filename, updatePerforce=False):
     svn_output = p.read()
 
     try:
-        #for filename in [directory]:
+        # for filename in [directory]:
         for filename in glob.glob(os.path.join(co_dir, "dojo*")):
             parseJSONFile(dojoblob, dojomodule, filename)
     finally:
@@ -353,5 +364,6 @@ if __name__ == '__main__':
         # Get main codeintel directory
         for i in range(4):
             cix_directory = os.path.dirname(cix_directory)
-        cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
+        cix_filename = os.path.join(
+            cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
     main(cix_filename, opts.update_perforce)

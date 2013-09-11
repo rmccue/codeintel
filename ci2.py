@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 # Author:
 #   Trent Mick (TrentM@ActiveState.com)
@@ -78,14 +78,14 @@ finally:
     del sys.path[0]
 
 
-
 #---- exceptions and globals
-
 log = logging.getLogger("codeintel.ci2")
 
 
 #---- replace Manager with out own wrapper that sets up the environment.
 _Manager = Manager
+
+
 class Manager(_Manager):
     def __init__(self):
         extra_module_dirs = os.environ.get("PYTHONPATH", "").split(os.pathsep)
@@ -106,9 +106,9 @@ def _url_from_local_path(local_path):
     return url
 
 
-
 def _isident(char):
     return "a" <= char <= "z" or "A" <= char <= "Z" or char == "_"
+
 
 def _isdigit(char):
     return "0" <= char <= "9"
@@ -117,7 +117,7 @@ def _isdigit(char):
 # Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
 class _PerLevelFormatter(logging.Formatter):
     """Allow multiple format string -- depending on the log level.
-    
+
     A "fmtFromLevel" optional arg is added to the constructor. It can be
     a dictionary mapping a log record level to a format string. The
     usual "fmt" argument acts as the default.
@@ -128,10 +128,11 @@ class _PerLevelFormatter(logging.Formatter):
             self.fmtFromLevel = {}
         else:
             self.fmtFromLevel = fmtFromLevel
+
     def format(self, record):
         record.levelname = record.levelname.lower()
         if record.levelno in self.fmtFromLevel:
-            #XXX This is a non-threadsafe HACK. Really the base Formatter
+            # XXX This is a non-threadsafe HACK. Really the base Formatter
             #    class should provide a hook accessor for the _fmt
             #    attribute. *Could* add a lock guard here (overkill?).
             _saved_fmt = self._fmt
@@ -143,6 +144,7 @@ class _PerLevelFormatter(logging.Formatter):
         else:
             return logging.Formatter.format(self, record)
 
+
 def _setup_logging():
     hdlr = logging.StreamHandler()
     defaultFmt = "%(name)s: %(levelname)s: %(message)s"
@@ -152,7 +154,9 @@ def _setup_logging():
     hdlr.setFormatter(fmtr)
     logging.root.addHandler(hdlr)
 
-#TODO: add to recipes
+# TODO: add to recipes
+
+
 def _escaped_text_from_text(text, escapes="eol"):
     r"""Return escaped version of text.
 
@@ -171,11 +175,11 @@ def _escaped_text_from_text(text, escapes="eol"):
                     replace EOL chars as above, tabs with '\t' and spaces
                     with periods ('.')
     """
-    #TODO:
+    # TODO:
     # - Add 'c-string' style.
     # - Add _escaped_html_from_text() with a similar call sig.
     import re
-    
+
     if isinstance(escapes, basestring):
         if escapes == "eol":
             escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
@@ -193,6 +197,7 @@ def _escaped_text_from_text(text, escapes="eol"):
     # '\n'.
     escapes_keys = escapes.keys()
     escapes_keys.sort(key=lambda a: len(a), reverse=True)
+
     def repl(match):
         val = escapes[match.group(0)]
         return val
@@ -201,7 +206,6 @@ def _escaped_text_from_text(text, escapes="eol"):
                      text)
 
     return escaped
-
 
 
 def _outline_ci_elem(elem, stream=sys.stdout,
@@ -214,9 +218,7 @@ def _outline_ci_elem(elem, stream=sys.stdout,
     stream.write(outline.encode(encoding))
 
 
-
 #---- mainline
-
 class Shell(cmdln.Cmdln):
     r"""ci2 -- the new Code Intel, a tool for working with source code
 
@@ -232,24 +234,24 @@ class Shell(cmdln.Cmdln):
     version = __version__
     _do_profiling = False
 
-    #XXX There is a bug in cmdln.py alignment when using this. Leave it off
+    # XXX There is a bug in cmdln.py alignment when using this. Leave it off
     #    until that is fixed. -- I think this may be fixed now.
-    #helpindent = ' '*4
+    # helpindent = ' '*4
 
     def _set_profiling(self, option, opt_str, value, parser):
         self._do_profiling = True
 
     def get_optparser(self):
         optparser = cmdln.Cmdln.get_optparser(self)
-        optparser.add_option("-v", "--verbose", 
-            action="callback", callback=_set_verbosity,
-            help="More verbose output. Repeat for more and more output.")
+        optparser.add_option("-v", "--verbose",
+                             action="callback", callback=_set_verbosity,
+                             help="More verbose output. Repeat for more and more output.")
         optparser.add_option("-L", "--log-level",
-            action="callback", callback=_set_logger_level, nargs=1, type="str",
-            help="Specify a logger level via '<logname>:<levelname>'.")
+                             action="callback", callback=_set_logger_level, nargs=1, type="str",
+                             help="Specify a logger level via '<logname>:<levelname>'.")
         optparser.add_option("-p", "--profile",
-            action="callback", callback=self._set_profiling,
-            help="Enable code profiling, prints out a method summary.")
+                             action="callback", callback=self._set_profiling,
+                             help="Enable code profiling, prints out a method summary.")
         return optparser
 
     def do_test(self, argv):
@@ -260,7 +262,8 @@ class Shell(cmdln.Cmdln):
         import subprocess
         testdir = join(dirname(__file__), "test2")
         if self._do_profiling:
-            cmd = '"%s" -m cProfile -s time test.py %s' % (sys.executable, ' '.join(argv[1:]))
+            cmd = '"%s" -m cProfile -s time test.py %s' % (
+                sys.executable, ' '.join(argv[1:]))
         else:
             cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
         env = os.environ.copy()
@@ -315,7 +318,7 @@ class Shell(cmdln.Cmdln):
             content, data = unmark_text(markedup_content)
             pos = data["pos"]
             mgr = Manager()
-            #mgr.upgrade() # Don't need it for just CSS usage.
+            # mgr.upgrade() # Don't need it for just CSS usage.
             mgr.initialize()
             try:
                 buf = mgr.buf_from_content(content, lang=lang, path="play.css")
@@ -358,7 +361,7 @@ class Shell(cmdln.Cmdln):
                 print banner("completions", '-')
                 ctlr = LogEvalController(log)
                 buf.async_eval_at_trg(trg, ctlr)
-                ctlr.wait(2) #XXX
+                ctlr.wait(2)  # XXX
                 if not ctlr.is_done():
                     ctlr.abort()
                     raise Error("XXX async eval timed out")
@@ -394,7 +397,7 @@ class Shell(cmdln.Cmdln):
                 print banner("completions", '-')
                 ctlr = LogEvalController(log)
                 buf.async_eval_at_trg(trg, ctlr)
-                ctlr.wait(30) #XXX
+                ctlr.wait(30)  # XXX
                 if not ctlr.is_done():
                     ctlr.abort()
                     raise Error("XXX async eval timed out")
@@ -403,7 +406,6 @@ class Shell(cmdln.Cmdln):
             finally:
                 mgr.finalize()
 
-        
     @cmdln.alias("up")
     def do_unpickle(self, subcmd, opts, *path_patterns):
         """Unpickle and dump the given paths.
@@ -466,7 +468,8 @@ class Shell(cmdln.Cmdln):
 
             if path.endswith(".cix"):
                 tree = tree_from_cix(open(path, 'r').read())
-                #buf = mgr.buf_from_content("", tree[0].get("lang"), path=path)
+                # buf = mgr.buf_from_content("", tree[0].get("lang"),
+                # path=path)
             else:
                 buf = mgr.buf_from_path(path, lang=opts.lang)
                 tree = buf.tree
@@ -474,6 +477,7 @@ class Shell(cmdln.Cmdln):
             if anchor is not None:
                 # Lookup the anchor in the codeintel CIX tree.
                 lpath = re.split(r'\.|::', anchor)
+
                 def blobs_from_tree(tree):
                     for file_elem in tree:
                         for blob in file_elem:
@@ -497,12 +501,13 @@ class Shell(cmdln.Cmdln):
                             elem = elem.names[name]
                         except KeyError:
                             elem = None
-                            break # try next lang blob
+                            break  # try next lang blob
                     if elem is not None:
-                        break # found one
+                        break  # found one
                 else:
-                    log.error("could not find `%s' definition (or blob) in `%s'",
-                              anchor, path)
+                    log.error(
+                        "could not find `%s' definition (or blob) in `%s'",
+                        anchor, path)
                     return 1
             else:
                 elem = tree
@@ -629,10 +634,10 @@ class Shell(cmdln.Cmdln):
                     blob = buf.blob_from_lang[lang]
                     file_elem.append(blob)
 
-                if opts.time_details: 
-                   delta = time.time() - start1
-                   sys.stderr.write("%.3f %s\n" % (delta, path)) 
-                   sys.stderr.flush()
+                if opts.time_details:
+                    delta = time.time() - start1
+                    sys.stderr.write("%.3f %s\n" % (delta, path))
+                    sys.stderr.flush()
 
             if tree is not None:
                 if opts.stripfuncvars:
@@ -640,12 +645,13 @@ class Shell(cmdln.Cmdln):
                     # functions and they take up a lot of space.
                     for function in tree.getiterator('scope'):
                         if function.get('ilk') == 'function':
-                            function[:] = [child for child in function 
+                            function[:] = [child for child in function
                                            if child.tag != 'variable']
                 if opts.pretty_print:
                     tree = pretty_tree_from_tree(tree)
                 if not quiet:
-                    sys.stdout.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                    sys.stdout.write(
+                        '<?xml version="1.0" encoding="UTF-8"?>\n')
                     ET.dump(tree)
                 if opts.time_it:
                     end = time.time()
@@ -672,7 +678,7 @@ class Shell(cmdln.Cmdln):
 
         ${cmd_usage}
         ${cmd_option_list}
-        
+
         The output includes trigger info and other stats. I.e. this is
         primarily a debugging tool.
         """
@@ -686,7 +692,7 @@ class Shell(cmdln.Cmdln):
                                do_eval=opts.do_eval)
         finally:
             mgr.finalize()
-        
+
         if opts.output == '-':
             output_path = None
             output_file = sys.stdout
@@ -702,11 +708,11 @@ class Shell(cmdln.Cmdln):
                     raise Error("`%s' exists: use -f|--force option to "
                                 "allow overwrite" % output_path)
             output_file = open(output_path, 'w')
-        #else:
+        # else:
         #    output_path = None
         #    output_file = sys.stdout
         #    #XXX Disable writing t
-        #    output_file = None 
+        #    output_file = None
         if output_file:
             output_file.write(html)
         if output_path:
@@ -718,7 +724,7 @@ class Shell(cmdln.Cmdln):
                             "for output")
             import webbrowser
             url = _url_from_local_path(output_path)
-            webbrowser.open_new(url)            
+            webbrowser.open_new(url)
 
     @cmdln.option("-c", "--css", dest="css_reference_files", action="append",
                   help="add css reference file for styling"
@@ -805,6 +811,8 @@ class Shell(cmdln.Cmdln):
             mgr.finalize()
 
 # Recipe: paths_from_path_patterns (0.3.4) in /home/trentm/tm/recipes/cookbook
+
+
 def _should_include_path(path, includes, excludes):
     """Return True iff the given path should be included."""
     from os.path import basename
@@ -832,6 +840,8 @@ def _should_include_path(path, includes, excludes):
     return True
 
 _NOT_SPECIFIED = ("NOT", "SPECIFIED")
+
+
 def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               on_error=_NOT_SPECIFIED):
@@ -934,7 +944,7 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 # 'includes' SHOULD affect whether a dir is yielded.
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
-                   ) and _should_include_path(path, includes, excludes):
+                    ) and _should_include_path(path, includes, excludes):
                     yield path
 
                 # However, if recursive, 'includes' should NOT affect
@@ -964,6 +974,8 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
 
 
 _v_count = 0
+
+
 def _set_verbosity(option, opt_str, value, parser):
     global _v_count, log
     _v_count += 1
@@ -974,6 +986,7 @@ def _set_verbosity(option, opt_str, value, parser):
         log.setLevel(logging.DEBUG)
         logging.getLogger("codeintel").setLevel(logging.DEBUG)
 
+
 def _set_logger_level(option, opt_str, value, parser):
     # Optarg is of the form '<logname>:<levelname>', e.g.
     # "codeintel:DEBUG", "codeintel.db:INFO".
@@ -981,11 +994,13 @@ def _set_logger_level(option, opt_str, value, parser):
     llevel = getattr(logging, llevelname)
     logging.getLogger(lname).setLevel(llevel)
 
+
 def _do_main(argv):
     return Shell().main(sys.argv)
 
+
 def main(argv=sys.argv):
-    _setup_logging() # defined in recipe:pretty_logging
+    _setup_logging()  # defined in recipe:pretty_logging
     try:
         retval = _do_main(argv)
     except KeyboardInterrupt:
@@ -1016,5 +1031,3 @@ def main(argv=sys.argv):
 
 if __name__ == "__main__":
     main(sys.argv)
-
-

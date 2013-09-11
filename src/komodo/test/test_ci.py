@@ -18,6 +18,7 @@ finally:
 
 log = logging.getLogger("test.codeintel.xpcom")
 
+
 class ServiceTestCase(_CodeIntelTestCaseBase):
     def test_svc(self):
         """Test things directly on the codeintel service"""
@@ -34,14 +35,16 @@ class ServiceTestCase(_CodeIntelTestCaseBase):
         langs = set(self.svc.get_citadel_langs())
         self.assertIn("Ruby", langs)
         # This fails for now; presumably a PyXPCOM issue?
-        #self.assertIs(self.doc.ciBuf,
+        # self.assertIs(self.doc.ciBuf,
         #              self.svc.buf_from_koIDocument(self.doc))
         self.assertTrue(self.svc.is_xml_lang("HTML"))
         self.assertIn("HTML5", self.svc.get_xml_langs())
 
+
 class PythonBufferTestCase(_BufferTestCaseBase):
     language = "Python"
     longMessage = True
+
     def setUp(self):
         _BufferTestCaseBase.setUp(self)
         self.doc.buffer, self.positions = unmark_text(dedent(u"""
@@ -104,6 +107,7 @@ class PythonBufferTestCase(_BufferTestCaseBase):
         self.assertEqual(handler.calltip, calltip)
         with spinner:
             positions = []
+
             def callback(start, end):
                 positions[:] = [start, end]
             spinner.callback = callback
@@ -132,6 +136,7 @@ class PythonBufferTestCase(_BufferTestCaseBase):
         self.assertEqual([handler.defns[0].line],
                          lines_from_pos(self.doc.buffer, [self.positions[5]]))
         self.assertEqual(handler.defns[0].ilk, "variable")
+
 
 class PerlBufferTestCase(_BufferTestCaseBase):
     language = "Perl"

@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 # Author:
 #   Trent Mick (TrentM@ActiveState.com)
@@ -55,30 +55,32 @@ import optparse
 import time
 
 
-
 #---- exceptions
-
 class MakeError(Exception):
     pass
+
 
 class MakeTargetError(MakeError):
     def __init__(self, err, target=None):
         self.err = err
         self.target = target
+
     def __str__(self):
         if self.target is not None:
             return "[%s] %s" % (self.target, self.err)
         else:
             return str(self.err)
 
+
 class IllegalMakefileError(MakeError):
     """Semantic error in makefile.
-    
+
     'path' is the path to the makefile.
     """
     def __init__(self, err, path=None):
         self.err = err
         self.path = path
+
     def __str__(self):
         if self.target is not None:
             return "%s: %s" % (self.path, self.err)
@@ -86,12 +88,10 @@ class IllegalMakefileError(MakeError):
             return str(self.err)
 
 
-
 #---- main functions
-
 def default(func):
     """Decorator to mark a make_*() target as the default.
-    
+
     Example:
         @make.default
         def make_foo(log, opts):
@@ -100,9 +100,10 @@ def default(func):
     func.default = True
     return func
 
+
 def makes(*outputs):
     """Decorator to specify output for a make_*() target.
-    
+
     Example:
         @make.makes("foo.txt", "bar.txt")
         def make_foo(log, opts):
@@ -115,9 +116,10 @@ def makes(*outputs):
         return f
     return decorate
 
+
 def dep(*deps):
     """Decorator to specify dependencies for a make_*() target.
-    
+
     Example:
         @make.dep("eggs.txt", "bacon.txt")
         def make_breakfast(log, opts):
@@ -130,8 +132,9 @@ def dep(*deps):
         return f
     return decorate
 
+
 def find_makefile_path(makefile_opt):
-    #XXX Eventually might do the Cons-thang: walk up dir tree looking
+    # XXX Eventually might do the Cons-thang: walk up dir tree looking
     #    for Makefile.py.
     makefile_path = xpath(makefile_opt or "Makefile.py")
     if not exists(makefile_path):
@@ -160,7 +163,7 @@ class Maker(object):
         func_from_target = {}
         for name, attr in self.module.__dict__.items():
             if name.startswith('make_'):
-                func_from_target[ name[len('make_'):] ] = attr
+                func_from_target[name[len('make_'):]] = attr
         self.func_from_target = func_from_target
 
         default_targets = []
@@ -176,7 +179,7 @@ class Maker(object):
                                        % ', '.join(default_targets))
 
     def get_deps(self, target):
-        #XXX Where to properly handle no such target?
+        # XXX Where to properly handle no such target?
         target_func = self.func_from_target[target]
         if hasattr(target_func, "deps"):
             return target_func.deps
@@ -184,7 +187,7 @@ class Maker(object):
             return []
 
     def get_outputs(self, target):
-        #XXX Where to properly handle no such target?
+        # XXX Where to properly handle no such target?
         target_func = self.func_from_target[target]
         if hasattr(target_func, "outputs"):
             return target_func.outputs
@@ -200,7 +203,7 @@ class Maker(object):
         Returns (<num-made>, <num-failed>) where <num-made> only
         includes those that needed to be rebuilt.
         """
-        if not targets: # Use the default target.
+        if not targets:  # Use the default target.
             if self.default_target:
                 targets = [self.default_target]
             else:
@@ -250,11 +253,12 @@ class Maker(object):
                 need_to_remake = True
             else:
                 need_to_remake = False
-                oldest_output_mtime = min([os.stat(o).st_mtime for o in outputs])
+                oldest_output_mtime = min([os.stat(
+                    o).st_mtime for o in outputs])
                 for dep in deps:
                     yougest_dep_mtime = max(
                         [os.stat(o).st_mtime for o in self.get_outputs(dep)])
-                    if yougest_dep_mtime > oldest_output_mtime: # 4.
+                    if yougest_dep_mtime > oldest_output_mtime:  # 4.
                         word = "newer"
                         need_to_remake = True
                         # Optmization: We can stop processing here because
@@ -316,9 +320,7 @@ class Maker(object):
             raise MakeTargetError(retval, target)
 
 
-
 #---- internal support functions
-
 def xpath(*parts):
     """Massage a Unix-like path into an appropriately native one."""
     if len(parts) == 1:
@@ -330,10 +332,12 @@ def xpath(*parts):
     return normpath(expanduser(path))
 
 # Recipe: module_from_path (1.0) in /Users/trentm/tm/recipes/cookbook
+
+
 def _module_from_path(path):
     from os.path import dirname, basename, splitext
     import imp
-    dir  = dirname(path) or os.curdir
+    dir = dirname(path) or os.curdir
     name = splitext(basename(path))[0]
     iinfo = imp.find_module(name, [dir])
     return imp.load_module(name, *iinfo)
@@ -341,6 +345,8 @@ def _module_from_path(path):
 
 # Recipe: run (0.5.3) in C:\trentm\tm\recipes\cookbook
 _RUN_DEFAULT_LOGSTREAM = ("RUN", "DEFAULT", "LOGSTREAM")
+
+
 def __run_log(logstream, msg, *args, **kwargs):
     if not logstream:
         pass
@@ -355,13 +361,14 @@ def __run_log(logstream, msg, *args, **kwargs):
     else:
         logstream(msg, *args, **kwargs)
 
+
 def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command.
 
         "cmd" is the command to run
-        "logstream" is an optional logging stream on which to log the 
-            command. If None, no logging is done. If unspecifed, this 
-            looks for a Logger instance named 'log' and logs the command 
+        "logstream" is an optional logging stream on which to log the
+            command. If None, no logging is done. If unspecifed, this
+            looks for a Logger instance named 'log' and logs the command
             on log.debug().
 
     Raises OSError is the command returns a non-zero exit status.
@@ -373,17 +380,18 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
     else:
         status = retval
     if status:
-        #TODO: add std OSError attributes or pick more approp. exception
+        # TODO: add std OSError attributes or pick more approp. exception
         raise OSError("error running '%s': %r" % (cmd, status))
+
 
 def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command in the given working directory.
 
         "cmd" is the command to run
         "cwd" is the directory in which the commmand is run.
-        "logstream" is an optional logging stream on which to log the 
-            command. If None, no logging is done. If unspecifed, this 
-            looks for a Logger instance named 'log' and logs the command 
+        "logstream" is an optional logging stream on which to log the
+            command. If None, no logging is done. If unspecifed, this
+            looks for a Logger instance named 'log' and logs the command
             on log.debug().
 
     Raises OSError is the command returns a non-zero exit status.
@@ -415,12 +423,13 @@ class _MakeLogFormatter(logging.Formatter):
         if target:
             fmt += "[%(target)s] "
         if record.levelno != logging.INFO:
-            fmt += "%(levelname)s: " 
+            fmt += "%(levelname)s: "
         fmt += "%(message)s"
         return fmt
+
     def format(self, record):
-        record.levelname = record.levelname.lower() # uppercase is ugly
-        #XXX This is a non-threadsafe HACK. Really the base Formatter
+        record.levelname = record.levelname.lower()  # uppercase is ugly
+        # XXX This is a non-threadsafe HACK. Really the base Formatter
         #    class should provide a hook accessor for the _fmt
         #    attribute. *Could* add a lock guard here (overkill?).
         _saved_fmt = self._fmt
@@ -430,15 +439,18 @@ class _MakeLogFormatter(logging.Formatter):
         finally:
             self._fmt = _saved_fmt
 
+
 class _MakeLogger(logging.Logger):
     """A Logger that passes on its "target" attr to created LogRecord's
-    for the benefit of the handling Formatter. 
+    for the benefit of the handling Formatter.
     """
     target = None
+
     def makeRecord(self, *args):
         record = logging.Logger.makeRecord(self, *args)
         record.target = self.target
         return record
+
 
 def _setup_logging():
     logging.setLoggerClass(_MakeLogger)
@@ -461,14 +473,14 @@ def main(argv=sys.argv):
     parser = optparse.OptionParser(prog="make", usage=usage, version=version,
                                    description=__doc__)
     parser.add_option("-v", "--verbose", dest="log_level",
-        action="store_const", const=logging.DEBUG,
-        help="more verbose output")
+                      action="store_const", const=logging.DEBUG,
+                      help="more verbose output")
     parser.add_option("-q", "--quiet", dest="log_level",
-        action="store_const", const=logging.WARNING,
-        help="quieter output")
+                      action="store_const", const=logging.WARNING,
+                      help="quieter output")
     parser.add_option("-f", dest="makefile_path",
-        help="specify the makefile (defaults to Makefile.py in the "
-             "current directory)")
+                      help="specify the makefile (defaults to Makefile.py in the "
+                      "current directory)")
 ##    parser.add_option("-G", "--generate-makefile", action="store_true",
 ##        help="generate a GNU Makefile from the given Makefile.py")
     parser.set_defaults(log_level=logging.INFO)
@@ -480,7 +492,7 @@ def main(argv=sys.argv):
     before = time.time()
     maker.make(*targets)
     after = time.time()
-    #XXX Should use the state object to keep running total of *all*
+    # XXX Should use the state object to keep running total of *all*
     #    targets re-made. The top-level number here is useless.
     log.info("%d targets made in %.2fs.", maker.num_targets_made, after-before)
 
@@ -495,7 +507,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if hasattr(exc_info[0], "__name__"):
-            #log.error("%s: %s", exc_info[0].__name__, exc_info[1])
+            # log.error("%s: %s", exc_info[0].__name__, exc_info[1])
             log.error(exc_info[1])
         else:  # string exception
             log.error(exc_info[0])
@@ -506,5 +518,3 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(retval)
-
-

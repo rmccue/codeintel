@@ -9,17 +9,19 @@ from collections import namedtuple
 
 log = logging.getLogger("test.codeintel.xpcom")
 
+
 class _CodeIntelTestCaseBase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        #self.log = log.getChild(self.__class__.__name__)
+        # self.log = log.getChild(self.__class__.__name__)
 
     @classmethod
     def setUpClass(cls):
         """Start the codeintel service once to make sure the database is ready
         """
         svc = Cc["@activestate.com/koCodeIntelService;1"].getService()
-        tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager)
+        tm = Cc["@mozilla.org/thread-manager;1"].getService(
+            Ci.nsIThreadManager)
         start = time.time()
         ready = set()
         callback = lambda status, data: ready.add(True)
@@ -55,7 +57,8 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         @param timeout {int} Timeout in seconds
         @param action {str} Description for what to wait for (for the timeout)
         """
-        tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager)
+        tm = Cc["@mozilla.org/thread-manager;1"].getService(
+            Ci.nsIThreadManager)
         start = time.time()
         while not callback():
             if timeout is not None:
@@ -71,9 +74,11 @@ class _CodeIntelTestCaseBase(unittest.TestCase):
         self.svc.deactivate()
         self.svc = None
 
+
 class _BufferTestCaseBase(_CodeIntelTestCaseBase):
     language = None
     trg = None
+
     def setUp(self):
         _CodeIntelTestCaseBase.setUp(self)
         # get a document to work with
@@ -88,36 +93,43 @@ class _BufferTestCaseBase(_CodeIntelTestCaseBase):
         self.buf = None
         _CodeIntelTestCaseBase.tearDown(self)
 
+
 class AsyncSpinner(object):
     def __init__(self, testcase, timeout=30, callback=None):
         self.testcase = testcase
         self.timeout = timeout
         self.callback = callback
+
     def __enter__(self):
         self._done = False
+
     def __exit__(self, *args):
         if any(args):
-            return # Exception was raised
-        tm = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager)
+            return  # Exception was raised
+        tm = Cc["@mozilla.org/thread-manager;1"].getService(
+            Ci.nsIThreadManager)
         t = tm.currentThread
         start = time.time()
         while not self._done:
             if self.timeout is not None:
                 self.testcase.assertLess(time.time(), start + self.timeout,
                                          "Timed out waiting")
-            time.sleep(0.1) # Rest a bit, let other things happen
+            time.sleep(0.1)  # Rest a bit, let other things happen
             while t.hasPendingEvents():
                 t.processNextEvent(True)
+
     def __call__(self, *args, **kwargs):
         log.debug("callback! %r %r %r", self.callback, args, kwargs)
         if self.callback:
             self.callback(*args, **kwargs)
         self._done = True
 
+
 class UIHandler(object):
-    _com_interfaces_ = [ Ci.koICodeIntelCompletionUIHandler ]
+    _com_interfaces_ = [Ci.koICodeIntelCompletionUIHandler]
     _done = False
     AutoCompleteInfo = namedtuple("AutoCompleteInfo", "completion type")
+
     def __init__(self, callback=None):
         self.callback = callback
 

@@ -1,21 +1,26 @@
 """hi.py - say hi"""
-import sys, getopt
+import sys
+import getopt
 
 __version__ = "1.0.0"
+
 
 class Greeter(object):
     "a helper class for greeting people"
     def __init__(self, name=None):
         self.name = name
+
     def greet(self):
         if self.name:
             print "hi,", self.name
         else:
             print "hi there"
 
+
 def hi(name=None):
     g = Greeter(name)
     g.greet()
+
 
 def main(argv):
     try:
@@ -31,4 +36,4 @@ def main(argv):
     return hi(name)
 
 if __name__ == "__main__":
-    sys.exit( main(sys.argv) )
+    sys.exit(main(sys.argv))

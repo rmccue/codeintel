@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -57,9 +57,11 @@ import string
 
 # Shared code for cix generation
 from codeintel2.gencix_utils import *
-#from cix_utils import *
+# from cix_utils import *
 
 # Search for information about the argument name given
+
+
 def findTypeInfo(name, docsplit):
     for text in docsplit[:-1]:  # Last one is the rest of the documentation
         sp = text.split(" ", 1)
@@ -69,6 +71,8 @@ def findTypeInfo(name, docsplit):
     return (None, None)
 
 # Get method information from the documentation text
+
+
 def getMethodInformation(doctext):
     signature = None
     arguments = {}
@@ -90,7 +94,7 @@ def getMethodInformation(doctext):
             # Work out the signature
             pos = len(returnText) - 1
             signature = ""
-            while pos >=0:
+            while pos >= 0:
                 c = returnText[pos]
                 if c not in string.letters and c not in string.digits and \
                    c not in "_":
@@ -100,7 +104,7 @@ def getMethodInformation(doctext):
                     break
                 pos -= 1
             # Work out the arguments
-            args = [ x.strip() for x in argsText.split(",") ]
+            args = [x.strip() for x in argsText.split(",")]
             leftover = s[end+1:]
             psplit = leftover.split("Parameters: ")
             if len(psplit) > 1:
@@ -117,6 +121,7 @@ def getMethodInformation(doctext):
             else:
                 doctext = sp[0] + psplit[0]
     return arguments, returns, signature, doctext
+
 
 def generateCIXFromXML(root):
     # Find all main doc namespaces
@@ -137,7 +142,6 @@ def generateCIXFromXML(root):
             cixscope = createCixClass(cixmodule, "Window")
         else:
             cixscope = createCixVariable(cixmodule, namespace)
-            
 
         # subnamespaces is used to hold a sub namespace
         # Example: in the window namespace, then there is a navigator namespace
@@ -145,7 +149,7 @@ def generateCIXFromXML(root):
 
         for subgroup in group.findall('./group'):
             groupname = subgroup.attrib["name"]
-            #print "  %s:" % (subgroup.attrib["name"])
+            # print "  %s:" % (subgroup.attrib["name"])
             if groupname == "Properties":
                 createCixMethod = createCixVariable
             elif groupname == "Methods":
@@ -192,14 +196,15 @@ def generateCIXFromXML(root):
                         cixelement = createCixMethod(cixvariable, sp[1])
                     else:
                         if elementname == "document":
-                            cixelement = createCixMethod(cixscope, elementname, vartype="HTMLDocument")
+                            cixelement = createCixMethod(
+                                cixscope, elementname, vartype="HTMLDocument")
                         else:
                             cixelement = createCixMethod(cixscope, elementname)
                         subnamespaces[elementname] = cixelement
                 if cixelement is not None:
                     if groupname == "Methods" and doctext:
                         # See if the documentation shows the arguments
-                        #print "elementname: %r" % (elementname)
+                        # print "elementname: %r" % (elementname)
                         args, ret, sig, doctext = getMethodInformation(doctext)
                         if sig:
                             setCixSignature(cixelement, sig)
@@ -209,14 +214,16 @@ def generateCIXFromXML(root):
                                 argName = argName.strip('"\'')
                                 argType = standardizeJSType(argDetails[0])
                                 argDoc = argDetails[1]
-                                addCixArgument(cixelement, argName, argType, argDoc)
+                                addCixArgument(
+                                    cixelement, argName, argType, argDoc)
                     if doctext:
                         setCixDoc(cixelement, doctext, parse=True)
 
-                #print "    %r" % element.attrib["name"]
-                #for desc in element.findall('./description'):
+                # print "    %r" % element.attrib["name"]
+                # for desc in element.findall('./description'):
                 #    print "      Doc: %r" % desc.text
     return cix
+
 
 def main():
     tree = ElementTree()
@@ -225,7 +232,8 @@ def main():
 
     cix_dom1 = generateCIXFromXML(root)
     # Write out the cix
-    f = file(os.path.join(os.path.dirname(__file__), "dom0.cix"), "w").write(get_cix_string(cix_dom1))
+    f = file(os.path.join(os.path.dirname(
+        __file__), "dom0.cix"), "w").write(get_cix_string(cix_dom1))
 
 # When run from command line
 if __name__ == '__main__':

@@ -13,7 +13,7 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with Porcupine; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#===============================================================================
+#=========================================================================
 "Security Policy related classes"
 
 import types
@@ -21,44 +21,41 @@ import types
 from porcupine.db import db
 from porcupine import serverExceptions
 
+
 def policymethod(policyid):
     class PolicyMethod(object):
         def __init__(self, function):
             self.func = function
             self.name = function.func_name
             self.__doc__ = function.func_doc
-            
+
         def __get__(self, servlet, servlet_class):
             policy = db.getItem(policyid)
             user = servlet.session.user
-            
+
             if self.userHasPolicy(user, policy):
                 return types.MethodType(self.func, servlet, servlet_class)
             else:
                 raise serverExceptions.PolicyViolation, \
-                "This action is restricted due to policy '%s'" \
-                % policy.displayName.value
-                
+                    "This action is restricted due to policy '%s'" \
+                    % policy.displayName.value
+
         def userHasPolicy(self, user, policy):
             policyGranted = policy.policyGranted.value
-            
+
             userID = user._id
             if userID in policyGranted or user.isAdmin():
                 return True
-            
+
             memberOf = ['everyone']
             memberOf.extend(user.memberof.value)
             if hasattr(user, 'authenticate'):
-                memberOf.extend(['authusers']) 
-            
+                memberOf.extend(['authusers'])
+
             for groupid in memberOf:
                 if groupid in policyGranted:
                     return True
-            
+
             return False
-    
+
     return PolicyMethod
-    
-
-
-        

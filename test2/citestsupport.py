@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """support for codeintel test modules"""
@@ -57,24 +57,31 @@ if _xpcom_:
     from xpcom import components
 
 
-
 #---- globals
-
 test_db_base_dir = join(dirname(abspath(__file__)), "tmp-db-base-dir")
 
 
-
 #---- test support class (CodeIntelTestCase) and other support stuff
-
 class _CaptureEvalController(EvalController):
     log = None
+
     def _log(self, lvl, msg, *args):
-        if self.log is None: self.log = []
+        if self.log is None:
+            self.log = []
         self.log.append((lvl, msg % args))
-    def debug(self, msg, *args): self._log("debug", msg, *args)
-    def  info(self, msg, *args): self._log( "info", msg, *args)
-    def  warn(self, msg, *args): self._log( "warn", msg, *args)
-    def error(self, msg, *args): self._log("error", msg, *args)
+
+    def debug(self, msg, *args):
+        self._log("debug", msg, *args)
+
+    def info(self, msg, *args):
+        self._log("info", msg, *args)
+
+    def warn(self, msg, *args):
+        self._log("warn", msg, *args)
+
+    def error(self, msg, *args):
+        self._log("error", msg, *args)
+
 
 class CodeIntelTestCase(unittest.TestCase):
     # Subclasses can override this to have setUp pass these settings to the
@@ -105,7 +112,8 @@ class CodeIntelTestCase(unittest.TestCase):
                 env = SimplePrefsEnvironment(**cls._ci_env_prefs_)
 
             def get_extra_module_dirs():
-                spec = join(dirname(__file__), "..", "..", "udl", "skel", "*", "pylib")
+                spec = join(dirname(
+                    __file__), "..", "..", "udl", "skel", "*", "pylib")
                 for d in glob(spec):
                     if glob(join(spec, "lang_*.py")):
                         yield d
@@ -134,6 +142,7 @@ class CodeIntelTestCase(unittest.TestCase):
         # have to initialize the manager on every test, icky!
         def setUp(self):
             self.__class__.ci_setUpClass(self)
+
         def tearDown(self):
             self.__class__.ci_tearDownClass(self)
     else:
@@ -147,6 +156,7 @@ class CodeIntelTestCase(unittest.TestCase):
         and multi-lang uses of a given lang.
         """
         return content
+
     def adjust_pos(self, pos):
         """A accompanying hook for `adjust_content' to adjust trigger
         pos values accordingly.
@@ -165,9 +175,9 @@ class CodeIntelTestCase(unittest.TestCase):
             name = "buf-" + md5(markedup_bytes).hexdigest()[:16]
             path = os.path.join("<Unsaved>", name)
         content, data = unmark_text(self.adjust_content(markedup_content))
-        #print banner(path)
-        #sys.stdout.write(content)
-        #print banner(None)
+        # print banner(path)
+        # sys.stdout.write(content)
+        # print banner(None)
         buf = self.mgr.buf_from_content(content, lang=lang, path=path,
                                         env=env)
         return buf, data
@@ -178,9 +188,10 @@ class CodeIntelTestCase(unittest.TestCase):
         trg = buf.trg_from_pos(data["pos"], implicit=implicit)
         return buf, trg
 
-    def assertCITDLExprUnderPosIs(self, markedup_content, citdl_expr, lang=None,
-                          prefix_filter=None, implicit=True, trigger_name=None,
-                          **fields):
+    def assertCITDLExprUnderPosIs(
+        self, markedup_content, citdl_expr, lang=None,
+        prefix_filter=None, implicit=True, trigger_name=None,
+            **fields):
         """Assert that the CITDL expression at the current position
         is as expected.
 
@@ -208,7 +219,8 @@ class CodeIntelTestCase(unittest.TestCase):
             actual_citdl_expr, actual_prefix_filter \
                 = langintel.citdl_expr_and_prefix_filter_from_trg(buf, trg)
         else:
-            #actual_citdl_expr = langintel.citdl_expr_under_pos(buf, data["pos"])
+            # actual_citdl_expr = langintel.citdl_expr_under_pos(buf,
+            # data["pos"])
             trg = Trigger(lang, TRG_FORM_DEFN, trigger_name,
                           data["pos"], implicit=implicit,
                           **fields)
@@ -221,7 +233,7 @@ class CodeIntelTestCase(unittest.TestCase):
                          % (lang, citdl_expr, actual_citdl_expr,
                             indent(markedup_content)))
         if prefix_filter is not None:
-            XXX #TODO: compare prefix_filter to given value
+            XXX  # TODO: compare prefix_filter to given value
 
     def _assertDefnMatches(self, buf, pos, lang=None, **fields):
         ctlr = _CaptureEvalController()
@@ -229,11 +241,12 @@ class CodeIntelTestCase(unittest.TestCase):
         defns = buf.defns_from_trg(trg, ctlr=ctlr)
         if not defns:
             self.fail("unexpectedly did not find a definition in %r at pos %d\n"
-                "  eval log\n%s\n"
-                "  buffer:\n%s"
-                % (buf, pos,
-                   indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
-                   indent(buf.accessor.text)))
+                      "  eval log\n%s\n"
+                      "  buffer:\n%s"
+                      % (buf, pos,
+                         indent('\n'.join('%5s: %s' % (
+                                          lvl, m) for lvl, m in ctlr.log)),
+                         indent(buf.accessor.text)))
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
         defn = defns[0]
@@ -243,15 +256,16 @@ class CodeIntelTestCase(unittest.TestCase):
             except AttributeError:
                 actual_value = None
             self.assertEqual(actual_value, value,
-                "%s definition, unexpected value for field %r\n"
-                "  defn:     %r\n"
-                "  expected: %r\n"
-                "  got:      %r\n"
-                "  eval log\n%s\n"
-                "  buffer:\n%s"
-                % (buf.lang, name, defn, value, actual_value,
-                   indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
-                   indent(buf.accessor.text)))
+                             "%s definition, unexpected value for field %r\n"
+                             "  defn:     %r\n"
+                             "  expected: %r\n"
+                             "  got:      %r\n"
+                             "  eval log\n%s\n"
+                             "  buffer:\n%s"
+                             % (buf.lang, name, defn, value, actual_value,
+                                indent('\n'.join('%5s: %s' % (
+                                                 lvl, m) for lvl, m in ctlr.log)),
+                                indent(buf.accessor.text)))
 
     def assertDefnMatches(self, markedup_content, lang=None, **fields):
         if lang is None:
@@ -274,11 +288,12 @@ class CodeIntelTestCase(unittest.TestCase):
         defns = buf.defns_from_trg(trg, ctlr=ctlr)
         if not defns:
             self.fail("unexpectedly did not find a definition in %r at pos %d\n"
-                "  eval log\n%s\n"
-                "  buffer:\n%s"
-                % (buf, pos,
-                   indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
-                   indent(buf.accessor.text)))
+                      "  eval log\n%s\n"
+                      "  buffer:\n%s"
+                      % (buf, pos,
+                         indent('\n'.join('%5s: %s' % (
+                                          lvl, m) for lvl, m in ctlr.log)),
+                         indent(buf.accessor.text)))
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
 
@@ -315,13 +330,14 @@ class CodeIntelTestCase(unittest.TestCase):
                       for defn_repr, count in count_from_defn_repr.items()
                       if count > 1]
         self.failIf(defn_dupes,
-            "unexpectedly got duplicate completions at the given position\n"
-            "  duplicates:\n%s\n"
-            "  eval log\n%s\n"
-            "  buffer:\n%s"
-            % (indent('\n'.join('%d of %s' % d for d in defn_dupes)),
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
-               indent(markedup_content)))
+                    "unexpectedly got duplicate completions at the given position\n"
+                    "  duplicates:\n%s\n"
+                    "  eval log\n%s\n"
+                    "  buffer:\n%s"
+                    % (indent('\n'.join('%d of %s' % d for d in defn_dupes)),
+                       indent('\n'.join('%5s: %s' % (
+                       lvl, m) for lvl, m in ctlr.log)),
+                       indent(markedup_content)))
 
     def assertTriggerMatches(self, markedup_content, lang=None,
                              implicit=True, env=None, **fields):
@@ -340,10 +356,10 @@ class CodeIntelTestCase(unittest.TestCase):
             except AttributeError:
                 actual_value = trg.extra[name]
             self.assertEqual(actual_value, value,
-                "unexpected %s trigger '%s' value: expected %r, "
-                "got %r, buffer:\n%s"
-                % (lang, name, value, actual_value,
-                   indent(markedup_content)))
+                             "unexpected %s trigger '%s' value: expected %r, "
+                             "got %r, buffer:\n%s"
+                             % (lang, name, value, actual_value,
+                                indent(markedup_content)))
 
     # Used when a position generates a trigger, but it's not the one specified
     def assertTriggerDoesNotMatch(self, markedup_content, lang=None,
@@ -363,10 +379,10 @@ class CodeIntelTestCase(unittest.TestCase):
             except AttributeError:
                 actual_value = trg.extra[name]
             self.assertNotEqual(actual_value, value,
-                "unexpected %s trigger '%s' value: expected not %r, "
-                "got %r, buffer:\n%s"
-                % (lang, name, value, actual_value,
-                   indent(markedup_content)))
+                                "unexpected %s trigger '%s' value: expected not %r, "
+                                "got %r, buffer:\n%s"
+                                % (lang, name, value, actual_value,
+                                   indent(markedup_content)))
 
     def assertNoTrigger(self, markedup_content, lang=None, implicit=True,
                         env=None):
@@ -378,7 +394,6 @@ class CodeIntelTestCase(unittest.TestCase):
             self.fail("unexpectedly found a %s trigger %r when didn't expect "
                       "one, buffer:\n%s"
                       % (lang, trg, indent(markedup_content)))
-
 
     def assertPrecedingTriggerMatches(self, markedup_content, lang=None,
                                       **fields):
@@ -397,10 +412,10 @@ class CodeIntelTestCase(unittest.TestCase):
         for name, value in fields.items():
             actual_value = getattr(trg, name)
             self.assertEqual(actual_value, value,
-                "unexpected preceding %s trigger '%s' value: expected %r, "
-                "got %r, buffer:\n%s"
-                % (lang, name, value, actual_value,
-                   indent(markedup_content)))
+                             "unexpected preceding %s trigger '%s' value: expected %r, "
+                             "got %r, buffer:\n%s"
+                             % (lang, name, value, actual_value,
+                                indent(markedup_content)))
 
     def assertNoPrecedingTrigger(self, markedup_content, lang=None):
         if lang is None:
@@ -425,21 +440,21 @@ class CodeIntelTestCase(unittest.TestCase):
         buf.scan(skip_scan_time_check=True)
         actual_blob, actual_lpath = buf.scoperef_from_pos(data["pos"])
         self.failUnlessEqual(lpath, actual_lpath,
-            "unexpected %s scope lookup path (lpath) at the given position\n"
-            "  expected: %r\n"
-            "  got:      %r\n"
-            "  buffer:\n%s"
-            % (self.lang, lpath,
-               actual_lpath,
-               indent(markedup_content)))
+                             "unexpected %s scope lookup path (lpath) at the given position\n"
+                             "  expected: %r\n"
+                             "  got:      %r\n"
+                             "  buffer:\n%s"
+                             % (self.lang, lpath,
+                                actual_lpath,
+                                indent(markedup_content)))
 
     def assertCompletionsAre2(self, buf, pos, completions, lang=None, implicit=True, env=None):
         if lang is None:
             lang = self.lang
         markedup_content = markup_text(buf.accessor.text, pos=pos)
         trg = buf.trg_from_pos(pos, implicit=implicit)
-        self._assertCompletionsAre(markedup_content, buf, trg, completions, lang, implicit)
-        
+        self._assertCompletionsAre(
+            markedup_content, buf, trg, completions, lang, implicit)
 
     def assertCompletionsAre(self, markedup_content, completions,
                              lang=None, implicit=True, env=None):
@@ -447,16 +462,17 @@ class CodeIntelTestCase(unittest.TestCase):
             lang = self.lang
         buf, trg = self._get_buf_and_trg(markedup_content, lang,
                                          implicit=implicit, env=env)
-        self._assertCompletionsAre(markedup_content, buf, trg, completions, lang, implicit)
+        self._assertCompletionsAre(
+            markedup_content, buf, trg, completions, lang, implicit)
 
     def _assertCompletionsAre(self, markedup_content, buf, trg, completions,
-                             lang, implicit):
+                              lang, implicit):
         if trg is None:
             self.fail("given position is not a %s trigger point, "
                       "expected completions to be %r:\n%s"
                       % (lang, completions, indent(markedup_content)))
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
         self.assertEqual(completions, actual_completions,
@@ -469,9 +485,11 @@ class CodeIntelTestCase(unittest.TestCase):
             "  buffer:\n%s"
             % (lang, completions,
                actual_completions,
-               list(set(actual_completions or []).difference(completions or [])),
-               list(set(completions or []).difference(actual_completions or [])),
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               list(set(actual_completions or []).difference(
+                   completions or [])),
+               list(set(completions or []).difference(
+                   actual_completions or [])),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def assertNoDuplicateCompletions(self, markedup_content, lang=None,
@@ -486,7 +504,7 @@ class CodeIntelTestCase(unittest.TestCase):
                       % (lang, indent(markedup_content)))
 
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
         if actual_completions is None:
@@ -507,13 +525,13 @@ class CodeIntelTestCase(unittest.TestCase):
             "  eval log\n%s\n"
             "  buffer:\n%s"
             % (indent('\n'.join('%d of %r' % d for d in cpln_dupes)),
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def _assertCompletionsInclude(self, buf, trg, completions):
         markedup_content = markup_text(buf.accessor.text, pos=trg.pos)
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
         missing_completions = [c for c in completions
@@ -528,7 +546,7 @@ class CodeIntelTestCase(unittest.TestCase):
             "  buffer:\n%s"
             % (buf.lang, missing_completions, completions,
                actual_completions,
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def assertCompletionsInclude(self, markedup_content, completions,
@@ -559,7 +577,7 @@ class CodeIntelTestCase(unittest.TestCase):
     def _assertCompletionsDoNotInclude(self, buf, trg, completions):
         markedup_content = markup_text(buf.accessor.text, pos=trg.pos)
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_completions = buf.cplns_from_trg(trg, ctlr=ctlr)
         completions_that_shouldnt_be_there = [
@@ -575,7 +593,7 @@ class CodeIntelTestCase(unittest.TestCase):
             "  buffer:\n%s"
             % (buf.lang, completions_that_shouldnt_be_there, completions,
                actual_completions,
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def assertCompletionsDoNotInclude(self, markedup_content, completions,
@@ -630,7 +648,7 @@ class CodeIntelTestCase(unittest.TestCase):
                          indent(markedup_content)))
 
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_calltips = buf.calltips_from_trg(trg, ctlr=ctlr)
         if actual_calltips and actual_calltips[0]:
@@ -645,7 +663,7 @@ class CodeIntelTestCase(unittest.TestCase):
             "  buffer:\n%s"
             % (trg.name, indent(calltip and calltip or "(none)"),
                indent(actual_calltip and actual_calltip or "(none)"),
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def assertCalltipMatches(self, markedup_content, calltip, lang=None,
@@ -654,7 +672,8 @@ class CodeIntelTestCase(unittest.TestCase):
             lang = self.lang
         buf, trg = self._get_buf_and_trg(markedup_content, lang,
                                          implicit=implicit, env=env)
-        self._assertCalltipMatches(buf, trg, markedup_content, calltip, lang, flags)
+        self._assertCalltipMatches(
+            buf, trg, markedup_content, calltip, lang, flags)
 
     def _assertCalltipMatches(self, buf, trg, markedup_content, expr, lang, flags):
         if trg is None:
@@ -666,7 +685,7 @@ class CodeIntelTestCase(unittest.TestCase):
                          indent(markedup_content)))
 
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
         ctlr = _CaptureEvalController()
         actual_calltips = buf.calltips_from_trg(trg, ctlr=ctlr)
         if actual_calltips and actual_calltips[0]:
@@ -681,7 +700,7 @@ class CodeIntelTestCase(unittest.TestCase):
             "  buffer:\n%s"
             % (trg.name, indent(expr and expr or "(none)"),
                indent(actual_calltip and actual_calltip or "(none)"),
-               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent('\n'.join('%5s: %s' % (lvl, m) for lvl, m in ctlr.log)),
                indent(markedup_content)))
 
     def assertCurrCalltipArgRange(self, markedup_content, calltip,
@@ -705,14 +724,14 @@ class CodeIntelTestCase(unittest.TestCase):
             % (expected_range, actual_range, indent(calltip),
                indent(markedup_content)))
 
-    #def assertCompletionRaises(self, markedup_content, exception, lang=None,
+    # def assertCompletionRaises(self, markedup_content, exception, lang=None,
     #                           **kwargs):
     #    """Assert that the given completion raises the given exception.
-    #    
+    #
     #    You may also specify either of the "exc_args" or "exc_pattern"
     #    keyword args to match the exception's "args" attribute or match
     #    the stringified exception against a regex pattern.
-    #    
+    #
     #    c.f. http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/307970
     #    """
     #    if lang is None:
@@ -770,19 +789,23 @@ class CodeIntelTestCase(unittest.TestCase):
                       "no completion can be done to see if errors"
                       % self.lang)
         if isinstance(buf, CitadelBuffer):
-            buf.unload() # remove any entry from CIDB to ensure clean test
+            buf.unload()  # remove any entry from CIDB to ensure clean test
 
         class TestEvalController(EvalController):
             """A completion controller that captures all eval logging."""
             def __init__(self):
                 EvalController.__init__(self)
                 self.log = []
+
             def debug(self, msg, *args):
                 self.log.append(("debug", msg % args))
+
             def info(self, msg, *args):
                 self.log.append(("info", msg % args))
+
             def warn(self, msg, *args):
                 self.log.append(("warn", msg % args))
+
             def error(self, msg, *args):
                 self.log.append(("error", msg % args))
 
@@ -798,7 +821,7 @@ class CodeIntelTestCase(unittest.TestCase):
             self.fail("evalution had results: didn't expect that: %r"
                       % ctlr.cplns)
         if log_pattern:
-            #pprint(ctlr.log)
+            # pprint(ctlr.log)
             matching_logs = [(level, msg) for level, msg in ctlr.log
                              if log_pattern.search(msg)]
             self.failUnless(matching_logs,
@@ -809,17 +832,17 @@ class CodeIntelTestCase(unittest.TestCase):
                 % (log_pattern.pattern,
                    indent('\n'.join(['%s: %s' % lg for lg in ctlr.log])),
                    indent(markedup_content)))
-            #pprint(matching_logs)
+            # pprint(matching_logs)
 
     def assertCITDLExprIs(self, markedup_content, citdl_expr, lang=None,
                           prefix_filter=None, implicit=True, trigger_name=None,
                           **fields):
         """Assert that the preceding CITDL expression at the current position
         is as expected.
-        
+
         This uses buf.citdl_expr_from_trg() -- or, for Perl,
         buf.citdl_expr_and_prefix_filter_from_trg().
-        
+
         The "prefix_filter" optional argument can be used for Perl to test
         the value its relevant function returns.
         """
@@ -835,7 +858,7 @@ class CodeIntelTestCase(unittest.TestCase):
 
         if lang == "Perl":
             # Bit of a hack to fake the trigger length.
-            if content[data["pos"]-1] in ('>', ':'): # '->' or '::' triggers
+            if content[data["pos"]-1] in ('>', ':'):  # '->' or '::' triggers
                 length = 2
             else:
                 length = 1
@@ -916,7 +939,7 @@ class CodeIntelTestCase(unittest.TestCase):
         path = os.path.join("<Unsaved>", "rand%d" % random.randint(0, 100))
         buf = self.mgr.buf_from_content(content, lang=lang, path=path)
         assert isinstance(buf.accessor, SilverCityAccessor)
-        actual_tokens = buf.accessor.tokens # cheating
+        actual_tokens = buf.accessor.tokens  # cheating
         for actual_token in actual_tokens:
             # There are a few SilverCity token dict keys that we
             # don't bother checking.
@@ -933,9 +956,10 @@ class CodeIntelTestCase(unittest.TestCase):
                       "  actual lexer tokens:\n%s\n"
                       "  unmatched tokens:\n%s\n"
                       % (lang,
-                         indent(content), 
+                         indent(content),
                          indent(pformat(actual_tokens)),
                          indent(pformat(unmatched_tokens))))
+
 
 def gen_crimper_support_dir_candidates():
     if sys.platform == "win32":
@@ -957,6 +981,8 @@ def writefile(path, content, mode='wb'):
 
 
 _xml_catalogs_initialized = False
+
+
 def init_xml_catalogs():
     global _xml_catalogs_initialized
     if _xml_catalogs_initialized:
@@ -977,6 +1003,8 @@ def _rmtree_OnError(rmFunction, filePath, excInfo):
         # presuming because file is read-only
         os.chmod(filePath, 0777)
         rmFunction(filePath)
+
+
 def rmtree(dirname):
     import shutil
     shutil.rmtree(dirname, 0, _rmtree_OnError)
@@ -984,6 +1012,8 @@ def rmtree(dirname):
 
 # Recipe: run (0.5.3) in /home/trentm/tm/recipes/cookbook
 _RUN_DEFAULT_LOGSTREAM = ("RUN", "DEFAULT", "LOGSTREAM")
+
+
 def __run_log(logstream, msg, *args, **kwargs):
     if not logstream:
         pass
@@ -998,13 +1028,14 @@ def __run_log(logstream, msg, *args, **kwargs):
     else:
         logstream(msg, *args, **kwargs)
 
+
 def run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command.
 
         "cmd" is the command to run
-        "logstream" is an optional logging stream on which to log the 
-            command. If None, no logging is done. If unspecifed, this 
-            looks for a Logger instance named 'log' and logs the command 
+        "logstream" is an optional logging stream on which to log the
+            command. If None, no logging is done. If unspecifed, this
+            looks for a Logger instance named 'log' and logs the command
             on log.debug().
 
     Raises OSError is the command returns a non-zero exit status.
@@ -1016,17 +1047,18 @@ def run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
     else:
         status = retval
     if status:
-        #TODO: add std OSError attributes or pick more approp. exception
+        # TODO: add std OSError attributes or pick more approp. exception
         raise OSError("error running '%s': %r" % (cmd, status))
+
 
 def run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command in the given working directory.
 
         "cmd" is the command to run
         "cwd" is the directory in which the commmand is run.
-        "logstream" is an optional logging stream on which to log the 
-            command. If None, no logging is done. If unspecifed, this 
-            looks for a Logger instance named 'log' and logs the command 
+        "logstream" is an optional logging stream on which to log the
+            command. If None, no logging is done. If unspecifed, this
+            looks for a Logger instance named 'log' and logs the command
             on log.debug().
 
     Raises OSError is the command returns a non-zero exit status.
@@ -1038,7 +1070,6 @@ def run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
         run(cmd, logstream=None)
     finally:
         os.chdir(old_dir)
-
 
 
 # Recipe: splitall (0.2) in /home/trentm/tm/recipes/cookbook
@@ -1071,13 +1102,13 @@ def splitall(path):
         if parts[0] == path:  # sentinel for absolute paths
             allparts.insert(0, parts[0])
             break
-        elif parts[1] == path: # sentinel for relative paths
+        elif parts[1] == path:  # sentinel for relative paths
             allparts.insert(0, parts[1])
             break
         else:
             path = parts[0]
             allparts.insert(0, parts[1])
-    allparts = [p for p in allparts if p] # drop empty strings 
+    allparts = [p for p in allparts if p]  # drop empty strings
     return allparts
 
 
@@ -1096,9 +1127,11 @@ def relpath(path, relto=None):
         relto = os.path.abspath(relto)
 
     if sys.platform.startswith("win"):
-        def _equal(a, b): return a.lower() == b.lower()
+        def _equal(a, b):
+            return a.lower() == b.lower()
     else:
-        def _equal(a, b): return a == b
+        def _equal(a, b):
+            return a == b
 
     pathDrive, pathRemainder = os.path.splitdrive(path)
     if not pathDrive:
@@ -1107,24 +1140,22 @@ def relpath(path, relto=None):
     if not _equal(pathDrive, relToDrive):
         # Which is better: raise an exception or return ""?
         return ""
-        #raise OSError("Cannot make '%s' relative to '%s'. They are on "\
+        # raise OSError("Cannot make '%s' relative to '%s'. They are on "\
         #              "different drives." % (path, relto))
 
-    pathParts = splitall(pathRemainder)[1:] # drop the leading root dir
-    relToParts = splitall(relToRemainder)[1:] # drop the leading root dir
-    #print "_relpath: pathPaths=%s" % pathParts
-    #print "_relpath: relToPaths=%s" % relToParts
+    pathParts = splitall(pathRemainder)[1:]  # drop the leading root dir
+    relToParts = splitall(relToRemainder)[1:]  # drop the leading root dir
+    # print "_relpath: pathPaths=%s" % pathParts
+    # print "_relpath: relToPaths=%s" % relToParts
     for pathPart, relToPart in zip(pathParts, relToParts):
         if _equal(pathPart, relToPart):
             # drop the leading common dirs
             del pathParts[0]
             del relToParts[0]
-    #print "_relpath: pathParts=%s" % pathParts
-    #print "_relpath: relToParts=%s" % relToParts
+    # print "_relpath: pathParts=%s" % pathParts
+    # print "_relpath: relToParts=%s" % relToParts
     # Relative path: walk up from "relto" dir and walk down "path".
     relParts = [os.curdir] + [os.pardir]*len(relToParts) + pathParts
-    #print "_relpath: relParts=%s" % relParts
-    relPath = os.path.normpath( os.path.join(*relParts) )
+    # print "_relpath: relParts=%s" % relParts
+    relPath = os.path.normpath(os.path.join(*relParts))
     return relPath
-
-

@@ -10,7 +10,7 @@ import threading
 from hashlib import md5
 from os.path import dirname, join, abspath
 
-#from codeintel2.lang_php import PHPLexer
+# from codeintel2.lang_php import PHPLexer
 from codeintel2.lang_javascript import JavaScriptLexer
 from codeintel2.lang_html import HTMLLexer
 from codeintel2.lang_mason import MasonLexer
@@ -58,19 +58,20 @@ print (sys
 }
 
 
-
 class PHPLexer(UDLLexer):
     lang = "PHP"
 
 
 class PythonLexer(SilverCity.Lexer.Lexer):
     lang = "Python"
+
     def __init__(self):
         self._properties = SilverCity.PropertySet()
-        self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_PYTHON)
+        self._lexer = SilverCity.find_lexer_module_by_id(
+            ScintillaConstants.SCLEX_PYTHON)
         self._keyword_lists = [
             SilverCity.WordList(SilverCity.Keywords.python_keywords),
-            SilverCity.WordList(""), # hilighted identifiers
+            SilverCity.WordList(""),  # hilighted identifiers
         ]
 
 
@@ -79,24 +80,26 @@ class MyThread(threading.Thread):
         threading.Thread.__init__(self)
         self.lexer = lexer
         self.content = content
+
     def run(self):
         time.sleep(random.random())
-        tokens = list( self.lexer.tokenize_by_style(self.content) )
+        tokens = list(self.lexer.tokenize_by_style(self.content))
         print "%15s tokens md5: %s" % (self.lexer.__class__.__name__, md5(repr(tokens)).hexdigest())
+
 
 def doit():
     lexers = []
-    
+
     print "_test_silvercity_reentrancy ..."
-    
+
     threads = []
     pick_me = True
     for i in range(20):
         if pick_me:
-            #content = content_from_lang["html"]
-            #lexer = HTMLLexer()
-            #content = content_from_lang["mason"]
-            #lexer = MasonLexer()
+            # content = content_from_lang["html"]
+            # lexer = HTMLLexer()
+            # content = content_from_lang["mason"]
+            # lexer = MasonLexer()
             content = content_from_lang["php"]
             lexer = HTMLLexer()
         else:
@@ -106,7 +109,7 @@ def doit():
         threads.append(t)
         t.start()
         pick_me = not pick_me
-    
+
     for t in threads:
         t.join()
 

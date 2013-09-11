@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some JavaScript-specific codeintel handling."""
@@ -55,9 +55,7 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 log = logging.getLogger("test")
-
 
 
 class LangJavaScriptTestCase(CodeIntelTestCase):
@@ -72,8 +70,8 @@ class LangJavaScriptTestCase(CodeIntelTestCase):
         OP = pure.operator_style
         KW = pure.keyword_style
         ID = pure.identifier_style
-        text =   ['x', '=', 'new', 'this', '.', 'Internal1', '(', ')', ';']
-        styles = [ KW,  OP,  KW,    KW,     OP,  ID,          OP,  OP,  OP]
+        text = ['x', '=', 'new', 'this', '.', 'Internal1', '(', ')', ';']
+        styles = [KW,  OP,  KW,    KW,     OP,  ID,          OP,  OP,  OP]
         self.assertEqual(len(text), len(styles))
         ciler = lang_javascript.JavaScriptCiler(None)
         # Test the citdl type handler.
@@ -94,6 +92,7 @@ class LangJavaScriptTestCase(CodeIntelTestCase):
         from codeintel2 import tree_javascript
         evlr = tree_javascript.CandidatesForTreeEvaluator(ctlr, buf, trg,
                                                           None, None)
+
         def get_tokens(expr):
             return list(evlr._tokenize_citdl_expr(expr))
 
@@ -111,7 +110,7 @@ class LangJavaScriptTestCase(CodeIntelTestCase):
         self.assertEqual(get_tokens("chained['string']['member']"),
                          ["chained", "string", "member"])
         # This one isn't actually possible
-        #self.assertEqual(get_tokens("nested[string['member']]"),
+        # self.assertEqual(get_tokens("nested[string['member']]"),
         #                 ["nested", "string", "member"])
 
 
@@ -155,10 +154,11 @@ class TriggerTestCase(CodeIntelTestCase):
         # assert no trig from non-identifer words
         self.assertNoTrigger('function parseInt("22",<|>')
         # More complicated example.
-        self.assertTriggerMatches("parseInt(document.getElementById('foo').value,<|>);",
-                                  name="javascript-calltip-call-signature",
-                                  form=TRG_FORM_CALLTIP,
-                                  pos=9)
+        self.assertTriggerMatches(
+            "parseInt(document.getElementById('foo').value,<|>);",
+            name="javascript-calltip-call-signature",
+            form=TRG_FORM_CALLTIP,
+            pos=9)
 
     def test_doctags(self):
         # Triggers after @ in a comment block
@@ -185,7 +185,7 @@ class TriggerTestCase(CodeIntelTestCase):
                     this.<|>name = name;
                 }
             """),
-            name="javascript-complete-object-members")
+                                  name="javascript-complete-object-members")
 
     @tag("bug70627", "knownfailure")
     def test_preceding_with_numeric(self):
@@ -234,7 +234,8 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs("foo.bar['<|>item']", "foo.bar",
                                trigger_name=type, bracket_pos=7)
         # This one is a little advanced, maybe one day...
-        #self.assertCITDLExprIs("foo.bar['item'].<|>", "foo.bar.item")
+        # self.assertCITDLExprIs("foo.bar['item'].<|>", "foo.bar.item")
+
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "JavaScript"
@@ -247,8 +248,9 @@ class CplnTestCase(CodeIntelTestCase):
             /** @<1>param <2>name Some comment
         """))
         from codeintel2.jsdoc import jsdoc_tags
-        cplns = [ ("variable", x) for x in sorted(jsdoc_tags.keys()) ]
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]), cplns)
+        cplns = [("variable", x) for x in sorted(jsdoc_tags.keys())]
+        self.assertCompletionsAre(markup_text(
+            content, pos=positions[1]), cplns)
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              jsdoc_tags["param"])
 
@@ -328,7 +330,7 @@ class CplnTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[8]),
             None)
 
-    #TODO:
+    # TODO:
     # - Test case where a JS class' ctor is NOT the same name as the
     #   class. E.g., is it possible for class Cat in test_local()
     #   above to not define it's own ctor -- i.e. just use Mammal's?
@@ -510,8 +512,8 @@ class CplnTestCase(CodeIntelTestCase):
             player.<|>
         """)
         self.assertCompletionsInclude(content,
-            [("namespace", "FighterStyles"),
-             ("variable", "hitBox")])
+                                      [("namespace", "FighterStyles"),
+                                     ("variable", "hitBox")])
 
     @tag("assertScopeLpathIs")
     def test_intermixed_class_definitions(self):
@@ -635,9 +637,9 @@ class CplnTestCase(CodeIntelTestCase):
 
         buf = self.mgr.buf_from_path(join(test_dir, "foo.js"),
                                      lang="JavaScript")
-        self.assertCalltipIs2(buf, foo_js_positions[1], "Bar(name)");
+        self.assertCalltipIs2(buf, foo_js_positions[1], "Bar(name)")
         self.assertCompletionsInclude2(buf, foo_js_positions[2],
-            [("function", "bar"), ("variable", "name")])
+                                       [("function", "bar"), ("variable", "name")])
 
     def test_override_stdlib_class(self):
         env = SimplePrefsEnvironment(codeintel_selected_catalogs=['prototype'])
@@ -649,16 +651,16 @@ class CplnTestCase(CodeIntelTestCase):
             String.<1>foo; // should still get stdlib String attrs here
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [# local extensions:
-             ("function", "foo"),
-             # prototype extensions:
-             ("function", "camelize"),
-             ("function", "escapeHTML"),
-             # std String attrs:
-             ("variable", "length"),
-             ("function", "concat"),
-            ],
-            env=env)
+                                      [  # local extensions:
+                                      ("function", "foo"),
+                                      # prototype extensions:
+                                     ("function", "camelize"),
+                                     ("function", "escapeHTML"),
+                                      # std String attrs:
+                                     ("variable", "length"),
+                                     ("function", "concat"),
+                                      ],
+                                      env=env)
 
     @tag("bug65447")
     def test_cpln_with_unknown_parent(self):
@@ -666,27 +668,27 @@ class CplnTestCase(CodeIntelTestCase):
             function test_cplns() {
                 this.x = 1;
             }
-            
+
             test_cplns.prototype = new UnknownParentX();
             test_cplns.prototype.constructor = test_cplns;
-            
+
             test_cplns.prototype.showMe = function(arg1) {
                 alert(arg1);
             }
-            
+
             var tc = new test_cplns();
             tc.<1>abc;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "x"),
-             ("function", "showMe"),])
+                                      [("variable", "x"),
+                                     ("function", "showMe"), ])
 
     @tag("bug59127")
     def test_builtin_object_calltips(self):
         self.assertCalltipIs("var foo = new String(<|>);",
-            "String(...)")
+                             "String(...)")
         self.assertCalltipIs("var foo = new Boolean(<|>);",
-            "Boolean(...)")
+                             "Boolean(...)")
 
     @tag("bug65277")
     def test_citdl_expr_with_exclamation(self):
@@ -739,20 +741,20 @@ class CplnTestCase(CodeIntelTestCase):
             newNode.<5>x;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "length"),
-             ("function", "indexOf"),])
+                                      [("variable", "length"),
+                                     ("function", "indexOf"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "nodeName"),
-             ("function", "appendChild"),])
+                                      [("variable", "nodeName"),
+                                     ("function", "appendChild"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("variable", "length"),
-             ("function", "indexOf"),])
+                                      [("variable", "length"),
+                                     ("function", "indexOf"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-            [("variable", "nodeName"),
-             ("function", "appendChild"),])
+                                      [("variable", "nodeName"),
+                                     ("function", "appendChild"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
-            [("variable", "nodeName"),
-             ("function", "appendChild"),])
+                                      [("variable", "nodeName"),
+                                     ("function", "appendChild"), ])
 
     @tag("bug66842")
     def test_function_return_chaining(self):
@@ -766,11 +768,11 @@ class CplnTestCase(CodeIntelTestCase):
             var y = x.<1>split('').<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "length"),
-             ("function", "indexOf"),])
+                                      [("variable", "length"),
+                                     ("function", "indexOf"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "length"),
-             ("function", "push"),])
+                                      [("variable", "length"),
+                                     ("function", "push"), ])
 
     @tag("bug67123")
     def test_named_function(self):
@@ -808,26 +810,26 @@ class CplnTestCase(CodeIntelTestCase):
             test2("abc").<8>xyz;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [('function', 'concat'),
-             ('function', 'toLowerCase'),
-             ('function', 'indexOf')])
+                                      [('function', 'concat'),
+                                     ('function', 'toLowerCase'),
+                                          ('function', 'indexOf')])
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-            "charAt(pos) -> String\nReturn the character at a particular "
-            "index in the string.")
+                             "charAt(pos) -> String\nReturn the character at a particular "
+                             "index in the string.")
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [('function', 'concat'),
-             ('function', 'toLowerCase'),
-             ('function', 'indexOf')])
+                                      [('function', 'concat'),
+                                     ('function', 'toLowerCase'),
+                                          ('function', 'indexOf')])
         self.assertNoTrigger(markup_text(content, pos=positions[4]))
         self.assertNoTrigger(markup_text(content, pos=positions[5]))
         self.assertCompletionsInclude(markup_text(content, pos=positions[6]),
-            [('function', 'concat'),
-             ('function', 'toLowerCase'),
-             ('function', 'indexOf')])
+                                      [('function', 'concat'),
+                                     ('function', 'toLowerCase'),
+                                          ('function', 'indexOf')])
         self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
-            [('function', 'getElementById'), ])
+                                      [('function', 'getElementById'), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[8]),
-            [('function', 'toPrecision'), ])
+                                      [('function', 'toPrecision'), ])
 
     @tag("bug71343")
     def test_instance_defined_in_class_function(self):
@@ -842,11 +844,11 @@ class CplnTestCase(CodeIntelTestCase):
             v.str.<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "charAt"),
-             ("function", "concat")])
+                                      [("function", "charAt"),
+                                     ("function", "concat")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "charAt"),
-             ("function", "concat")])
+                                      [("function", "charAt"),
+                                     ("function", "concat")])
 
     @tag("bug71345")
     def test_find_scope_from_line(self):
@@ -859,8 +861,8 @@ class CplnTestCase(CodeIntelTestCase):
             }
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "charAt"),
-             ("function", "concat")])
+                                      [("function", "charAt"),
+                                     ("function", "concat")])
 
     @tag("bug71666")
     def test_instance_name_same_as_class(self):
@@ -882,15 +884,15 @@ class CplnTestCase(CodeIntelTestCase):
             myvalue.<3>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "name"),
-             ("variable", "str"),
-             ("function", "setup")])
+                                      [("variable", "name"),
+                                     ("variable", "str"),
+                                          ("function", "setup")])
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-            "setup()")
+                             "setup()")
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("variable", "length"),
-             ("function", "toLowerCase"),
-             ("function", "indexOf")])
+                                      [("variable", "length"),
+                                     ("function", "toLowerCase"),
+                                          ("function", "indexOf")])
 
     @tag("bug72159")
     def test_variable_call(self):
@@ -904,13 +906,13 @@ class CplnTestCase(CodeIntelTestCase):
             x().<2>xxx;  // Test function chaining.
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "length"),
-             ("function", "toLowerCase"),
-             ("function", "indexOf")])
+                                      [("variable", "length"),
+                                     ("function", "toLowerCase"),
+                                          ("function", "indexOf")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "length"),
-             ("function", "toLowerCase"),
-             ("function", "indexOf")])
+                                      [("variable", "length"),
+                                     ("function", "toLowerCase"),
+                                          ("function", "indexOf")])
 
     @tag("bug76504")
     def test_function_completions(self):
@@ -924,7 +926,7 @@ class CplnTestCase(CodeIntelTestCase):
             var_to_func_bug76504.<2>xxx;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "constructor"),
+                                     [("variable", "constructor"),
              ("variable", "length"),
              ("variable", "prototype"),
              ("variable", "length"),
@@ -1077,7 +1079,8 @@ class CplnTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("namespace", "foo")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("namespace", "foo()")])
 
     @tag("bug93858")
@@ -1091,8 +1094,10 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "myWin")])
 
+
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
+
     @tag("bug86391")
     def test_html_style_attribute(self):
         content, positions = unmark_text(dedent("""\
@@ -1105,6 +1110,7 @@ class DOMTestCase(CodeIntelTestCase):
              ("variable", "azimuth"),
              ("function", "getPropertyCSSValue"),
              ("function", "setProperty")])
+
 
 class HTMLJavaScriptTestCase(CodeIntelTestCase):
     lang = "HTML"
@@ -1134,7 +1140,7 @@ class HTMLJavaScriptTestCase(CodeIntelTestCase):
                     such element exists, returns null."""))
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
                 [("variable", "nodeName"),
-                 ("function", "appendChild"),])
+                 ("function", "appendChild"), ])
 
     @tag("bug95946")
     def test_html_onattributes(self):
@@ -1156,10 +1162,12 @@ class HTMLJavaScriptTestCase(CodeIntelTestCase):
                     such element exists, returns null."""))
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
                 [("variable", "nodeName"),
-                 ("function", "appendChild"),])
+                 ("function", "appendChild"), ])
+
 
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
+
     def test_jsdoc_extends(self):
         content, positions = unmark_text(dedent("""\
             function myfoo1() {
@@ -1238,6 +1246,7 @@ class JSDocTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("method", "push"), ("method", "shift")])
 
+
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 
@@ -1295,7 +1304,7 @@ class MochiKitTestCase(CodeIntelTestCase):
         #      File ".../codeintel2/tree_javascript.py", line 230, in _calltip_from_class
         #        ctor = elem.names[name]
         #    KeyError: 'repr'
-        #    test_repr_with_collision (test_javascript.MochiKitTestCase) ... FAIL
+        # test_repr_with_collision (test_javascript.MochiKitTestCase) ... FAIL
         env = SimplePrefsEnvironment(
                 codeintel_selected_catalogs=['mochikit', 'dojo'])
         self.assertCalltipIs("repr(<|>)",
@@ -1313,7 +1322,7 @@ class MochiKitTestCase(CodeIntelTestCase):
             function delay(res) { return wait(2.0, res); }
             var d = loadJSONDoc('example.json');
             d.<1>addCallback(<2>delay);
-            d.addCallback(gotDocument);   
+            d.addCallback(gotDocument);
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "addCallback"), ("function", "addErrback"),
@@ -1404,11 +1413,11 @@ class DojoTestCase(CodeIntelTestCase):
                         this.age=age;
                         this.currentResidence=currentResidence;
                     },
-            
-                    moveToNewCity: function(newState) 
+
+                    moveToNewCity: function(newState)
                     {
                         this.currentResidence=newState;
-                    } 
+                    }
             });
             var matt_bug75069 = new Person_bug75069(<1>'Matt', 25, 'New Mexico');
             matt_bug75069.<2>moveToNewCity(<3>
@@ -1442,13 +1451,13 @@ class YUITestCase(CodeIntelTestCase):
             self.assertCompletionsInclude("YAHOO.<|>util",
                 [("namespace", "util")])
             self.assertCompletionsInclude("YAHOO.<|>util.<|>",
-                [("class", "Anim"), 
+                [("class", "Anim"),
                  ("class", "DD"),
-                 ("namespace", "Dom"), # bug 63297
+                 ("namespace", "Dom"),  # bug 63297
                 ])
             # bug 63258
             self.assertCompletionsInclude("YAHOO.<|>util.DD.<|>",
-                [("function", "alignElWithMouse"), 
+                [("function", "alignElWithMouse"),
                  ("function", "autoScroll"),
                  ("variable", "scroll"),
                 ])
@@ -1459,7 +1468,7 @@ class YUITestCase(CodeIntelTestCase):
             dedent("""\
                 YAHOO.util.Easing.<|>;
 
-                YAHOO.example.init = function() {   
+                YAHOO.example.init = function() {
                   var anim = new YAHOO.util.Anim('demo', { width: {to: 500} }, 1,
                                  YAHOO.util.Easing.);
                   YAHOO.util.Event.on(document, 'click', anim.animate, anim, true);
@@ -1506,7 +1515,7 @@ class PrototypeTestCase(CodeIntelTestCase):
              "the list in the first argument and the index of the element\n"
              "in the second argument"),
             env=self.env)
-        
+
     @tag("bug63137", "bug63208")
     def test_extend_builtins1(self):
         # Test some of the places in which prototype extends JS builtins.
@@ -1665,7 +1674,7 @@ class ExtTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     env = SimplePrefsEnvironment(codeintel_selected_catalogs=['ext'])
 
-    #def test_toplevel(self):
+    # def test_toplevel(self):
     #    self.assertCompletionsInclude("YAHOO.<|>",
     #        [("variable", "util"), ("variable", "widget")])
 
@@ -1699,19 +1708,19 @@ class ExtendTestCase(CodeIntelTestCase):
     @tag("bug63258", "yui")
     def test_yahoo_extend(self):
         content, positions = unmark_text(dedent("""\
-            function Mammal(name){ 
+            function Mammal(name){
                     this.name=name;
                     this.offspring=[];
             }
-            Mammal.prototype.haveABaby=function(){ 
+            Mammal.prototype.haveABaby=function(){
                     var newBaby=new Mammal("Baby "+this.name);
                     this.offspring.push(newBaby);
                     return newBaby;
             }
-            Mammal.prototype.toString=function(){ 
+            Mammal.prototype.toString=function(){
                     return '[Mammal "'+this.name+'"]';
             }
-            
+
             function Dog(name) {
                     this.name=name;
             }
@@ -1721,7 +1730,7 @@ class ExtendTestCase(CodeIntelTestCase):
                             return '[Dog "'+this.name+'"]';
                     }
             });
-            
+
             var myDog = new Dog('Rover');
             myDog.<1>haveABaby();
         """))
@@ -1754,16 +1763,25 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("foo.bar.baz<|>", "foo.bar.baz")
         self.assertCITDLExprUnderPosIs("foo.b<|>ar.baz", "foo.bar")
         self.assertCITDLExprUnderPosIs("<|>foo.bar.baz", "foo")
+
     def test_citdl_expr_under_pos_multiline(self):
         self.assertCITDLExprUnderPosIs("foo(bar,\nblam.<|>)", "blam")
-        self.assertCITDLExprUnderPosIs("foo(bar,\nblam).spam.<|>", "foo().spam")
+        self.assertCITDLExprUnderPosIs(
+            "foo(bar,\nblam).spam.<|>", "foo().spam")
         self.assertCITDLExprUnderPosIs("foo.\\\nbar.<|>", "foo.bar")
-        self.assertCITDLExprUnderPosIs("foo(1, // one\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, // o)ne\n2).b<|>ar.", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, // (o)ne\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, // (one\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo( //this is a ) comment\nb,d).<|>", "foo()")
-        self.assertCITDLExprUnderPosIs("foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, // one\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, // o)ne\n2).b<|>ar.", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, // (o)ne\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, // (one\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo( //this is a ) comment\nb,d).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs(
+            "foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+
     def test_citdl_expr_under_pos_extra(self):
         self.assertCITDLExprUnderPosIs("if (foo.<|>(", "foo")
         self.assertCITDLExprUnderPosIs("else if (foo.<|>(", "foo")
@@ -1779,7 +1797,7 @@ class DefnTestCase(CodeIntelTestCase):
                     b = i;
                 }
             }
-            
+
             t = test<1>1(0);
         """))
 
@@ -1789,7 +1807,7 @@ class DefnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=1, path=path, )
-        
+
     @tag("bug99108")
     def test_scope_scopestart_is_int(self):
         test_dir = join(self.test_dir, "test_defn_scope_scopestart_is_int")
@@ -1806,7 +1824,7 @@ class DefnTestCase(CodeIntelTestCase):
                     return b + j;
                 }
                 return cheeseboogie<2>(i + 1);
-            }    
+            }
             var t = test<1>1(0)<3>;
             print(t);
         """))
@@ -1827,7 +1845,6 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertScopeLpathIs(
             markup_text(foo_content, pos=foo_positions[4]),
                                 ["test1"])
-
 
     @tag("knownfailure")
     def test_simple_import(self, fn=None):
@@ -1967,5 +1984,3 @@ class DefnTestCase(CodeIntelTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

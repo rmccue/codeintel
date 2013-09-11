@@ -1,26 +1,26 @@
 #!python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 
@@ -54,7 +54,6 @@ if _xpcom_:
     from xpcom import COMException
 
 
-
 class Accessor(object):
     """Virtual base class for a lexed text accessor. This defines an API
     with which lexed text data (the text content, styling info, etc.) is
@@ -63,10 +62,13 @@ class Accessor(object):
     """
     def char_at_pos(self, pos):
         raise VirtualMethodError()
+
     def style_at_pos(self, pos):
         raise VirtualMethodError()
+
     def line_and_col_at_pos(self, pos):
         raise VirtualMethodError()
+
     def gen_char_and_style_back(self, start, stop):
         """Generate (char, style) tuples backward from start to stop
         a la range(start, stop, -1) -- i.e. exclusive at 'stop' index.
@@ -75,6 +77,7 @@ class Accessor(object):
         the naive usage of char_at_pos()/style_at_pos().
         """
         raise VirtualMethodError()
+
     def gen_char_and_style(self, start, stop):
         """Generate (char, style) tuples forward from start to stop
         a la range(start, stop) -- i.e. exclusive at 'stop' index.
@@ -83,14 +86,17 @@ class Accessor(object):
         the naive usage of char_at_pos()/style_at_pos().
         """
         raise VirtualMethodError()
+
     def match_at_pos(self, pos, s):
         """Return True if the given string matches the text at the given
         position.
         """
         raise VirtualMethodError()
+
     def line_from_pos(self, pos):
         """Return the 0-based line number for the given position."""
         raise VirtualMethodError()
+
     def lines_from_positions(self, positions):
         """Yield the associate 0-based line for each of a number of
         positions.  This can be much faster than multiple calls to
@@ -98,18 +104,23 @@ class Accessor(object):
         """
         for pos in positions:
             yield self.line_from_pos(pos)
+
     def line_start_pos_from_pos(self, pos):
         """Return the position of the start of the line of the given pos."""
         raise VirtualMethodError()
+
     def pos_from_line_and_col(self, line, col):
         """Return the position of the given line and column."""
         raise VirtualMethodError()
+
     @property
     def text(self):
         """All buffer content (as a unicode string)."""
         raise VirtualMethodError()
+
     def text_range(self, start, end):
         raise VirtualMethodError()
+
     def length(self):
         """Return the length of the buffer.
 
@@ -119,22 +130,24 @@ class Accessor(object):
         work as expected.
         """
         raise VirtualMethodError()
-    #def gen_pos_and_char_fwd(self, start_pos):
+    # def gen_pos_and_char_fwd(self, start_pos):
     #    """Generate (<pos>, <char>) tuples forward from the starting
     #    position until the end of the document.
-    #    
+    #
     #    Note that whether <pos> is a *character* pos or a *byte* pos is
     #    left fuzzy so that SilverCity and SciMoz implementations can be
     #    efficient.
     #    """
     #    raise VirtualMethodError()
+
     def gen_tokens(self):
         """Generator for all styled tokens in the buffer.
-        
+
         Currently this should yield token dict a la SilverCity's
         tokenize_by_style().
         """
         raise VirtualMethodError()
+
     def contiguous_style_range_from_pos(self, pos):
         """Returns a 2-tuple (start, end) giving the span of the sequence of
         characters with the style at position pos."""
@@ -156,6 +169,7 @@ class SilverCityAccessor(Accessor):
         self.__position_data_cache = None
 
     __tokens_cache = None
+
     @property
     def tokens(self):
         if self.__tokens_cache is None:
@@ -171,23 +185,24 @@ class SilverCityAccessor(Accessor):
             while next_byte_offset <= pos:
                 byte_offset = next_byte_offset
                 char_offset += 1
-                next_byte_offset += len(self.content[char_offset].encode("utf-8"))
+                next_byte_offset += len(self.content[
+                                        char_offset].encode("utf-8"))
         except IndexError:
-            pass # running past EOF
+            pass  # running past EOF
         return char_offset
 
     def char_at_pos(self, pos):
         return self.content[self._char_pos_from_byte_pos(pos)]
 
     def _token_at_pos(self, pos):
-        #XXX Locality of reference should offer an optimization here.
+        # XXX Locality of reference should offer an optimization here.
         # Binary search for appropriate token.
         lower, upper = 0, len(self.tokens)  # [lower-limit, upper-limit)
         sentinel = 15
         while sentinel > 0:
             idx = ((upper - lower) / 2) + lower
             token = self.tokens[idx]
-            #print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
+            # print "_token_at_pos %d: token idx=%d text[%d:%d]=%r"\
             #      % (pos, idx, token["start_index"], token["end_index"],
             #         token["text"])
             start, end = token["start_index"], token["end_index"]
@@ -215,15 +230,16 @@ class SilverCityAccessor(Accessor):
                 byte_offset += len(self.content[char_offset].encode("utf-8"))
                 char_offset += 1
         except IndexError:
-            char_offset += 1 # EOF
+            char_offset += 1  # EOF
         return line, char_offset - line_char_offset
-    
-    #PERF: If perf is important for this accessor then could do much
+
+    # PERF: If perf is important for this accessor then could do much
     #      better with smarter use of _token_at_pos() for these two.
     def gen_char_and_style_back(self, start, stop):
         assert -1 <= stop <= start, "stop: %r, start: %r" % (stop, start)
         for pos in range(start, stop, -1):
             yield (self.char_at_pos(pos), self.style_at_pos(pos))
+
     def gen_char_and_style(self, start, stop):
         assert 0 <= start <= stop, "start: %r, stop: %r" % (start, stop)
         for pos in range(start, stop):
@@ -234,6 +250,7 @@ class SilverCityAccessor(Accessor):
         return self.content[char_pos:char_pos+len(s)] == s
 
     __position_data_cache = None
+
     @property
     def __position_data(self):
         """A list holding the cache of line position data.  The index is the
@@ -247,7 +264,8 @@ class SilverCityAccessor(Accessor):
             for line_str in self.content.splitlines(True):
                 byte_length = len(line_str.encode("utf-8"))
                 char_length = len(line_str)
-                data.append((byte_offset, char_offset, byte_length, char_length))
+                data.append((
+                    byte_offset, char_offset, byte_length, char_length))
                 byte_offset += byte_length
                 char_offset += char_length
             self.__position_data_cache = data
@@ -255,7 +273,7 @@ class SilverCityAccessor(Accessor):
 
     def lines_from_char_positions(self, starts):
         """Yield the 0-based lines given the *character* positions."""
-        line_starts = [p[1] for p in self.__position_data] # in chars
+        line_starts = [p[1] for p in self.__position_data]  # in chars
         for char_pos in starts:
             # see line_from_pos for the adjustments
             yield bisect.bisect_left(line_starts, char_pos + 1) - 1
@@ -290,6 +308,7 @@ class SilverCityAccessor(Accessor):
 
     def line_start_pos_from_pos(self, pos):
         return self.__position_data[self.line_from_pos(pos)][0]
+
     def pos_from_line_and_col(self, line, col):
         byte_offset, char_offset = self.__position_data[line][:2]
         substring = self.content[char_offset:char_offset+col].encode("utf-8")
@@ -298,15 +317,19 @@ class SilverCityAccessor(Accessor):
     @property
     def text(self):
         return self.content
+
     def text_range(self, start, end):
         return self.content[self._char_pos_from_byte_pos(start):
                             self._char_pos_from_byte_pos(end)]
+
     def length(self):
         byte_offset, byte_length = self.__position_data[-1][::2]
         return byte_offset + byte_length
+
     def gen_tokens(self):
         for token in self.tokens:
             yield token
+
     def contiguous_style_range_from_pos(self, pos):
         token = self._token_at_pos(pos)
         return (token["start_index"], token["end_index"] + 1)
@@ -316,10 +339,13 @@ class SciMozAccessor(Accessor):
     def __init__(self, scimoz, silvercity_lexer):
         self.scimoz = WeakReference(scimoz)
         self.silvercity_lexer = silvercity_lexer
+
     def char_at_pos(self, pos):
         return self.scimoz().getWCharAt(pos)
+
     def style_at_pos(self, pos):
         return self.scimoz().getStyleAt(pos)
+
     def line_and_col_at_pos(self, pos):
         scimoz = self.scimoz()
         line = scimoz.lineFromPosition(pos)
@@ -338,6 +364,7 @@ class SciMozAccessor(Accessor):
             pass
         else:
             raise AssertionError("start (%r) < stop (%r)" % (start, stop))
+
     def gen_char_and_style(self, start, stop):
         if start < stop:
             # For scimoz.getStyledText(), it's (inclusive, exclusive)
@@ -349,7 +376,7 @@ class SciMozAccessor(Accessor):
         else:
             raise AssertionError("start (%r) > stop (%r)" % (start, stop))
 
-    #XXX def match_at_pos(self, pos, s):...
+    # XXX def match_at_pos(self, pos, s):...
     def line_from_pos(self, pos):
         return self.scimoz().lineFromPosition(pos)
 
@@ -363,22 +390,27 @@ class SciMozAccessor(Accessor):
     def line_start_pos_from_pos(self, pos):
         scimoz = self.scimoz()
         return scimoz.positionFromLine(scimoz.lineFromPosition(pos))
+
     def pos_from_line_and_col(self, line, col):
         return self.scimoz().positionFromLine(line) + col
+
     @property
     def text(self):
         return self.scimoz().text
+
     def text_range(self, start, end):
         return self.scimoz().getTextRange(start, end)
+
     def length(self):
         return self.scimoz().length
-        #raise NotImplementedError(
+        # raise NotImplementedError(
         #    "Calculating the *character* length of a SciMoz buffer can "
         #    "be expensive. Are you sure you want to use this method? "
         #    "Try accessor.gen_pos_and_char_fwd() first.")
+
     def gen_tokens(self):
         if self.silvercity_lexer:
-            #PERF: This is not a great solution but see bug 54217.
+            # PERF: This is not a great solution but see bug 54217.
             acc = SilverCityAccessor(self.silvercity_lexer, self.text)
             for token in acc.gen_tokens():
                 yield token
@@ -401,7 +433,7 @@ class SciMozAccessor(Accessor):
                             'text': token_text,
                             'start_index': start_index,
                             'end_index': i-1,
-                            'start_column': 0, # unset
+                            'start_column': 0,  # unset
                             'end_column': 0,   # unset
                             'start_line': 0,   # unset
                             'end_line': 0,     # unset
@@ -409,31 +441,32 @@ class SciMozAccessor(Accessor):
                         yield token
                     start_index = i
                     prev_style = style
+
     def contiguous_style_range_from_pos(self, pos):
         curr_style = self.style_at_pos(pos)
         i = pos - 1
         while i >= 0 and self.style_at_pos(i) == curr_style:
             i -= 1
         start_pos = i + 1
-        
+
         last_pos = self.length()
         i = pos + 1
         while i < last_pos and self.style_at_pos(i) == curr_style:
             i += 1
-        end_pos = i # Point one past the end
+        end_pos = i  # Point one past the end
         return (start_pos, end_pos)
 
     @property
     def udl_family_chunk_ranges(self):
         """Generate a list of continguous UDL-family ranges.
-        
+
         Generates 3-tuples:
             (<udl-family>, <start-byte-offset>, <end-byte-offset>)
         where
             <udl-family> is one of "M", "CSS", "CSL", "SSL", "TPL"
             <start-byte-offset> is inclusive
             <end-byte-offset> is exclusive (like a Python range)
-        
+
         Note: For non-UDL languages this will return on chunk that is the
         whole document and <udl-family> will be None.
         """
@@ -449,27 +482,29 @@ class SciMozAccessor(Accessor):
         while pos < length:
             start = scimoz.indicatorStart(DECORATOR_UDL_FAMILY_TRANSITION, pos)
             end = scimoz.indicatorEnd(DECORATOR_UDL_FAMILY_TRANSITION, start+1)
-            if start == end == 0: # No indicators.
+            if start == end == 0:  # No indicators.
                 yield (None, 0, length)
                 break
             start = max(start-1, 0)
-            #print "range: %d (%r) - %d (%r): %s" % (
+            # print "range: %d (%r) - %d (%r): %s" % (
             #    start, scimoz.getWCharAt(start),
             #    end, scimoz.getWCharAt(end-1),
             #    self._udl_family_from_style(scimoz.getStyleAt(pos)))
-            #print util.indent(repr(scimoz.getTextRange(start, end)))
+            # print util.indent(repr(scimoz.getTextRange(start, end)))
             yield (self._udl_family_from_style(scimoz.getStyleAt(pos)),
                    start, end)
             pos = end + 1
-    
+
     _udl_family_from_start_style = {
-       ScintillaConstants.SCE_UDL_M_DEFAULT: "M",
-       ScintillaConstants.SCE_UDL_CSS_DEFAULT: "CSS",
-       ScintillaConstants.SCE_UDL_CSL_DEFAULT: "CSL",
-       ScintillaConstants.SCE_UDL_SSL_DEFAULT: "SSL",
-       ScintillaConstants.SCE_UDL_TPL_DEFAULT: "TPL",
+        ScintillaConstants.SCE_UDL_M_DEFAULT: "M",
+        ScintillaConstants.SCE_UDL_CSS_DEFAULT: "CSS",
+        ScintillaConstants.SCE_UDL_CSL_DEFAULT: "CSL",
+        ScintillaConstants.SCE_UDL_SSL_DEFAULT: "SSL",
+        ScintillaConstants.SCE_UDL_TPL_DEFAULT: "TPL",
     }
-    _udl_family_start_styles = list(sorted(_udl_family_from_start_style.keys()))
+    _udl_family_start_styles = list(sorted(
+        _udl_family_from_start_style.keys()))
+
     @classmethod
     def _udl_family_from_style(cls, style):
         """Determine which UDL family this style is in. Returns one
@@ -480,6 +515,7 @@ class SciMozAccessor(Accessor):
         fam = cls._udl_family_from_start_style[start_style]
         return fam
 
+
 class KoDocumentAccessor(SciMozAccessor):
     """An accessor that lazily defers to the first view attached to this
     Komodo document object.
@@ -487,7 +523,7 @@ class KoDocumentAccessor(SciMozAccessor):
     def __init__(self, doc, silvercity_lexer):
         self.doc = WeakReference(doc)
         self.silvercity_lexer = silvercity_lexer
-    
+
     def _get_scimoz_ref(self):
         try:
             view = self.doc().getView()
@@ -511,38 +547,49 @@ class KoDocumentAccessor(SciMozAccessor):
         @components.ProxyToMainThread
         def _get_proxied_scimoz_ref(self):
             scimoz = self._get_scimoz_ref()
+
             class SciMozProxy:
                 def __init__(self, sm):
                     self.sm = sm
+
                 @property
                 @components.ProxyToMainThread
                 def length(self):
                     return self.sm.length
+
                 @property
                 @components.ProxyToMainThread
                 def text(self):
                     return self.sm.text
+
                 @components.ProxyToMainThread
                 def getTextRange(self, *args):
                     return self.sm.getTextRange(*args)
+
                 @components.ProxyToMainThread
                 def getStyledText(self, *args):
                     return self.sm.getStyledText(*args)
+
                 @components.ProxyToMainThread
                 def getWCharAt(self, *args):
                     return self.sm.getWCharAt(*args)
+
                 @components.ProxyToMainThread
                 def getStyleAt(self, *args):
                     return self.sm.getStyleAt(*args)
+
                 @components.ProxyToMainThread
                 def lineFromPosition(self, *args):
                     return self.sm.lineFromPosition(*args)
+
                 @components.ProxyToMainThread
                 def positionFromLine(self, *args):
                     return self.sm.positionFromLine(*args)
+
                 @components.ProxyToMainThread
                 def indicatorStart(self, *args):
                     return self.sm.indicatorStart(*args)
+
                 @components.ProxyToMainThread
                 def indicatorEnd(self, *args):
                     return self.sm.indicatorEnd(*args)
@@ -550,7 +597,7 @@ class KoDocumentAccessor(SciMozAccessor):
 
     def scimoz(self):
         """Re-get scimoz every time it's needed.
-        
+
         This ensures scimoz will be properly proxied when calling off
         the main thread."""
 
@@ -566,7 +613,7 @@ class AccessorCache:
     def __init__(self, accessor, position, fetchsize=20, debug=False):
         """Document accessor cache contructor. Will cache fetchsize style info
         pieces starting from position - 1.
-        
+
         @param accessor {Accessor} a form of document accessor
         @param position {int} where in the document to start caching from (exclusive)
         @param fetchsize {int} how much cache is stored/retrived at a time
@@ -574,7 +621,7 @@ class AccessorCache:
         self._accessor = accessor
         self._cachefetchsize = fetchsize
         self._debug = debug
-        #self._debug = True
+        # self._debug = True
         self._reset(position)
 
     # Private
@@ -590,7 +637,7 @@ class AccessorCache:
         # _cacheFirstBufPos is inclusive
         self._cacheFirstBufPos = position
         # _cacheLastBufPos is exclusive
-        self._cacheLastBufPos  = position
+        self._cacheLastBufPos = position
 
     def _extendCacheBackwards(self, byAmount=None):
         if self._cacheFirstBufPos > 0:
@@ -640,11 +687,13 @@ class AccessorCache:
     def dump(self, limit=20):
         if len(self._chCache) > 0:
             print "  pos: %r, ch: %r, style: %r, cachePos: %r, cache len: %d\n  cache: %r" % (self._cachePos + self._cacheFirstBufPos,
-                                                             self._chCache[self._cachePos],
-                                                             self._styleCache[self._cachePos],
-                                                             self._cachePos,
-                                                             len(self._chCache),
-                                                             self._chCache)
+                                                                                              self._chCache[
+                                                                                              self._cachePos],
+                                                                                              self._styleCache[
+                                                                                              self._cachePos],
+                                                                                              self._cachePos,
+                                                                                              len(self._chCache),
+                                                                                              self._chCache)
         else:
             print "New cache: %r" % (self._chCache[-limit:])
 
@@ -687,7 +736,7 @@ class AccessorCache:
             print "self._cachePos: %d, cacheLen: %d" % (self._cachePos, len(self._chCache))
             print "resetToPosition: p: %r, ch: %r, st: %r" % (self._pos, self._ch, self._style)
 
-    #def pushBack(self, numPushed=1):
+    # def pushBack(self, numPushed=1):
     #    """Push back the items that were recetly popped off.
     #    @returns {int} Number of pushed items
     #    """
@@ -745,7 +794,8 @@ class AccessorCache:
         old_cachePos = self._cachePos
         old_cacheFirstBufPos = self._cacheFirstBufPos
         try:
-            pos, ch, style = self.getPrevPosCharStyle(ignore_styles, max_look_back)
+            pos, ch, style = self.getPrevPosCharStyle(
+                ignore_styles, max_look_back)
         finally:
             # Restore old values.
             self._pos = old_pos
@@ -787,7 +837,7 @@ class AccessorCache:
         new_p, c, style = self.getPrecedingPosCharStyle(current_style,
                                                         ignore_styles,
                                                         max_look_back=max_text_len)
-        #print "Return %d:%d" % (new_p, old_p+1)
+        # print "Return %d:%d" % (new_p, old_p+1)
         if style is None:   # Ran out of text to look at
             new_p = max(0, old_p - max_text_len)
             return new_p, self.text_range(new_p, old_p+1)
@@ -858,7 +908,7 @@ class AccessorCache:
 
     def text_range(self, start, end):
         """Return text in range buf[start:end]
-        
+
         Note: Start position is inclusive, end position is exclusive.
         """
         if start >= self._cacheFirstBufPos and end <= self._cacheLastBufPos:
@@ -881,35 +931,42 @@ def _test():
         def __init__(self, content, styles):
             self.content = content
             self.style = styles
+
         def length(self):
             return len(self.content)
+
         def char_at_pos(self, pos):
             return self.content[pos]
+
         def style_at_pos(self, pos):
             return self.style[pos]
+
         def gen_char_and_style_back(self, start, stop):
             assert -1 <= stop <= start, "stop: %r, start: %r" % (stop, start)
             for pos in range(start, stop, -1):
                 yield (self.char_at_pos(pos), self.style_at_pos(pos))
+
         def gen_char_and_style(self, start, stop):
             assert 0 <= start <= stop, "start: %r, stop: %r" % (start, stop)
             for pos in range(start, stop):
                 yield (self.char_at_pos(pos), self.style_at_pos(pos))
+
         def text_range(self, start, end):
             return self.content[start:end]
 
     content = "This is my test buffer\r\nSecond   line\r\nThird line\r\n"
-    styles =  "1111011011011110111111 2 21111110001111 2 21111101111 2 2".replace(" ", "")
+    styles = "1111011011011110111111 2 21111110001111 2 21111101111 2 2".replace(
+        " ", "")
     ta = _TestAccessor(content, map(int, styles))
     pos = len(content) - 2
     ac = AccessorCache(ta, pos)
-    #ac._debug = True
+    # ac._debug = True
     for i in range(2):
         assert(ac.getPrevPosCharStyle() == (pos-1, "e", 1))
         assert(ac.getPrecedingPosCharStyle(1) == (pos-5, " ", 0))
         assert(ac.getPrecedingPosCharStyle(0) == (pos-6, "d", 1))
         assert(ac.getPrecedingPosCharStyle(1) == (pos-11, "\n", 2))
-        assert(ac.getPrecedingPosCharStyle()  == (pos-13, "e", 1))
+        assert(ac.getPrecedingPosCharStyle() == (pos-13, "e", 1))
         assert(ac.getTextBackWithStyle(1) == (pos-16, "line"))
         assert(ac.getPrevPosCharStyle() == (pos-17, " ", 0))
         assert(ac.getPrecedingPosCharStyle(0) == (pos-20, "d", 1))
@@ -918,8 +975,8 @@ def _test():
 
     assert(ac.getCurrentPosCharStyle() == (pos-20, "d", 1))
 
-    #print pos
-    #print ac.getSucceedingPosCharStyle()
+    # print pos
+    # print ac.getSucceedingPosCharStyle()
     assert(ac.getNextPosCharStyle() == (pos-19, " ", 0))
     assert(ac.getSucceedingPosCharStyle() == (pos-16, "l", 1))
     assert(ac.getTextForwardWithStyle(1) == (pos-13, "line"))

@@ -9,6 +9,7 @@ from .driver import CommandHandler
 
 log = logging.getLogger("codeintel.oop.memory-reporter")
 
+
 class _BaseMemoryCommandHandler(CommandHandler):
     """Base memory report handler
     This handler supports a single command, "memory-report"; this command takes
@@ -21,6 +22,7 @@ class _BaseMemoryCommandHandler(CommandHandler):
     """
 
     supportedCommands = ("memory-report",)
+
     def canHandleRequest(self, request):
         return request["command"] == "memory-report"
 
@@ -37,6 +39,7 @@ class _BaseMemoryCommandHandler(CommandHandler):
         import memutils
         gc.collect()
         total = memutils.memusage(gc.get_objects())
+
         def try_call(method):
             try:
                 return method()
@@ -84,12 +87,14 @@ class _BaseMemoryCommandHandler(CommandHandler):
         @returns {long} The vsize, in bytes; or None if unavailable.
         """
         return None
+
     def _get_resident_size(self):
         """Get the resident set size; this is the subset of vsize that is in
         physical memory (and not mapped to a file on disk).
         @returns {long} The rss, in bytes; or None if unavailable.
         """
         return None
+
     def _get_heap_size(self):
         """Get the size of the heap.
         @returns {long} The size of the heap, in bytes; or None if unavailable.
@@ -100,6 +105,7 @@ MemoryCommandHandler = _BaseMemoryCommandHandler
 
 if sys.platform.startswith("win"):
     from ctypes import wintypes
+
     class Win32MemoryHandler(_BaseMemoryCommandHandler):
         def _get_virtual_size(self):
             class MEMORYSTATUSEX(ctypes.Structure):
@@ -112,6 +118,7 @@ if sys.platform.startswith("win"):
                             ("ullTotalVirtual", ctypes.c_uint64),
                             ("ullAvailVirtual", ctypes.c_uint64),
                             ("ullAvailExtendedVirtual", ctypes.c_uint64)]
+
                 def __init__(self):
                     ctypes.Structure.__init__(self)
                     self.dwLength = ctypes.sizeof(self)
@@ -138,6 +145,7 @@ if sys.platform.startswith("win"):
                             ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
                             ("PagefileUsage", ctypes.c_size_t),
                             ("PeakPagefileUsage", ctypes.c_size_t)]
+
                 def __init__(self):
                     ctypes.Structure.__init__(self)
                     self.cb = ctypes.sizeof(self)
@@ -146,7 +154,8 @@ if sys.platform.startswith("win"):
             GetProcessMemoryInfo = psapi.GetProcessMemoryInfo
             GetProcessMemoryInfo.restype = wintypes.BOOL
             GetProcessMemoryInfo.argtypes = [wintypes.HANDLE,
-                                             ctypes.POINTER(PROCESS_MEMORY_COUNTERS),
+                                             ctypes.POINTER(
+                                                 PROCESS_MEMORY_COUNTERS),
                                              wintypes.DWORD]
             counters = PROCESS_MEMORY_COUNTERS()
             if GetProcessMemoryInfo(-1, counters, ctypes.sizeof(counters)):
@@ -184,12 +193,14 @@ if sys.platform.startswith("win"):
                                         ctypes.POINTER(wintypes.HANDLE)]
             HeapWalk = kernel32.HeapWalk
             HeapWalk.restype = wintypes.BOOL
-            HeapWalk.argtypes = [wintypes.HANDLE, ctypes.POINTER(PROCESS_HEAP_ENTRY)]
+            HeapWalk.argtypes = [
+                wintypes.HANDLE, ctypes.POINTER(PROCESS_HEAP_ENTRY)]
 
             heapCount = GetProcessHeaps(0, None)
             if not heapCount:
-                log.error("Failed to get heap count: %r", ctypes.get_last_error())
-                return None # Failed; don't care
+                log.error(
+                    "Failed to get heap count: %r", ctypes.get_last_error())
+                return None  # Failed; don't care
             heaps = (wintypes.HANDLE * heapCount)()
             heapCount = GetProcessHeaps(len(heaps), heaps)
             if heapCount == 0:
@@ -215,6 +226,7 @@ elif sys.platform.startswith("linux"):
             super(LinuxMemoryHandler, self).__init__()
             import ctypes.util
             self.libc = ctypes.CDLL(ctypes.util.find_library("c"))
+
         def _get_virtual_size(self):
             try:
                 with open("/proc/self/statm", "r") as f:
@@ -252,7 +264,8 @@ elif sys.platform.startswith("linux"):
             return self._get_mallinfo().arena
 
         def _get_memory_report(self, driver):
-            results = super(LinuxMemoryHandler, self)._get_memory_report(driver)
+            results = super(
+                LinuxMemoryHandler, self)._get_memory_report(driver)
             info = self._get_mallinfo()
             results["explicit/heap-overhead"] = {
                 "amount": info.arena - info.uordblks - info.fordblks,
@@ -269,13 +282,16 @@ elif sys.platform == "darwin":
             integer_t = ctypes.c_int
             natural_t = ctypes.c_uint
             vm_size_t = ctypes.c_ulong
+
             class time_value_t(ctypes.Structure):
                 _fields_ = [("seconds", integer_t),
                             ("microseconds", integer_t)]
+
                 def __repr__(self):
                     return "%s.%s" % (self.seconds, self.microseconds)
 
             policy_t = ctypes.c_int
+
             class task_basic_info(ctypes.Structure):
                 _pack_ = 4
                 _fields_ = [("suspend_count", integer_t),
@@ -284,6 +300,7 @@ elif sys.platform == "darwin":
                             ("user_time", time_value_t),
                             ("system_time", time_value_t),
                             ("policy", policy_t)]
+
                 def __repr__(self):
                     return repr(dict((key, getattr(self, key))
                                      for key in dir(self)
@@ -295,7 +312,8 @@ elif sys.platform == "darwin":
             task_flavor_t = ctypes.c_uint
             task_info_t = ctypes.POINTER(ctypes.c_int)
             mach_msg_type_number_t = natural_t
-            TASK_BASIC_INFO_COUNT = ctypes.sizeof(task_basic_info) / ctypes.sizeof(natural_t)
+            TASK_BASIC_INFO_COUNT = ctypes.sizeof(
+                task_basic_info) / ctypes.sizeof(natural_t)
             TASK_BASIC_INFO = 5
             KERN_SUCCESS = 0
 
@@ -340,7 +358,8 @@ elif sys.platform == "darwin":
                                               str(os.getpid())])
             log.debug("stdout:\n%s", stdout)
             lines = iter(stdout.splitlines())
-            header = ["MALLOC","ZONE","PAGES","COUNT","ALLOCATED","%","FULL"]
+            header = ["MALLOC", "ZONE", "PAGES",
+                      "COUNT", "ALLOCATED", "%", "FULL"]
             while lines.next().split() != header:
                 pass
             for line in lines:

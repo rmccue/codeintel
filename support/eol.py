@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Authors:
@@ -58,12 +58,12 @@
                             (case-insensitive)
         -r, --recursive     recursive search directories
         -x|--skip PATTERN   patterns to exclude in determining files
-                            
+
 
     `eol` is a tool for working with EOLs in text files: determining the
     EOL type and converting between types. `eol.py` can also be used as
     a Python module.
-    
+
     By default with the command-line interface, binary files are skipped
     where "binary files" is any with a null in the content (not perfect).
 
@@ -74,7 +74,7 @@
 #   eol-name            the EOL name: 'LF', 'CRLF', 'CR', 'NATIVE' or 'MIXED'
 #   eol-english-name    English representation, e.g.: 'Windows (CRLF)'
 #
-#TODO:
+# TODO:
 # - any other conversions to take from eollib.py?
 # - convert to optparse
 # - module usage docstring and move command-line docstring
@@ -106,9 +106,7 @@ import glob
 import stat
 
 
-
 #---- globals
-
 log = logging.getLogger("eol")
 
 
@@ -122,6 +120,8 @@ else:
     # Yes, LF is the native EOL even on Mac OS X. CR is just for
     # Mac OS <=9 (a.k.a. "Mac Classic")
     NATIVE = LF
+
+
 class MIXED(object):
     """EOL for files with mixed EOLs"""
     pass
@@ -129,28 +129,26 @@ class MIXED(object):
 
 # Internal mappings.
 _english_name_from_eol = {
-    CRLF : "Windows (CRLF)",
-    CR   : "Mac Classic (CR)",
-    LF   : "Unix (LF)",
+    CRLF: "Windows (CRLF)",
+    CR: "Mac Classic (CR)",
+    LF: "Unix (LF)",
     MIXED: "Mixed",
-    None : "No EOLs"
+    None: "No EOLs"
 }
 _eol_from_name = {
-    "CRLF"  : CRLF,
-    "CR"    : CR,
-    "LF"    : LF,
+    "CRLF": CRLF,
+    "CR": CR,
+    "LF": LF,
     "NATIVE": NATIVE,
 }
 _name_from_eol = {
     CRLF: "CRLF",
-    CR  : "CR",
-    LF  : "LF"
+    CR: "CR",
+    LF: "LF"
 }
 
 
-
 #---- public module interface
-
 def english_name_from_eol(eol):
     r"""english_name_from_eol(EOL) -> English description for EOL
 
@@ -192,6 +190,7 @@ def eol_from_name(name):
     except KeyError:
         raise ValueError("unknown EOL name: %r" % name)
 
+
 def name_from_eol(eol):
     r"""name_from_eol(EOL) -> EOL name for this
 
@@ -212,13 +211,13 @@ def name_from_eol(eol):
 
 def eol_info_from_text(text):
     r"""eol_info_from_text(TEXT) -> (EOL, SUGGESTED-EOL)
-    
+
     Return a 2-tuple containing:
     1) The detected end-of-line: one of CR, LF, CRLF, MIXED or None.
     2) The suggested end-of-line to use for this text: one of CR, LF or
        CRLF. This is the typically the most common EOL used in the text,
        preferring the native EOL when ambiguous.
-    
+
         >>> eol_info_from_text('foo\nbar')
         ('\n', '\n')
         >>> eol_info_from_text('foo\r\nbar')
@@ -229,16 +228,16 @@ def eol_info_from_text(text):
         True
     """
     numCRLFs = text.count("\r\n")
-    numCRs   = text.count("\r") - numCRLFs
-    numLFs   = text.count("\n") - numCRLFs
+    numCRs = text.count("\r") - numCRLFs
+    numLFs = text.count("\n") - numCRLFs
 
     if numCRLFs == numLFs == numCRs == 0:
         return (None, NATIVE)
 
     # One a tie, prefer the native EOL.
     eols = [(numCRLFs, CRLF == NATIVE, CRLF),
-            (numCRs,   CR   == NATIVE, CR),
-            (numLFs,   LF   == NATIVE, LF)]
+            (numCRs,   CR == NATIVE, CR),
+            (numLFs,   LF == NATIVE, LF)]
     eols.sort()
 
     if eols[0][0] or eols[1][0]:
@@ -246,17 +245,19 @@ def eol_info_from_text(text):
     else:
         return (eols[-1][-1], eols[-1][-1])
 
+
 def eol_info_from_stream(stream):
     """eol_info_from_stream(STREAM) -> (EOL, SUGGESTED-EOL)
-    
+
     Return EOL info for the given file stream.
     See eol_info_from_text() docstring for details.
     """
     return eol_info_from_text(stream.read())
 
+
 def eol_info_from_path(path):
     """eol_info_from_stream(PATH) -> (EOL, SUGGESTED-EOL)
-    
+
     Return EOL info for the given file path.
     See eol_info_from_text() docstring for details.
     """
@@ -265,12 +266,13 @@ def eol_info_from_path(path):
         content = fin.read()
     finally:
         fin.close()
-    return eol_info_from_text(content) 
+    return eol_info_from_text(content)
+
 
 def eol_info_from_path_patterns(path_patterns, recursive=False,
                                 excludes=[]):
     """Generate EOL info for the given paths.
-    
+
     Yields 3-tuples: (PATH, EOL, SUGGESTED-EOL)
     See eol_info_from_text() docstring for details.
     """
@@ -310,7 +312,7 @@ def convert_text_eol(text, eol):
 
 def convert_path_eol(path, eol, skip_binary_content=True, log=log):
     """convert_path_eol(PATH, EOL)
-    
+
     Convert the given file (in-place) to the given EOL. If no
     changes are necessary the file is not touched.
     """
@@ -349,12 +351,12 @@ def convert_path_patterns_eol(path_patterns, eol, recursive=False,
 
 def mixed_eol_lines_in_text(text, eol=None):
     r"""mixed_eol_lines_in_text(TEXT[, EOL]) -> LINE-NUMBERS...
-    
+
         "text" is the text to analyze
         "eol" indicates the expected EOL for each line: one of LF,
             CR or CRLF. It may also be left out (or None) to indicate
             that the most common EOL in the text is the expected one.
-    
+
     Return a list of line numbers (0-based) with an EOL that does not
     match the expected EOL.
 
@@ -365,21 +367,26 @@ def mixed_eol_lines_in_text(text, eol=None):
         [0, 2, 3]
     """
     lines = text.splitlines(1)
-    LFs = []; CRs = []; CRLFs = []
+    LFs = []
+    CRs = []
+    CRLFs = []
     for i in range(len(lines)):
         line = lines[i]
-        if line.endswith(CRLF): CRLFs.append(i)
-        elif line.endswith(LF): LFs.append(i)
-        elif line.endswith(CR): CRs.append(i)
+        if line.endswith(CRLF):
+            CRLFs.append(i)
+        elif line.endswith(LF):
+            LFs.append(i)
+        elif line.endswith(CR):
+            CRs.append(i)
 
     # Determine the expected EOL.
     if eol is None:
         eol_data = [(len(CRLFs), CRLF == NATIVE, CRLF),
-                    (len(CRs),   CR   == NATIVE, CR),
-                    (len(LFs),   LF   == NATIVE, LF)]
-        eol_data.sort() # last in list is the most common, native EOL on a tie
+                    (len(CRs),   CR == NATIVE, CR),
+                    (len(LFs),   LF == NATIVE, LF)]
+        eol_data.sort()  # last in list is the most common, native EOL on a tie
         eol = eol_data[-1][-1]
-    
+
     # Get the list of lines with unexpected EOLs.
     if eol == LF:
         mixed_eol_lines = CRs + CRLFs
@@ -393,9 +400,7 @@ def mixed_eol_lines_in_text(text, eol=None):
     return mixed_eol_lines
 
 
-
 #---- internal support stuff
-
 # Recipe: paths_from_path_patterns (0.3.5)
 def _should_include_path(path, includes, excludes):
     """Return True iff the given path should be included."""
@@ -424,6 +429,8 @@ def _should_include_path(path, includes, excludes):
     return True
 
 _NOT_SPECIFIED = ("NOT", "SPECIFIED")
+
+
 def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               on_error=_NOT_SPECIFIED):
@@ -526,7 +533,7 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 # 'includes' SHOULD affect whether a dir is yielded.
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
-                   ) and _should_include_path(path, includes, excludes):
+                    ) and _should_include_path(path, includes, excludes):
                     yield path
 
                 # However, if recursive, 'includes' should NOT affect
@@ -558,7 +565,7 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
 # Recipe: pretty_logging (0.1.2)
 class _PerLevelFormatter(logging.Formatter):
     """Allow multiple format string -- depending on the log level.
-    
+
     A "fmtFromLevel" optional arg is added to the constructor. It can be
     a dictionary mapping a log record level to a format string. The
     usual "fmt" argument acts as the default.
@@ -569,10 +576,11 @@ class _PerLevelFormatter(logging.Formatter):
             self.fmtFromLevel = {}
         else:
             self.fmtFromLevel = fmtFromLevel
+
     def format(self, record):
         record.lowerlevelname = record.levelname.lower()
         if record.levelno in self.fmtFromLevel:
-            #XXX This is a non-threadsafe HACK. Really the base Formatter
+            # XXX This is a non-threadsafe HACK. Really the base Formatter
             #    class should provide a hook accessor for the _fmt
             #    attribute. *Could* add a lock guard here (overkill?).
             _saved_fmt = self._fmt
@@ -584,6 +592,7 @@ class _PerLevelFormatter(logging.Formatter):
         else:
             return logging.Formatter.format(self, record)
 
+
 def _setup_logging():
     hdlr = logging.StreamHandler(sys.stdout)
     defaultFmt = "%(name)s: %(lowerlevelname)s: %(message)s"
@@ -594,9 +603,7 @@ def _setup_logging():
     logging.root.addHandler(hdlr)
 
 
-
 #---- mainline
-
 def main(argv):
     _setup_logging()
     log.setLevel(logging.INFO)
@@ -637,7 +644,7 @@ def main(argv):
     if action == "test":
         log.debug("run eol.py self-test...")
         import doctest
-        doctest.testmod() # TODO: return non-zero on failure?
+        doctest.testmod()  # TODO: return non-zero on failure?
         return 0
     elif action == "list":
         for path, eol, suggested_eol \
@@ -670,5 +677,3 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(retval)
-
-

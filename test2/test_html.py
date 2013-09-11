@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test HTML codeintel support."""
@@ -53,9 +53,7 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase
 
 
-
 log = logging.getLogger("test")
-
 
 
 class HTMLTestCase(CodeIntelTestCase):
@@ -72,10 +70,10 @@ class HTMLTestCase(CodeIntelTestCase):
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
             # XHTML 1.0 Frameset
             '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"\n "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
-        ]            
+        ]
         for doctype in xhmltdoctypes:
             content = raw_content % doctype
-            self.assertCompletionsInclude(content,expected)
+            self.assertCompletionsInclude(content, expected)
 
     def _test_html_completions_base_test(self, raw_content, expected):
         htmldoctypes = [
@@ -84,10 +82,10 @@ class HTMLTestCase(CodeIntelTestCase):
             # HTML 4.01 Transitional
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"\n "http://www.w3.org/TR/html4/loose.dtd">',
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">',
-            
+
             # XXX the following DTD parsing fails.  frameset does not include
             # the tags our tests are running against, and 3.2/2.0 dtd is broken
-            
+
             # HTML 4.01 Frameset
             #'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"\n "http://www.w3.org/TR/html4/frameset.dtd">',
             #'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN">',
@@ -100,7 +98,7 @@ class HTMLTestCase(CodeIntelTestCase):
         ]
         for doctype in htmldoctypes:
             content = raw_content % doctype
-            self.assertCompletionsInclude(content,expected)
+            self.assertCompletionsInclude(content, expected)
 
     def test_completions_in_head(self):
         raw_content = dedent("""\
@@ -120,7 +118,7 @@ class HTMLTestCase(CodeIntelTestCase):
             raw_content, [("element", "style")])
         self._test_html_completions_base_test(
             raw_content, [("element", "style")])
-        
+
     def test_completions_in_head_bug64997(self):
         raw_content = dedent("""\
             %s
@@ -132,7 +130,7 @@ class HTMLTestCase(CodeIntelTestCase):
             raw_content, [("element", "style")])
         self._test_html_completions_base_test(
             raw_content, [("element", "style")])
-        
+
     def test_should_be_input_inside_form(self):
         # though common use is for input to be anywhere, it *is not valid*
         # html as defined by w3c, thus the div tag
@@ -150,7 +148,7 @@ class HTMLTestCase(CodeIntelTestCase):
             </html>
         """)
         self.assertCompletionsInclude(content,
-            [("element", "input")])
+                                      [("element", "input")])
 
     def test_do_not_close_html_img(self):
         # Raised by Alex Fernandez on komodo-beta about k4b1.
@@ -168,7 +166,8 @@ class HTMLTestCase(CodeIntelTestCase):
         """)
         self.assertCompletionsDoNotInclude(html_content, [("element", "img>")])
         # invalid XHTML usage, without the xml declaration, it is treated like
-        # html from a parser point of view, so close tags are handled differently
+        # html from a parser point of view, so close tags are handled
+        # differently
         html_content = dedent("""\
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -196,7 +195,7 @@ class HTMLTestCase(CodeIntelTestCase):
             </html>
         """)
         self.assertCompletionsAre(xhtml_content,
-            [("element", "img>")])
+                                  [("element", "img>")])
 
     @tag("bug66149")
     def test_attr_enum_cpln(self):
@@ -229,4 +228,3 @@ class HTMLTestCase(CodeIntelTestCase):
                 </html>
             """),
             [("element", 'p'), ("element", 'div')])
-

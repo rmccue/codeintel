@@ -1,6 +1,7 @@
 import simplejson
 import cgi
 
+
 class JSONFilter(object):
     def __init__(self, app, mime_type='text/x-json'):
         self.app = app
@@ -9,6 +10,7 @@ class JSONFilter(object):
     def __call__(self, environ, start_response):
         # Read JSON POST input to jsonfilter.json if matching mime type
         response = {'status': '200 OK', 'headers': []}
+
         def json_start_response(status, headers):
             response['status'] = status
             response['headers'].extend(headers)
@@ -35,6 +37,7 @@ class JSONFilter(object):
         headers.extend(response['headers'])
         start_response(response['status'], headers)
         return [res]
+
 
 def factory(app, global_conf, **kw):
     return JSONFilter(app, **kw)

@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2008
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test the YUI cix generation."""
@@ -50,12 +50,12 @@ import ciElementTree as ET
 
 logging.basicConfig()
 log = logging.getLogger("test_yui")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def get_tree_from_cix(yui_version):
     cix_file = glob("%s%syui_v%s.cix" % (join(dirname(abspath(__file__)),
-                                             "apicatalogs"),
+                                              "apicatalogs"),
                                          os.sep, yui_version))[0]
     try:
         return ET.parse(cix_file).getroot()
@@ -102,18 +102,16 @@ class YUIBaseTests(object):
             name_split = module_name.split(".")
             scope = yui_scope
             for name in name_split:
-                #print "Name: %r, module_name: %r" % (name, module_name, )
-                #pprint(scope.names, depth=1)
+                # print "Name: %r, module_name: %r" % (name, module_name, )
+                # pprint(scope.names, depth=1)
                 scope = scope.names.get(name)
                 self.assertTrue(scope is not None, "Could not locate module %r"
                                 ", failed at part %r" % (module_name, name))
-                
 
     # Module lists come from: http://developer.yahoo.com/yui/docs/
-
     def test_module_base(self):
         module_list = [
-                # base classes
+            # base classes
             "YAHOO",
             "YAHOO.env",
             #"YAHOO.env.ua", # XXX - not in 2.2?
@@ -121,7 +119,7 @@ class YUIBaseTests(object):
             #"YAHOO_config", # XXX - missing?
         ]
         self._check_module_list(module_list)
-            
+
     def test_module_animation(self):
         module_list = [
             "YAHOO.util.Anim",
@@ -239,6 +237,7 @@ class YUI_v24_TestCase(unittest.TestCase, YUIBaseTests):
             "YAHOO.tool.Profiler",
         ]
         self._check_module_list(module_list)
+
 
 class YUI_v25_TestCase(YUI_v24_TestCase):
     version = "2.5"

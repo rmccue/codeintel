@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributors:
@@ -67,8 +67,8 @@ usage = "usage: %prog file"
 version = "%prog 0.1"
 desc = """Sometimes yaml includes the namespace in a class or function name.  Remove it."""
 parser = OptionParser(prog="platinfo", usage=usage,
-                                    version=version,
-                                    description=desc)
+                      version=version,
+                      description=desc)
 parser.add_option("-i", "--in-file", dest="infile")
 parser.add_option("-o", "--output-file", dest="outfile")
 parser.add_option("-q", "--quiet",
@@ -76,11 +76,12 @@ parser.add_option("-q", "--quiet",
                   help="don't print status messages to stdout")
 (options, args) = parser.parse_args()
 
-def Usage():   
+
+def Usage():
         print "Usage: %s (-i | --in-file f) (-o | --out-file f)" % sys.argv[0]
         print "   or: %s in-file out-file" % sys.argv[0]
         sys.exit()
-        
+
 if not options.infile:
     if len(args) == 0:
         Usage()
@@ -99,7 +100,7 @@ elif len(args) == 0:
     Usage()
 else:
     outfile = args[0]
-    
+
 if infile == outfile:
     print "Trying to overwrite file %s" % outfile
     Usage()
@@ -107,6 +108,8 @@ if infile == outfile:
 origTree = ET.parse(infile)
 
 adjusted_node = 0
+
+
 def check_redundant_namespace(elem):
     global adjusted_node
     if not elem:
@@ -127,6 +130,8 @@ lim1 = 250
 lim2 = 300
 sentence_end = re.compile(r'(.*?[.!?])( +[A-Z][a-z ]?.*)')
 # This probably does no work.
+
+
 def cull_doc(elem):
     global adjusted_node
     doc = elem.get("doc")
@@ -137,6 +142,8 @@ def cull_doc(elem):
         cull_doc(child)
 
 # Do this one to avoid walking into newly created sub-nodes
+
+
 def convert_mixinrefs(elem):
     global adjusted_node
     for child in elem:
@@ -144,12 +151,13 @@ def convert_mixinrefs(elem):
     mixinrefs = elem.get("mixinrefs")
     if mixinrefs and elem.tag == "scope":
         for m in mixinrefs.split(" "):
-            if m == "Kernel" and elem.get("classrefs"): continue
+            if m == "Kernel" and elem.get("classrefs"):
+                    continue
             ET.SubElement(elem, 'import', symbol=m)
             adjusted_node += 1
-        #XXX Trent - non-deprecated way to delete an attribute?
+        # XXX Trent - non-deprecated way to delete an attribute?
         del elem.attrib['mixinrefs']
-    
+
 origTopLevel = origTree.getroot()
 check_redundant_namespace(origTopLevel)
 print "check_redundant_namespace: # changes: %d" % (adjusted_node)
@@ -165,4 +173,3 @@ fd = outfile == "-" and sys.stdin or open(outfile, "w")
 fd.write(ET.tostring(pretty_tree_from_tree(origTopLevel)))
 fd.close()
 print "Done writing to file %s" % outfile
-

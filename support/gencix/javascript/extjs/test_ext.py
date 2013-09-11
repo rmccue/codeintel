@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2008
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test the Ext JS cix generation."""
@@ -50,7 +50,7 @@ import ciElementTree as ET
 
 logging.basicConfig()
 log = logging.getLogger("test_yui")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def get_tree_from_cix(version):
@@ -90,8 +90,8 @@ class ExtBaseTests(object):
             name_split = module_name.split(".")
             scope = ext_blob
             for name in name_split:
-                #print "Name: %r, module_name: %r" % (name, module_name, )
-                #pprint(scope.names, depth=1)
+                # print "Name: %r, module_name: %r" % (name, module_name, )
+                # pprint(scope.names, depth=1)
                 scope = scope.names.get(name)
                 self.assertTrue(scope is not None, "Could not locate module %r"
                                 ", failed at part %r" % (module_name, name))
@@ -134,7 +134,8 @@ class ExtBaseTests(object):
         self.assertTrue(len(file_elem.getchildren()) == 1 and
                         file_elem.getchildren()[0].tag == "scope")
         ext_blob = file_elem.getchildren()[0]
-        self.assertTrue(ext_blob.get("name") == "ext_%s" % (self.version_undotted))
+        self.assertTrue(ext_blob.get(
+            "name") == "ext_%s" % (self.version_undotted))
         self.assertTrue(ext_blob == self._get_ext_blob())
 
         ext_scope = ext_blob.names.get("Ext")
@@ -142,12 +143,10 @@ class ExtBaseTests(object):
         self.assertTrue(ext_scope.get("name") == "Ext")
         self.assertTrue(ext_scope == self._get_ext_scope())
 
-
     # Module lists come from: http://extjs.com/deploy/dev/docs/
-
     def test_ext_base_namespaces(self):
         module_list = [
-                # base classes
+            # base classes
             "Ext",
             "Ext.data",
             "Ext.dd",
@@ -160,7 +159,7 @@ class ExtBaseTests(object):
             "Ext.util",
         ]
         self._check_module_list(module_list)
-            
+
     def test_ext_base_variables(self):
         self.assert_has_variable("Ext.BLANK_IMAGE_URL", citdl="String")
         self.assert_has_variable("Ext.isWindows")
@@ -205,6 +204,7 @@ class Ext_v20_TestCase(unittest.TestCase, ExtBaseTests):
     version_undotted = version.replace(".", "")
     cix_tree = get_tree_from_cix(version_major_minor)
 
+
 class Ext_v22_TestCase(Ext_v20_TestCase):
     version = "2.2"
     version_major_minor = version
@@ -213,7 +213,7 @@ class Ext_v22_TestCase(Ext_v20_TestCase):
 
     def test_ext_v22_namespaces(self):
         module_list = [
-                # base classes
+            # base classes
             "Ext.air",
         ]
         self._check_module_list(module_list)
@@ -228,6 +228,7 @@ class Ext_v22_TestCase(Ext_v20_TestCase):
         self.assert_has_scope("Ext.air.NativeWindowManager")
         self.assert_has_scope("Ext.air.Sound")
         self.assert_has_scope("Ext.air.SystemMenu")
+
 
 class Ext_v30_TestCase(Ext_v20_TestCase):
     version = "3.0"

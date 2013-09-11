@@ -15,14 +15,16 @@ from hashlib import md5
 
 from BeautifulSoup import BeautifulSoup, NavigableString
 
+
 def unescape(text):
-    """Removes HTML or XML character references 
+    """Removes HTML or XML character references
        and entities from a text string.
     from Fredrik Lundh
     http://effbot.org/zone/re-sub.htm#unescape-html
     """
     text = text.replace("\r\n", "\n")
     text = text.replace("&nbsp;", " ")
+
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -42,7 +44,7 @@ def unescape(text):
             except KeyError:
                 print "keyerror"
                 pass
-        return text # leave as is
+        return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
     # Reduce multiple spaces.
     text = re.sub(r"\s(\s)+", " ", text)
@@ -52,6 +54,7 @@ def unescape(text):
     text = text.replace("\xbb".decode("iso_8859-1"), ">")
     text = text.decode('ascii')
     return text
+
 
 def getHtmlForUrl(url):
     urlhash = md5(url).hexdigest()
@@ -63,10 +66,11 @@ def getHtmlForUrl(url):
     file(cache_filename, "wb").write(content)
     return content
 
+
 def getText(elem):
     l = []
     for element in elem:
-        #if isinstance(element, NavigableString):
+        # if isinstance(element, NavigableString):
         #    continue
         if element.string:
             l.append(element.string)
@@ -78,11 +82,13 @@ def getText(elem):
     except:
         return text
 
+
 def getNextSibling(tag):
     sibling = tag.nextSibling
     while sibling and isinstance(sibling, NavigableString):
         sibling = sibling.nextSibling
     return sibling
+
 
 def parseVersion(tag):
     for child_tag in tag.parent('tr'):
@@ -91,6 +97,7 @@ def parseVersion(tag):
             continue
         if 'Firefox' in text:
             return text.encode('ascii')
+
 
 def parseValues(tag):
     values = {}
@@ -111,6 +118,7 @@ def parseValues(tag):
         values[attribute] = description
     return values
 
+
 def parseProperty(property_name, property_details):
     url = "https://developer.mozilla.org/en/CSS/%s" % (property_name, )
     data = getHtmlForUrl(url)
@@ -122,7 +130,7 @@ def parseProperty(property_name, property_details):
     except:
         print "Unable to pass HTML for property: %r" % (property_name, )
         return
-        
+
     tags = soup.html.body("h3", {'class': "editable"})
     foundData = False
     for tag in tags:
@@ -130,7 +138,8 @@ def parseProperty(property_name, property_details):
             continue
         string = tag.string.strip()
         if string == "Summary":
-            property_details["description"] = getText(getNextSibling(tag)).strip()
+            property_details["description"] = getText(
+                getNextSibling(tag)).strip()
             foundData = True
         elif string == "Values":
             property_details["values"] = parseValues(getNextSibling(tag))
@@ -152,13 +161,12 @@ def parseProperty(property_name, property_details):
             desc = "(OBSOLETE) %s" % (desc, )
         property_details["description"] = desc.strip()
         property_details["values"] = parseValues(tag.p)
-            
 
     # Fix ups.
     version = property_details.get("version")
     if version is not None and " -" in version:
         property_details["version"] = version.split(" -")[0].strip()
-        
+
     if property_name == '-moz-background-origin':
         values = property_details["values"]
         for value, desc in values.items():
@@ -166,7 +174,8 @@ def parseProperty(property_name, property_details):
             if len(split) > 1:
                 alt_value, alt_desc = split[1].split(None, 1)
                 values[alt_value] = alt_desc
-                values[value] = "(New in Firefox 4). %s" % (alt_desc.split(". ", 1)[1], )
+                values[value] = "(New in Firefox 4). %s" % (
+                    alt_desc.split(". ", 1)[1], )
     elif property_name == '-moz-background-clip':
         values = property_details["values"]
         for value, desc in values.items():
@@ -174,10 +183,12 @@ def parseProperty(property_name, property_details):
             if len(split) > 1:
                 alt_value, alt_desc = split[1].split(None, 1)
                 values[alt_value] = alt_desc
-                values[value] = "(Requires Gecko 1.9.3). %s" % (alt_desc.split(". ", 1)[1], )
+                values[value] = "(Requires Gecko 1.9.3). %s" % (
+                    alt_desc.split(". ", 1)[1], )
     elif property_name == '-moz-box-flex':
         values = property_details["values"]
         values.pop(">", None)
+
 
 def processProperty(property_name, properties):
     property_details = {}
@@ -186,6 +197,8 @@ def processProperty(property_name, properties):
     parseProperty(property_name, property_details)
 
 # Soup parsing of API documentation from webpage
+
+
 def main(filename):
     moz_properties = [
         "-moz-appearance",
@@ -266,7 +279,7 @@ def main(filename):
         processProperty(property_name, properties)
 
     # Write out the properties.
-    
+
     f = file(filename, "w")
 
     f.write("CSS_MOZ_DATA = {\n")
@@ -283,8 +296,8 @@ def main(filename):
                 values.pop(key)
                 values[key.encode("ascii")] = value.encode("ascii")
 
-        #values = sorted(data.get("values", {}).keys())
-        #values = [x for x in values if not x.startswith("<")]
+        # values = sorted(data.get("values", {}).keys())
+        # values = [x for x in values if not x.startswith("<")]
         f.write("""
     %r:\n%s,
 """ % (str(property_name), pformat(data, indent=8)))

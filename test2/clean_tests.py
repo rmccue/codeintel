@@ -6,6 +6,7 @@ from os.path import join, dirname, abspath, exists
 import subprocess
 import shutil
 
+
 def do_clean_unicode_directories():
     """ Remove the unicode directories after running `ci2 test`."""
     dirpath = dirname(abspath(__file__))
@@ -21,6 +22,7 @@ def do_clean_unicode_directories():
                 retval = p.wait()
             else:
                 shutil.rmtree(unipath)
+
 
 def main():
     do_clean_unicode_directories()

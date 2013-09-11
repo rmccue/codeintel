@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -68,7 +68,7 @@ from BeautifulSoup import BeautifulSoup, NavigableString
 from codeintel2.gencix_utils import *
 
 
-#def getSubElementText(elem):
+# def getSubElementText(elem):
 #    result = []
 #    for i in elem:
 #        result.append(i.string)
@@ -77,7 +77,8 @@ def getSubElementText(elem):
     """Return all the text of elem child elements"""
 
     return condenseSpaces(''.join([e for e in elem.recursiveChildGenerator()
-                                   if isinstance(e,unicode)]))
+                                   if isinstance(e, unicode)]))
+
 
 def processTableMethods(cix_element, table_tag):
     # Table rows: [u'Method', u'Kind', u'Arguments', u'Description']
@@ -98,6 +99,7 @@ def processTableMethods(cix_element, table_tag):
             setCixSignature(cix_function, "%s(%s" % (method_name, msplit[1]))
             setCixDoc(cix_function, getSubElementText(row_tags[3]), parse=True)
 
+
 def processTableProperties(cix_element, table_tag):
     # Table rows: [u'Property', u'Type', u'Description']
     # Table rows: [u'Property', u'Type', u'Kind', u'Description']
@@ -106,24 +108,28 @@ def processTableProperties(cix_element, table_tag):
         if row_tags:
             assert(len(row_tags) in (3, 4))
             name = row_tags[0].string
-            #print "name: %r" % name
-            #print "type: %r" % getSubElementText(row_tags[1]).split("(")[0]
-            #print "doc: %r" % getSubElementText(row_tags[-1])
+            # print "name: %r" % name
+            # print "type: %r" % getSubElementText(row_tags[1]).split("(")[0]
+            # print "doc: %r" % getSubElementText(row_tags[-1])
             cix_variable = createCixVariable(cix_element, name)
-            vartype = standardizeJSType(getSubElementText(row_tags[1]).split("(")[0])
+            vartype = standardizeJSType(
+                getSubElementText(row_tags[1]).split("(")[0])
             addCixType(cix_variable, vartype)
-            setCixDoc(cix_variable, getSubElementText(row_tags[-1]), parse=True)
-            #print
+            setCixDoc(cix_variable, getSubElementText(
+                row_tags[-1]), parse=True)
+            # print
+
 
 def processTableTag(cix_element, table_tag):
-    header_tags = [ tag.string for tag in table_tag.findAll("th") ]
-    #print header_tags
+    header_tags = [tag.string for tag in table_tag.findAll("th")]
+    # print header_tags
     if "Method" in header_tags:
         processTableMethods(cix_element, table_tag)
     elif "Property" in header_tags:
         processTableProperties(cix_element, table_tag)
     else:
         raise "Unknown header tags: %r" % (header_tags)
+
 
 def processScopeFields(cix_element, h4_tag):
     nextsib = h4_tag
@@ -142,6 +148,7 @@ def processScopeFields(cix_element, h4_tag):
 # Objects, classes, variables already created
 cix_scopes = {}
 
+
 def processScope(cix_module, h4_tag):
     spans = h4_tag.findAll("span", limit=1)
     if len(spans) == 1:
@@ -154,7 +161,8 @@ def processScope(cix_module, h4_tag):
             parentScopeName = ".".join(scopeNames[:-1])
             cix_module = cix_scopes.get(parentScopeName, None)
             if cix_module is None:
-                raise "Could not find scope: %r for: %r" % (parentScopeName, scopeName)
+                raise "Could not find scope: %r for: %r" % (
+                    parentScopeName, scopeName)
         if h4_text_split[0] == "The" and h4_text_split[-1] == "class":
             print "Class:",
             cix_element = createCixClass(cix_module, scopeNames[-1])
@@ -165,39 +173,41 @@ def processScope(cix_module, h4_tag):
         print "%s - %s" % (scopeName, h4_text)
         processScopeFields(cix_element, h4_tag)
 
+
 def processRefTags(cix_module, p_tag):
     for h4_tag in p_tag.findNextSiblings("h4"):
-        #print sibling
+        # print sibling
         processScope(cix_module, h4_tag)
 
 cix_info_from_name = {
-    "$":   { "returnType" : "Element",    # Can also return an Array when called with multiples
-             "args" : [("elementId", "String")],
-             "signature" : "$(elementId [, ...]) --> Element"
-             },
-    "$F":  { "returnType" : "String",
-             "args" : [("element", "Element")],
-             "signature" : "$F(element/elementId]) --> String"
-             },
-    "$A":  { "returnType" : "Array",
-             "args" : [("obj", "Object")],
-             "signature" : "$A(obj) --> Array"
-             },
-    "$H":  { "returnType" : "Hash",
-             "args" : [("obj", "Object")],
-             "signature" : "$H(obj) --> Hash"
-             },
-    "$R":  { "returnType" : "ObjectRange",
-             "args" : [("lowerBound", "Number"),
-                       ("upperBound", "Number"),
-                       ("excludeBounds", "Boolean"),],
-             "signature" : "$R(lowerBound, upperBound, excludeBounds) --> ObjectRange"
-             },
-    "Try.these": { "returnType" : None,
-                   "args" : [("func1", "Function")],
-                   "signature" : "these(func1, [, ...])"
-                   },
+    "$":   {"returnType": "Element",    # Can also return an Array when called with multiples
+            "args": [("elementId", "String")],
+            "signature": "$(elementId [, ...]) --> Element"
+            },
+    "$F":  {"returnType": "String",
+            "args": [("element", "Element")],
+            "signature": "$F(element/elementId]) --> String"
+            },
+    "$A":  {"returnType": "Array",
+            "args": [("obj", "Object")],
+            "signature": "$A(obj) --> Array"
+            },
+    "$H":  {"returnType": "Hash",
+            "args": [("obj", "Object")],
+            "signature": "$H(obj) --> Hash"
+            },
+    "$R":  {"returnType": "ObjectRange",
+            "args": [("lowerBound", "Number"),
+                     ("upperBound", "Number"),
+                     ("excludeBounds", "Boolean"), ],
+            "signature": "$R(lowerBound, upperBound, excludeBounds) --> ObjectRange"
+            },
+    "Try.these": {"returnType": None,
+                  "args": [("func1", "Function")],
+                  "signature": "these(func1, [, ...])"
+                  },
 }
+
 
 def processH4Tag(cix_module, h4_tag):
     # These are all utility functions:
@@ -212,7 +222,7 @@ def processH4Tag(cix_module, h4_tag):
         while isinstance(nextsib, NavigableString):
             nextsib = nextsib.nextSibling
         p_tag = nextsib
-        #print "p_tag:", p_tag
+        # print "p_tag:", p_tag
         if p_tag.name == "p":
             cix_element = cix_module
             # We have enough info now
@@ -225,7 +235,8 @@ def processH4Tag(cix_module, h4_tag):
             sp = method_name.split(".")
             if len(sp) > 1:
                 for name in sp[:-1]:
-                    cix_element = createCixVariable(cix_element, name, vartype="Object")
+                    cix_element = createCixVariable(
+                        cix_element, name, vartype="Object")
                 method_name = sp[-1]
             cix_function = createCixFunction(cix_element, method_name)
             setCixDoc(cix_function, getSubElementText(p_tag), parse=True)
@@ -241,10 +252,13 @@ def processH4Tag(cix_module, h4_tag):
             for arg_name, arg_type in info.get("args", []):
                 addCixArgument(cix_function, arg_name, arg_type)
 
+
 def getPrototypeDocsFromWebpage():
-    urlOpener = urllib.urlopen("http://www.sergiopereira.com/articles/prototype.js.html")
+    urlOpener = urllib.urlopen(
+        "http://www.sergiopereira.com/articles/prototype.js.html")
     return urlOpener.read()
-    #return file("prototype.js.html").read()
+    # return file("prototype.js.html").read()
+
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
@@ -256,10 +270,13 @@ def updateCix(filename, content, updatePerforce=False):
             print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
 
 # Soup parsing of API documentation from webpage
+
+
 def main(cix_filename, updatePerforce=False):
     data = getPrototypeDocsFromWebpage()
     soup = BeautifulSoup(data)
-    cix_root = createCixRoot(name="Prototype", description="JavaScript framework for web development")
+    cix_root = createCixRoot(
+        name="Prototype", description="JavaScript framework for web development")
     cix_file = createCixFile(cix_root, "prototype", lang="JavaScript")
     cix_module = createCixModule(cix_file, "prototype", lang="JavaScript")
 
@@ -267,8 +284,9 @@ def main(cix_filename, updatePerforce=False):
     for h4_tag in h4_tags:
         processH4Tag(cix_module, h4_tag)
 
-    ref_tag = soup.html.body.div.findAll(attrs={'name':"Reference"}, limit=1)[0]
-    #print ref_tag
+    ref_tag = soup.html.body.div.findAll(
+        attrs={'name': "Reference"}, limit=1)[0]
+    # print ref_tag
     processRefTags(cix_module, ref_tag)
 
     # Write out the tree
@@ -291,5 +309,6 @@ if __name__ == '__main__':
         # Get main codeintel directory
         for i in range(4):
             cix_directory = os.path.dirname(cix_directory)
-        cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
+        cix_filename = os.path.join(
+            cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
     main(cix_filename, opts.update_perforce)

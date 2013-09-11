@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Completion evaluation code for JavaScript"""
@@ -47,12 +47,13 @@ from codeintel2.common import *
 from codeintel2.util import indent
 from codeintel2.tree import TreeEvaluator
 
+
 class CandidatesForTreeEvaluator(TreeEvaluator):
     # Note: the "alt" changes added in change 281350 make some of the
     # functionality on this class *not* appropriate for the shared
     # TreeEvaluator. I.e. _elem_from_scoperef et al should be moved
     # *out* of CandidatesForTreeEvaluator.
-    
+
     # This is a dict when set, multiple elements that have the same lpath will
     # be set in here, ensuring we get the correct one from an lpath lookup.
     # Fixes the following bug:
@@ -82,6 +83,7 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
     def _tokenize_citdl_expr(self, expr):
         chars = iter(zip(expr, chain(expr[1:], (None,))))
         buffer = []
+
         def get_pending_token():
             if buffer:
                 yield "".join(buffer)
@@ -91,7 +93,7 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
             quote = ch
             local_buffer = []
             for ch, next in chars:
-                #print "quote: quote=[%s] ch=[%s] next=[%s] token=%r" % (
+                # print "quote: quote=[%s] ch=[%s] next=[%s] token=%r" % (
                 #    quote, ch, next, local_buffer)
                 if ch == "\\":
                     local_buffer.append(chars.next()[0])
@@ -103,10 +105,10 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
                     local_buffer.append(ch)
 
         BLOCK_MAP = {"(": ")", "[": "]"}
-        
+
         for ch, next in chars:
-            #print "ch=[%s] next=[%s] token=%r" % (ch, next, buffer)
-            if ch in ('"', "'"): # quoted string
+            # print "ch=[%s] next=[%s] token=%r" % (ch, next, buffer)
+            if ch in ('"', "'"):  # quoted string
                 for token in get_pending_token():
                     yield token
                 for token in get_quoted_string(ch):
@@ -121,10 +123,10 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
                 for token in get_pending_token():
                     yield token
                 if next == block[1]:
-                    chars.next() # consume close quote
+                    chars.next()  # consume close quote
                     yield block[0] + block[1]
-                elif next in ('"', "'"): # quoted string
-                    chars.next() # consume open bracket
+                elif next in ('"', "'"):  # quoted string
+                    chars.next()  # consume open bracket
                     next_tokens = list(get_quoted_string(next))
                     ch, next = chars.next()
                     if ch == block[1] and emit:
@@ -141,6 +143,7 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
     def _join_citdl_expr(self, tokens):
         return '.'.join(tokens).replace('.()', '()')
 
+
 class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
     def eval_cplns(self):
         self.log_start()
@@ -156,9 +159,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             if not cplns:
                 raise CodeIntelError("No completions found")
         # For logging messages every call
-        #print indent('\n'.join("%s: %s" % (lvl, args and m % (args) or m)
+        # print indent('\n'.join("%s: %s" % (lvl, args and m % (args) or m)
         #                for lvl,m, args in self.ctlr.log))
-        #print indent('\n'.join(["Hit: %r" % (cpln, ) for cpln in cplns]))
+        # print indent('\n'.join(["Hit: %r" % (cpln, ) for cpln in cplns]))
         return cplns
 
     def eval_calltips(self):
@@ -177,7 +180,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         hits = self._hits_from_citdl(self.expr, start_scoperef, defn_only=True)
         if not hits:
             raise CodeIntelError("No definitions found")
-        return [ self._defn_from_hit(x) for x in hits ]
+        return [self._defn_from_hit(x) for x in hits]
 
     def parent_scoperef_from_scoperef(self, scoperef,
                                       started_in_builtin_window_scope=False):
@@ -215,6 +218,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         return "Window"
 
     _langintel = None
+
     @property
     def langintel(self):
         if self._langintel is None:
@@ -222,6 +226,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         return self._langintel
 
     _libs = None
+
     @property
     def libs(self):
         if self._libs is None:
@@ -234,6 +239,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         return self.libs[-1]
 
     _built_in_blob = None
+
     @property
     def built_in_blob(self):
         if self._built_in_blob is None:
@@ -272,7 +278,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                     self.log("push scope to class ctor %s", scoperef)
 
         started_in_builtin_window_scope = (scoperef[0] is self.built_in_blob
-            and scoperef[1] and scoperef[1][0] == self._global_var)
+                                           and scoperef[1] and scoperef[1][0] == self._global_var)
         while 1:
             try:
                 elem = self._elem_from_scoperef(scoperef)
@@ -294,7 +300,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             except KeyError:
                 self.log("is '%s' accessible on %s? no", token, scoperef)
                 scoperef = self.parent_scoperef_from_scoperef(scoperef,
-                                    started_in_builtin_window_scope)
+                                                              started_in_builtin_window_scope)
                 if not scoperef:
                     return None, None
 
@@ -330,26 +336,26 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         continue
                 if "__local__" in attributes:
                     # XXX: Move start_scoperef to be a part of the class
-                    #start_scoperef = self.get_start_scoperef()
-                    #scope_elem = start_scoperef[0]
-                    #for lname in start_scoperef[1]:
+                    # start_scoperef = self.get_start_scoperef()
+                    # scope_elem = start_scoperef[0]
+                    # for lname in start_scoperef[1]:
                     #    if elem == scope_elem:
                     #        members.add( ("variable", child.get("name")) )
                     #        break
                     #    scope_elem = scope_elem.names[lname]
-                    #else: # Don't show this variable
+                    # else: # Don't show this variable
                     continue
 
                 if child.tag == "scope":
                     if skip_js_ctor and child.get("ilk") == "function" \
                        and "__ctor__" in attributes:
                         continue
-                    members.add( (child.get("ilk"), child.get("name")) )
+                    members.add((child.get("ilk"), child.get("name")))
                 elif child.tag == "variable":
                     if len(child):
-                        members.add( ("namespace", child.get("name")) )
+                        members.add(("namespace", child.get("name")))
                     else:
-                        members.add( ("variable", child.get("name")) )
+                        members.add(("variable", child.get("name")))
                 else:
                     raise NotImplementedError("unknown hit child tag '%s': %r"
                                               % (child.tag, child))
@@ -369,7 +375,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         ctlines = []
         if not signature:
             name = elem.get("name")
-            #XXX Note difference for Tcl in _getSymbolCallTips.
+            # XXX Note difference for Tcl in _getSymbolCallTips.
             ctlines = [name + "(...)"]
         else:
             ctlines = signature.splitlines(0)
@@ -406,7 +412,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         calltips = []
 
         for elem, scoperef in hits:
-            #self.log("calltip for hit: %r", hit)
+            # self.log("calltip for hit: %r", hit)
             if elem.tag == "variable":
                 # Ignore variable hits.
                 self.debug("_calltips_from_hits:: ignoring variable: %r", elem)
@@ -432,11 +438,11 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             ## TODO: Bad with empty lpath: "(from  in prototype)"
             ## TODO: Problematic for test suite with "rand??" module names.
             ## TODO: Don't add for a local hit.
-            #blobname = scoperef[0].get("name")
-            #if blobname == "*":
+            # blobname = scoperef[0].get("name")
+            # if blobname == "*":
             #    blobname = "stdlib"
-            #scopename = '.'.join(scoperef[1])
-            #calltips[-1] += "\n(from %s in %s)" % (scopename, blobname)
+            # scopename = '.'.join(scoperef[1])
+            # calltips[-1] += "\n(from %s in %s)" % (scopename, blobname)
         return calltips
 
     def _hits_from_citdl(self, expr, scoperef, defn_only=False):
@@ -446,16 +452,18 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 # TODO: We cannot resolve array type inferences yet.
                 # Note that we do allow arrays types with a string key, since
                 # that's an alternative form for property access
-                raise CodeIntelError("no type-inference yet for arrays: %r" % expr)
+                raise CodeIntelError(
+                    "no type-inference yet for arrays: %r" % expr)
 
             tokens = list(self._tokenize_citdl_expr(expr))
 
-            #self.log("expr tokens: %r", tokens)
+            # self.log("expr tokens: %r", tokens)
 
             # First part... we try to match as much as possible straight up
             hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
             if not hits:
-                raise CodeIntelError("could not resolve first part of '%s'" % expr)
+                raise CodeIntelError(
+                    "could not resolve first part of '%s'" % expr)
             self.debug("_hits_from_citdl: first part: %r -> %r",
                        tokens[:nconsumed], hits)
 
@@ -474,7 +482,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         continue
                     try:
                         new_hit = self._hit_from_getattr(
-                                    elem, scoperef, token)
+                            elem, scoperef, token)
                     except CodeIntelError, ex:
                         if token == "prototype" and elem.get("ilk") == "class":
                             self.debug("_hits_from_citdl: using class %r for "
@@ -487,7 +495,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 hits = new_hits
 
             # Resolve any variable type inferences.
-            #XXX Don't we have to *recursively* resolve hits?
+            # XXX Don't we have to *recursively* resolve hits?
             #    If that is done, then need to watch out for infinite loop
             #    because _hits_from_variable_type_inference() for a variable
             #    with children just returns itself. I.e. you *can't* resolve
@@ -501,22 +509,24 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             for elem, scoperef in hits:
                 if scoperef[0] != curr_blob:
                     if "__file_local__" in elem.get("attributes", "").split():
-                        self.log("skipping __file_local__ %r in %r", elem, scoperef)
+                        self.log(
+                            "skipping __file_local__ %r in %r", elem, scoperef)
                         continue
                 if elem.tag == "variable" and not defn_only:
                     try:
                         if (not elem.get("citdl")) and elem.get("ilk") == "argument":
-                            # this is an argument, try to infer things from the caller
+                            # this is an argument, try to infer things from the
+                            # caller
                             subhits = self._hits_from_argument(elem, scoperef)
                         else:
                             subhits = self._hits_from_variable_type_inference(
-                                        elem, scoperef)
+                                elem, scoperef)
                     except CodeIntelError, ex:
                         self.warn("could not resolve %r: %s", elem, ex)
                     else:
                         resolved_hits += subhits
                 else:
-                    resolved_hits.append( (elem, scoperef) )
+                    resolved_hits.append((elem, scoperef))
 
             return resolved_hits
 
@@ -528,11 +538,14 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         @returns list of hits
         """
         assert elem.get("ilk") == "argument", \
-           "_hits_from_argument expects an argument, got a %r" % elem.get("ilk")
+            "_hits_from_argument expects an argument, got a %r" % elem.get(
+                "ilk")
         hits = []
-        scope = self._elem_from_scoperef(scoperef) # the function the argument is in
+        scope = self._elem_from_scoperef(
+            scoperef)  # the function the argument is in
 
-        args = [arg for arg in scope.findall("variable") if arg.get("ilk") == "argument"]
+        args = [arg for arg in scope.findall(
+            "variable") if arg.get("ilk") == "argument"]
         for pos in range(len(args)):
             if args[pos].get("name") == elem.get("name"):
                 break
@@ -542,16 +555,17 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
         for caller in scope.getiterator("caller"):
             citdl = caller.get("citdl")
-            caller_pos = int(caller.get("pos") or 0) # 1-indexed
+            caller_pos = int(caller.get("pos") or 0)  # 1-indexed
             if citdl is None or caller_pos < 1:
                 # invalid caller
                 continue
             for caller_hit in self._hits_from_citdl(citdl, scoperef):
-                caller_func = caller_hit[0] # the calling function
+                caller_func = caller_hit[0]  # the calling function
                 if caller_func.get("ilk") != "function":
                     # nevermind, not a function
                     continue
-                caller_args = [arg for arg in caller_func.getiterator("variable") if arg.get("ilk") == "argument"]
+                caller_args = [arg for arg in caller_func.getiterator(
+                    "variable") if arg.get("ilk") == "argument"]
                 if caller_pos > len(caller_args):
                     # no such argument
                     continue
@@ -560,11 +574,13 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 if not citdl:
                     continue
                 for citdl_hit in self._hits_from_citdl(citdl, caller_hit[1]):
-                    # got the function being called, now look up the argument by pos
+                    # got the function being called, now look up the argument
+                    # by pos
                     func = citdl_hit[0]
                     if func.get("ilk") != "function":
                         continue
-                    args = [arg for arg in func.getiterator("variable") if arg.get("ilk") == "argument"]
+                    args = [arg for arg in func.getiterator(
+                        "variable") if arg.get("ilk") == "argument"]
                     if pos >= len(args):
                         continue
                     citdl = args[pos].get("citdl")
@@ -603,7 +619,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 requirename = None
             if requirename is not None:
                 import codeintel2.lang_javascript
-                requirename = codeintel2.lang_javascript.Utils.unquoteJsString(requirename)
+                requirename = codeintel2.lang_javascript.Utils.unquoteJsString(
+                    requirename)
                 self.log("_hits_from_call: resolving CommonJS require(%r)",
                          requirename)
                 hits = self._hits_from_commonjs_require(requirename, scoperef)
@@ -628,7 +645,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                          resolver, scoperef)
         else:
             self.log("_hits_from_call: no resolver on %r", elem)
-            
+
         citdl = elem.get("returns")
         if not citdl:
             raise CodeIntelError("no return type info for %r" % elem)
@@ -679,7 +696,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                     self.log("attr is %r on %r", attr, hit_elem)
                     if hit_scoperef:
                         class_scoperef = (hit_scoperef[0],
-                                      hit_scoperef[1]+[hit_elem.get("name")])
+                                          hit_scoperef[1]+[hit_elem.get("name")])
                         # If this is a variable defined in a class, move the
                         # scope to become the position in the class where the
                         # variable was defined (usually the ctor class function)
@@ -690,12 +707,14 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                            lineno > int(hit_elem.get("line", "-1")) and \
                            lineno <= int(hit_elem.get("lineend", "-1")):
                             # get the scope of the variable
-                            blob, lpath = self.buf.scoperef_from_blob_and_line(hit_elem,
-                                                                      lineno)
+                            blob, lpath = self.buf.scoperef_from_blob_and_line(
+                                hit_elem,
+                                lineno)
                             if lpath:
                                 class_scoperef = (class_scoperef[0],
                                                   class_scoperef[1]+lpath)
-                                self.log("Updating scoperef to: %r", class_scoperef)
+                                self.log(
+                                    "Updating scoperef to: %r", class_scoperef)
                     else:
                         class_scoperef = (None, [hit_elem.get("name")])
                     return (attr, class_scoperef)
@@ -711,7 +730,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                                 self.log("is '%s' from %s base class? yes",
                                          token, base_elem)
                                 new_scoperef = (base_scoperef[0],
-                                                base_scoperef[1]+
+                                                base_scoperef[1] +
                                                 [base_elem.get("name")])
                                 return (base_elem.names[token], new_scoperef)
                             self.log("is '%s' from %s base class? no", token,
@@ -733,8 +752,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             # Node.js / CommonJS hack: try to resolve things via require()
             requirename = elem.get('required_library_name')
             if requirename:
-                self.log("_hits_from_variable_type_inference: resolving require(%r)",
-                         requirename)
+                self.log(
+                    "_hits_from_variable_type_inference: resolving require(%r)",
+                    requirename)
                 hits += self._hits_from_commonjs_require(requirename, scoperef)
 
         if len(elem) != 0:
@@ -754,11 +774,12 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             # different match that has the same name, so we go looking for it.
             # Fix for bug: http://bugs.activestate.com/show_bug.cgi?id=71666
             self.log("_hits_from_variable_type_inference:: recursive citdl "
-                      " expression found, trying alternatives.")
+                     " expression found, trying alternatives.")
             try:
                 parent_elem = self._elem_from_scoperef(scoperef)
             except KeyError, ex:
-                raise CodeIntelError("could not resolve recursive citdl expression %r" % citdl)
+                raise CodeIntelError(
+                    "could not resolve recursive citdl expression %r" % citdl)
             else:
                 alt_hits = []
                 # Look for alternative non-variable matches.
@@ -771,16 +792,19 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                             self._alt_elem_from_scoperef = {}
                         alt_sref_name = ".".join(scoperef[1] + [citdl])
                         self._alt_elem_from_scoperef[alt_sref_name] = child
-                        self.log("Alternative hit found: %r, scoperef: %r", child, scoperef, )
+                        self.log(
+                            "Alternative hit found: %r, scoperef: %r", child, scoperef, )
                 if alt_hits:
                     return alt_hits
                 # Try from the parent scoperef then.
                 scoperef = self.parent_scoperef_from_scoperef(scoperef)
                 if scoperef is None:
                     # When we run out of scope, raise an error
-                    raise CodeIntelError("could not resolve recursive citdl expression %r" % citdl)
+                    raise CodeIntelError(
+                        "could not resolve recursive citdl expression %r" % citdl)
                 # Continue looking using _hits_from_citdl with the parent.
-                self.log("Continue search for %r from the parent scope.", citdl)
+                self.log(
+                    "Continue search for %r from the parent scope.", citdl)
 
         try:
             hits += self._hits_from_citdl(citdl, scoperef)
@@ -798,7 +822,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
     def _hits_from_first_part(self, tokens, scoperef):
         """Resolve the first part of the expression.
-        
+
         If the first token is found at the global or built-in level (or
         not found at all locally) then it may be a shared namespace with
         other files in the execution set. Get that down to a list of
@@ -814,7 +838,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             or not scoperef[1]      # first token was found at global level
             # first token was found on built-in Window class (the top scope)
             or (scoperef[1] == ['Window'] and scoperef[0].get("name") == "*")
-           ):
+            ):
             # Search symbol table in execution set.
             #
             # Example: 'myPet.name.toLowerCase()' and 'myPet' is found
@@ -830,18 +854,20 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
             hits = []
             for nconsumed in range(first_call_idx, 0, -1):
-                lpath = tuple(tokens[:nconsumed]) # for hits_from_lpath()
+                lpath = tuple(tokens[:nconsumed])  # for hits_from_lpath()
                 if elem is not None and len(lpath) > 1:
                     # Try at the current elem we found in the file
                     try:
-                        self.log("Checking for deeper local match %r from scoperef %r", lpath[1:], scoperef)
+                        self.log("Checking for deeper local match %r from scoperef %r", lpath[
+                                 1:], scoperef)
                         check_elem = elem
                         for p in lpath[1:]:   # we matched first token already
                             check_elem = check_elem.names[p]
-                        check_scoperef = (scoperef[0], scoperef[1] + list(lpath[:-1]))
+                        check_scoperef = (scoperef[
+                                          0], scoperef[1] + list(lpath[:-1]))
                         hits.insert(0, (check_elem,
                                         check_scoperef))
-                        self.log("_hit_from_first_part: found deeper local elem: "\
+                        self.log("_hit_from_first_part: found deeper local elem: "
                                  "%s %r at %r",
                                 check_elem.get("ilk") or check_elem.tag,
                                 check_elem.get("name"),
@@ -873,7 +899,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         except KeyError:
                             break
                     else:
-                        if new_elem not in (e for e,sr in hits):
+                        if new_elem not in (e for e, sr in hits):
                             new_scoperef = (scoperef[0], tokens[:nconsumed-1])
                             hits.insert(0, (new_elem, new_scoperef))
         else:
@@ -904,9 +930,11 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             for blob in blobs or []:
                 exports = blob.names.get("exports")
                 if exports is not None and exports.tag == "variable":
-                    hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
+                    hits += self._hits_from_variable_type_inference(
+                        exports, [blob, ["exports"]])
                 else:
-                    self.log("Exported exports to be a variable, got %r instead", exports)
+                    self.log(
+                        "Exported exports to be a variable, got %r instead", exports)
         return hits
 
     ## n-char trigger completions ##
@@ -915,7 +943,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         """Return all available element names beginning with expr"""
         self.log("_completion_names_from_scope:: %r, scoperef: %r",
                  expr, scoperef)
-        #global_blob = self._elem_from_scoperef(self._get_global_scoperef(scoperef))
+        # global_blob = self._elem_from_scoperef(self._get_global_scoperef(scoperef))
         # Get all of the imports
 
         # Keep a dictionary of completions.
@@ -940,7 +968,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             if elem is None:
                 continue
             for name in elem.names:
-                #self.log("_completion_names_from_scope:: checking name: %r",
+                # self.log("_completion_names_from_scope:: checking name: %r",
                 #         name)
                 if name and name.startswith(expr):
                     if name not in all_completions:
@@ -948,10 +976,11 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         if loopcount and "__local__" in hit_elem.get("attributes", "").split():
                             # Skip things that should only be local to the
                             # original scope.
-                            #self.log("_completion_names_from_scope:: skipping local %r",
+                            # self.log("_completion_names_from_scope:: skipping local %r",
                             #         name)
                             continue
-                        all_completions[name] = hit_elem.get("ilk") or hit_elem.tag
+                        all_completions[name] = hit_elem.get(
+                            "ilk") or hit_elem.tag
             # Continue walking up the scope chain...
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
 

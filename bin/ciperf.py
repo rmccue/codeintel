@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """
@@ -53,7 +53,7 @@
         -f <cidb path>
             Specify a CodeIntel DB to work with. By default the codeintel.db
             in your locally configured Komodo dev build is used.
-            
+
         -n, --number <num>
             Number of times to run the perf functions when in timing mode
             (-t option). If not specified an "appropriate" number of times
@@ -65,7 +65,7 @@
         -t, --timeit            (default mode) Time the given perf function.
         -r, --run               Just run the given perf function.
         -c, --coverage          Dump coverage information on perf function.
-    
+
     Examples:
         # Run the baseline CodeIntel performance suite
         ciperf --suite
@@ -113,13 +113,13 @@ g_corpus_dir = os.path.join(os.path.dirname(__file__), "test", "perf_corpus")
 
 def perf_cidb_size(dbpath):
     """Scan current Perl lib into a new CIDB and dump size information.
-    
+
     The CIDB path selected with the "-f" option is ignored. Run this test
     with:
         ciperf -n 1 -r cidb_size
     """
     if sys.platform == "win32":
-        clock = time.clock # time.clock is best on Windows
+        clock = time.clock  # time.clock is best on Windows
     else:
         clock = time.time  # time.time is best on non-Win platforms
 
@@ -145,21 +145,21 @@ def perf_cidb_size(dbpath):
     finally:
         mgr.finalize()
     endtime = time.time()
-    results.append( {"dname": perllib,
-                     "seconds": endtime-starttime,
-                     "dbsize": os.stat(dbpath).st_size} )
+    results.append({"dname": perllib,
+                    "seconds": endtime-starttime,
+                    "dbsize": os.stat(dbpath).st_size})
     print "Results:"
     for res in results:
         print res["dname"]+':'
         seconds = res["seconds"]
-        h,m,s = seconds/3600.0, seconds/60.0, seconds%60.0
-        print "\tTime: %02dh%02dm%02.1fs" % (h,m,s)
+        h, m, s = seconds/3600.0, seconds/60.0, seconds % 60.0
+        print "\tTime: %02dh%02dm%02.1fs" % (h, m, s)
         print "\tSize: %.2f KB" % (res["dbsize"]/1024.0)
 
 
 def perf_setup_perl_completion(dbpath):
     """Setup for perl_completion().
-    
+
     This will ensure that your CIDB has the Perl files that
     "perl_completion" requires.
     """
@@ -180,7 +180,8 @@ def perf_setup_perl_completion(dbpath):
 
     try:
         # Scan in a test Perl script.
-        script = os.path.join(g_corpus_dir, "GET.pl") # Gisle's GET Perl script
+        script = os.path.join(
+            g_corpus_dir, "GET.pl")  # Gisle's GET Perl script
         r = ScanRequest(script, "Perl", PRIORITY_OPEN)
         mgr.addRequest(r)
         # let scheduler finish its scans
@@ -189,10 +190,11 @@ def perf_setup_perl_completion(dbpath):
             time.sleep(1)
     finally:
         mgr.finalize()
-    
+
+
 def perf_perl_completion(dbpath):
     """Get some Perl completions.
-    
+
     To run this time test:
         ciperf -f perf.db -r setup_perl_completion
         ciperf -f perf.db -t perl_completion
@@ -204,52 +206,65 @@ def perf_perl_completion(dbpath):
     try:
         # Gisle's GET Perl script (a good real-world example)
         # - lets "edit" on line 309, after the $ua var is set.
-        script = os.path.join(g_corpus_dir, "GET.pl") # Gisle's GET Perl script
+        script = os.path.join(
+            g_corpus_dir, "GET.pl")  # Gisle's GET Perl script
         line = 313
         content = open(script, 'r').read()
-        
+
         if 0:
-            #completions = mgr.getCallTips("Perl", script, line, "chmod", content=content)
-            #completions = mgr.getCallTips("Perl", script, line, "LWP", content=content)
-            #completions = mgr.getMembers("Perl", script, line, "LWP", content=content)
-            #completions = mgr.getMembers("Perl", script, line, "LWP::UserAgent", content=content)
-            #completions = mgr.getCallTips("Perl", script, line, "$ua.mirror", content=content)
-            completions = mgr.getMembers("Perl", script, line, "$ua", content=content)
-            #completions = mgr.getCallTips("Perl", script, line, "$ua", content=content)
+            # completions = mgr.getCallTips("Perl", script, line, "chmod", content=content)
+            # completions = mgr.getCallTips("Perl", script, line, "LWP", content=content)
+            # completions = mgr.getMembers("Perl", script, line, "LWP", content=content)
+            # completions = mgr.getMembers("Perl", script, line, "LWP::UserAgent", content=content)
+            # completions = mgr.getCallTips("Perl", script, line, "$ua.mirror",
+            # content=content)
+            completions = mgr.getMembers(
+                "Perl", script, line, "$ua", content=content)
+            # completions = mgr.getCallTips("Perl", script, line, "$ua",
+            # content=content)
         else:
             for i in range(5):
                 # Do a few Perl completions in this file.
-                completions = mgr.getCallTips("Perl", script, line, "chmod", content=content)
-                completions = mgr.getCallTips("Perl", script, line, "LWP", content=content)
-                completions = mgr.getMembers("Perl", script, line, "LWP", content=content)
-                completions = mgr.getMembers("Perl", script, line, "LWP::UserAgent", content=content)
-                completions = mgr.getCallTips("Perl", script, line, "$ua.mirror", content=content)
-                completions = mgr.getMembers("Perl", script, line, "$ua", content=content)
-                completions = mgr.getCallTips("Perl", script, line, "$ua", content=content)
+                completions = mgr.getCallTips(
+                    "Perl", script, line, "chmod", content=content)
+                completions = mgr.getCallTips(
+                    "Perl", script, line, "LWP", content=content)
+                completions = mgr.getMembers(
+                    "Perl", script, line, "LWP", content=content)
+                completions = mgr.getMembers(
+                    "Perl", script, line, "LWP::UserAgent", content=content)
+                completions = mgr.getCallTips(
+                    "Perl", script, line, "$ua.mirror", content=content)
+                completions = mgr.getMembers(
+                    "Perl", script, line, "$ua", content=content)
+                completions = mgr.getCallTips(
+                    "Perl", script, line, "$ua", content=content)
     finally:
         mgr.finalize()
-    
+
+
 def perf_perl_scan(dbpath):
     """Time scanning and loading a "real world" Perl script into the CIDB.
-    
+
     To run this time test:
         ciperf -f perf.db -t perl_scan
     """
     import which
     import codeintel
     import threading
-    
+
     # Gisle's HTTP Perl scripts (good real-world examples) plus some
     # Perl 5.8 stdlib modules.
     scripts = glob.glob(os.path.join(g_corpus_dir, "*.pl"))
     scripts += glob.glob(os.path.join(g_corpus_dir, "*.pm"))
     if not scripts:
         raise Error("no scripts found for 'perf_perl_scan'")
-    
+
     finished = threading.Event()
 
     class MyManager(codeintel.Manager):
         scanned = []
+
         def requestCompleted(self, request):
             self.scanned.append(request.path)
             if len(self.scanned) == len(scripts):
@@ -264,14 +279,14 @@ def perf_perl_scan(dbpath):
             r = ScanRequest(script, "Perl", PRIORITY_OPEN, force=1)
             mgr.addRequest(r)
 
-        finished.wait() # wait until done scanning
+        finished.wait()  # wait until done scanning
     finally:
         mgr.finalize()
 
 
 def perf_setup_python_completion(dbpath):
     """Setup for python_completion().
-    
+
     This will ensure that your CIDB has the Python files that
     "python_completion" requires.
     """
@@ -305,10 +320,11 @@ def perf_setup_python_completion(dbpath):
             time.sleep(1)
     finally:
         mgr.finalize()
-    
+
+
 def perf_python_completion(dbpath):
     """Get some Python completions.
-    
+
     To run this time test:
         ciperf -f perf.db -r setup_python_completion
         ciperf -f perf.db -t python_completion
@@ -320,9 +336,9 @@ def perf_python_completion(dbpath):
     mgr.initialize(dbpath)
     try:
         script = os.path.join(g_corpus_dir, "cidb.py")
-        line = 227 # in the time_query() function
+        line = 227  # in the time_query() function
         content = open(script, 'r').read()
-        
+
         # Do a few Python completions in this file.
         for i in range(5):
             completions = mgr.getCallTips("Python", script, line, "os.chmod",
@@ -333,14 +349,15 @@ def perf_python_completion(dbpath):
                                          content=content)
             completions = mgr.getMembers("Python", script, line, "t",
                                          content=content)
-            completions = mgr.getCallTips("Python", script, line, "timeit.Timer",
-                                          content=content)
+            completions = mgr.getCallTips(
+                "Python", script, line, "timeit.Timer",
+                content=content)
             completions = mgr.getCallTips("Python", script, line, "t.timeit",
                                           content=content)
-    
+
         # Do similar in a big file.
         script = os.path.join(g_corpus_dir, "cb.py")
-        line = 566 # in a CBRootNode method
+        line = 566  # in a CBRootNode method
         content = open(script, 'r').read()
 
         for i in range(5):
@@ -350,32 +367,36 @@ def perf_python_completion(dbpath):
                                          content=content)
             completions = mgr.getMembers("Python", script, line, "self",
                                          content=content)
-            completions = mgr.getCallTips("Python", script, line, "self.addModule",
-                                          content=content)
-            completions = mgr.getCallTips("Python", script, line, "self.generateRows",
-                                          content=content)
+            completions = mgr.getCallTips(
+                "Python", script, line, "self.addModule",
+                content=content)
+            completions = mgr.getCallTips(
+                "Python", script, line, "self.generateRows",
+                content=content)
     finally:
         mgr.finalize()
 
+
 def perf_python_scan(dbpath):
     """Time scanning and loading a "real world" Python script into the CIDB.
-    
+
     To run this time test:
         ciperf -f perf.db -t python_scan
     """
     import which
     import codeintel
     import threading
-    
+
     # Some real-world examples
     scripts = glob.glob(os.path.join(g_corpus_dir, "*.py"))
     if not scripts:
         raise Error("no scripts found for 'perf_python_scan'")
-    
+
     finished = threading.Event()
 
     class MyManager(codeintel.Manager):
         scanned = []
+
         def requestCompleted(self, request):
             self.scanned.append(request.path)
             if len(self.scanned) == len(scripts):
@@ -390,29 +411,30 @@ def perf_python_scan(dbpath):
             r = ScanRequest(script, "Python", PRIORITY_OPEN, force=1)
             mgr.addRequest(r)
 
-        finished.wait() # wait until done scanning
+        finished.wait()  # wait until done scanning
     finally:
         mgr.finalize()
 
 
 def perf_tcl_scan(dbpath):
     """Time scanning and loading some "real world" Tcl scripts into the CIDB.
-    
+
     To run this time test:
         ciperf -f perf.db -t tcl_scan
     """
     import which
     import codeintel
     import threading
-    
+
     scripts = glob.glob(os.path.join(g_corpus_dir, "*.tcl"))
     if not scripts:
         raise Error("no scripts found for 'perf_tcl_scan'")
-    
+
     finished = threading.Event()
 
     class MyManager(codeintel.Manager):
         scanned = []
+
         def requestCompleted(self, request):
             self.scanned.append(request.path)
             if len(self.scanned) == len(scripts):
@@ -425,17 +447,15 @@ def perf_tcl_scan(dbpath):
             r = ScanRequest(script, "Tcl", PRIORITY_OPEN, force=1)
             mgr.addRequest(r)
 
-        finished.wait() # wait until done scanning
+        finished.wait()  # wait until done scanning
     finally:
         mgr.finalize()
 
 
-
 #---- internal support routines
-
 def banner(text, ch='=', length=70):
     """Return a banner line centering the given text.
-    
+
         "text" is the text to show in the banner. None can be given to have
             no text.
         "ch" (optional, default '=') is the banner line character (can
@@ -463,12 +483,13 @@ def banner(text, ch='=', length=70):
             prefix = ch * prefix_len
             suffix = ch * suffix_len
         else:
-            prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len%len(ch)]
-            suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
+            prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len % len(ch)]
+            suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len % len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
+
 def _get_komodo_user_data_dir(kover):
-    if os.environ.has_key("KOMODO_USERDATADIR"):
+    if "KOMODO_USERDATADIR" in os.environ:
         userdatadir = os.environ["KOMODO_USERDATADIR"]
     if sys.platform == "win32":
         from win32com.shell import shellcon, shell
@@ -480,9 +501,9 @@ def _get_komodo_user_data_dir(kover):
         userdatadir = os.path.join(userdatadir, "ActiveState", "Komodo")
     else:
         userdatadir = os.path.expanduser("~/.komodo")
-    
+
     return os.path.join(userdatadir, kover)
-    
+
 
 def find_komodo_cidb_path():
     log.debug("find_komodo_cidb_path()")
@@ -509,11 +530,10 @@ def find_komodo_cidb_path():
     except ImportError, ex:
         raise Error("could not determine Komodo version: %s" % ex)
     bkconfig = imp.load_module("bkconfig", file, path, desc)
-    kover = '.'.join( bkconfig.version.split('.', 2)[:2] )
-    
+    kover = '.'.join(bkconfig.version.split('.', 2)[:2])
+
     return os.path.join(_get_komodo_user_data_dir(kover, True),
                         "codeintel.db")
-
 
 
 def _list_perf_funcs(verbose=False):
@@ -535,14 +555,16 @@ def _list_perf_funcs(verbose=False):
                 doc = ''
             docmap[perffunc[len(prefix):]] = doc
     perffuncs = docmap.keys()
-    
+
     print banner("Performance Functions")
     for i, perffunc in enumerate(perffuncs):
         doc = docmap[perffunc]
         if verbose:
-            if i: print
+            if i:
+                print
             print perffunc
-            if doc: print "    "+doc
+            if doc:
+                print "    "+doc
         else:
             if doc:
                 doc = doc.splitlines()[0]
@@ -551,9 +573,7 @@ def _list_perf_funcs(verbose=False):
             print "  %-20s  %s" % (perffunc, doc)
 
 
-
 #---- mainline
-
 def time_perffunc(dbpath, perffunc, number=0, header=True):
     precision = 3
     repeat = 1
@@ -597,8 +617,8 @@ def main(argv):
     # Parse options and args.
     try:
         opts, args = getopt.getopt(argv[1:], "Vvhf:Sltrcn:",
-            ["version", "verbose", "help", "suite", "list", "timeit", "run",
-             "coverage", "number="])
+                                   ["version", "verbose", "help", "suite", "list", "timeit", "run",
+                                    "coverage", "number="])
     except getopt.GetoptError, ex:
         log.error(str(ex))
         log.error("Try `ciperf --help'.")
@@ -642,10 +662,12 @@ def main(argv):
             print banner("CodeIntel Performance Suite")
             print "dbpath:      %s" % dbpath
             print "machine:     %s (%s)" % (getHostname(), sys.platform)
-            i,o,e = os.popen3("p4 changes -m1 ./...")
+            i, o, e = os.popen3("p4 changes -m1 ./...")
             output = o.read()
-            i.close(); o.close(); retval = e.close()
-            print "last change: %s" % output.split("'",1)[0].strip()
+            i.close()
+            o.close()
+            retval = e.close()
+            print "last change: %s" % output.split("'", 1)[0].strip()
             print banner(None, ch='-')
             print "setup database..."
             perf_setup_perl_completion(dbpath)
@@ -653,11 +675,13 @@ def main(argv):
             print "time 'perl_scan'..."
             time_perffunc(dbpath, "perl_scan", number=number, header=False)
             print "time 'perl_completion'..."
-            time_perffunc(dbpath, "perl_completion", number=number, header=False)
+            time_perffunc(
+                dbpath, "perl_completion", number=number, header=False)
             print "time 'python_scan'..."
             time_perffunc(dbpath, "python_scan", number=number, header=False)
             print "time 'python_completion'..."
-            time_perffunc(dbpath, "python_completion", number=number, header=False)
+            time_perffunc(
+                dbpath, "python_completion", number=number, header=False)
             print banner(None, ch='-')
         if dbpath is None:
             dbpath = find_komodo_cidb_path()
@@ -674,7 +698,9 @@ def main(argv):
                 func = getattr(sys.modules[__name__], 'perf_'+perffunc)
                 func(dbpath)
         elif mode == "coverage":
-            import hotshot, hotshot.stats, test.pystone
+            import hotshot
+            import hotshot.stats
+            import test.pystone
             for perffunc in perffuncs:
                 perfdump = "ciperf.%s.prof" % perffunc
                 func = getattr(sys.modules[__name__], 'perf_'+perffunc)
@@ -684,7 +710,7 @@ def main(argv):
                 stats = hotshot.stats.load(perfdump)
                 stats.strip_dirs()
                 stats.sort_stats('time', 'calls')
-                #stats.sort_stats('cumulative', 'time', 'calls')
+                # stats.sort_stats('cumulative', 'time', 'calls')
                 stats.print_stats(20)
         else:
             raise Error("unexpected mode: '%r'" % mode)
@@ -699,5 +725,4 @@ def main(argv):
         log.debug("user abort")
 
 if __name__ == "__main__":
-    sys.exit( main(sys.argv) )
-
+    sys.exit(main(sys.argv))

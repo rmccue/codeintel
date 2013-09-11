@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some Perl-specific codeintel handling."""
@@ -54,17 +54,13 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 #---- globals
-
 log = logging.getLogger("test")
 
 PERL_STDLIB_HAS_POD_INFO = False  # c.f. bug 65739
 
 
-
 #---- the test cases
-
 class LibsTestCase(CodeIntelTestCase):
     test_dir = join(os.getcwd(), "tmp")
 
@@ -82,11 +78,11 @@ class LibsTestCase(CodeIntelTestCase):
                                         env=env)
         for perl in which.whichall("perl"):
             env.set_pref("perl", perl)
-            for lib in buf.libs: # test envlib
+            for lib in buf.libs:  # test envlib
                 if lib.name == "envlib":
                     self.failUnless(os.environ["PERL5LIB"] in lib.dirs,
-                        "envlib for '%s' does not have the expected dirs: "
-                        "lib.dirs=%r" % (perl, lib.dirs))
+                                    "envlib for '%s' does not have the expected dirs: "
+                                    "lib.dirs=%r" % (perl, lib.dirs))
                     break
             else:
                 self.fail("no envlib in libs for '%s': libs=%r"
@@ -105,21 +101,27 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("$FOO->[1]-><|>")
         self.assertNoTrigger("$FOO[1]-><|>")
         # E.g., from UDDI::Lite
-        #   my $auth = get_authToken({userID => 'USERID', cred => 'CRED'})->authInfo;
+        # my $auth = get_authToken({userID => 'USERID', cred =>
+        # 'CRED'})->authInfo;
         self.assertNoTrigger("foo()-><|>")
 
         self.assertTriggerMatches("$FOO-><|>", name="perl-complete-*-subs",
                                   pos=6, length=2)
         self.assertTriggerMatches("$foo-><|>", name="perl-complete-*-subs")
         self.assertTriggerMatches("$Foo-><|>", name="perl-complete-*-subs")
-        self.assertTriggerMatches("$Foo::Bar-><|>", name="perl-complete-*-subs")
-        self.assertTriggerMatches("$Foo::Bar::baz-><|>", name="perl-complete-*-subs")
-        self.assertTriggerMatches("Foo::bar $baz-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches(
+            "$Foo::Bar-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches(
+            "$Foo::Bar::baz-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches(
+            "Foo::bar $baz-><|>", name="perl-complete-*-subs")
         self.assertTriggerMatches("$ foo-><|>", name="perl-complete-*-subs")
         self.assertTriggerMatches("$_-><|>", name="perl-complete-*-subs")
         self.assertTriggerMatches("Foo::Bar-><|>", name="perl-complete-*-subs")
-        self.assertTriggerMatches("Foo::Bar::baz-><|>", name="perl-complete-*-subs")
-        self.assertTriggerMatches("foo\n  \t-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches(
+            "Foo::Bar::baz-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches(
+            "foo\n  \t-><|>", name="perl-complete-*-subs")
 
     def test_complete_package_members(self):
         name = "perl-complete-package-members"
@@ -140,7 +142,7 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("\foo::<|>", name=name)
         self.assertTriggerMatches("*foo::<|>", name=name)
         self.assertTriggerMatches("%foo::<|>", name=name)
-        self.assertTriggerMatches("$::<|>", name=name) # equiv to $main::
+        self.assertTriggerMatches("$::<|>", name=name)  # equiv to $main::
 
         self.assertTriggerMatches("@B::<|>SV::ISA = 'B::OBJECT';", name=name)
         self.assertTriggerMatches("@B::SV::<|>ISA = 'B::OBJECT';", name=name)
@@ -165,27 +167,34 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("no FOO::<|>", name=name, length=2, pos=8)
         self.assertTriggerMatches("no foo::<|>", name=name, prefix="foo")
         self.assertTriggerMatches("no Foo::<|>", name=name, prefix="Foo")
-        self.assertTriggerMatches("no Foo::Bar::<|>", name=name, prefix="Foo::Bar")
+        self.assertTriggerMatches(
+            "no Foo::Bar::<|>", name=name, prefix="Foo::Bar")
         self.assertTriggerMatches("no Foo::<|>Bar::", name=name, prefix="Foo")
-        self.assertTriggerMatches("$no Foo::<|>", name="perl-complete-package-members")
+        self.assertTriggerMatches(
+            "$no Foo::<|>", name="perl-complete-package-members")
         self.assertTriggerMatches(" no Foo::<|>", name=name)
         self.assertTriggerMatches("\tno Foo::<|>", name=name)
 
         self.assertTriggerMatches("use FOO::<|>", name=name, length=2, pos=9)
         self.assertTriggerMatches("use foo::<|>", name=name, prefix="foo")
         self.assertTriggerMatches("use Foo::<|>", name=name, prefix="Foo")
-        self.assertTriggerMatches("use Foo::Bar::<|>", name=name, prefix="Foo::Bar")
+        self.assertTriggerMatches(
+            "use Foo::Bar::<|>", name=name, prefix="Foo::Bar")
         self.assertTriggerMatches("use Foo::<|>Bar::", name=name, prefix="Foo")
-        self.assertTriggerMatches("$use Foo::<|>", name="perl-complete-package-members")
+        self.assertTriggerMatches(
+            "$use Foo::<|>", name="perl-complete-package-members")
         self.assertTriggerMatches(" use Foo::<|>", name=name)
         self.assertTriggerMatches("\tuse Foo::<|>", name=name)
 
         self.assertTriggerMatches("require FOO::<|>", name=name)
         self.assertTriggerMatches("require foo::<|>", name=name, prefix="foo")
         self.assertTriggerMatches("require Foo::<|>", name=name, prefix="Foo")
-        self.assertTriggerMatches("require Foo::Bar::<|>", name=name, prefix="Foo::Bar")
-        self.assertTriggerMatches("require Foo::<|>Bar::", name=name, prefix="Foo")
-        self.assertTriggerMatches("$require Foo::<|>", name="perl-complete-package-members")
+        self.assertTriggerMatches(
+            "require Foo::Bar::<|>", name=name, prefix="Foo::Bar")
+        self.assertTriggerMatches(
+            "require Foo::<|>Bar::", name=name, prefix="Foo")
+        self.assertTriggerMatches(
+            "$require Foo::<|>", name="perl-complete-package-members")
         self.assertTriggerMatches(" require Foo::<|>", name=name)
         self.assertTriggerMatches("\trequire Foo::<|>", name=name)
 
@@ -197,8 +206,9 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("(<|>")
 
         self.assertTriggerMatches("split <|>",
-            name="perl-calltip-space-call-signature", pos=6, length=1)
-        self.assertTriggerMatches(" split <|>", name="perl-calltip-space-call-signature")
+                                  name="perl-calltip-space-call-signature", pos=6, length=1)
+        self.assertTriggerMatches(
+            " split <|>", name="perl-calltip-space-call-signature")
         # Keep the scope of space-triggerred calltips low. No absolute
         # need to support more than one space away.
         self.assertNoTrigger("split  <|>")
@@ -216,23 +226,32 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("% split <|>")
         self.assertNoTrigger("\\ split <|>")
         self.assertNoTrigger("* split <|>")
-        self.assertNoTrigger("sub split <|>") # can overload built-ins
+        self.assertNoTrigger("sub split <|>")  # can overload built-ins
 
         self.assertTriggerMatches(" split(<|>",
-            name="perl-calltip-call-signature", pos=7, length=1)
-        self.assertTriggerMatches(" split (<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("split(<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("split (<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("FOO(<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("FOO (<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("$FOO->BAR(<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("FOO::BAR->BAZ(<|>", name="perl-calltip-call-signature")
+                                  name="perl-calltip-call-signature", pos=7, length=1)
+        self.assertTriggerMatches(
+            " split (<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "split(<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "split (<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO(<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO (<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "$FOO->BAR(<|>", name="perl-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO::BAR->BAZ(<|>", name="perl-calltip-call-signature")
         # Currently unable to test this because the Perl lexer assigns
         # a number style to the cursor position in the test suite setup.
         # I can't repro that style-assignment in the normal editor and
         # it seems to work fine there, so leaving this for now.
-        #self.assertTriggerMatches("FOO'BAR->BAZ(<|>", name="perl-calltip-call-signature")
-        self.assertTriggerMatches("&FOO(<|>", name="perl-calltip-call-signature")
+        # self.assertTriggerMatches("FOO'BAR->BAZ(<|>", name="perl-calltip-
+        # call-signature")
+        self.assertTriggerMatches(
+            "&FOO(<|>", name="perl-calltip-call-signature")
         if 1:
             self.assertNoTrigger("&$FOO(<|>")
             self.assertNoTrigger("&$ FOO(<|>")
@@ -240,8 +259,10 @@ class TrgTestCase(CodeIntelTestCase):
             # Really this *is* allowed, but the current Perl completion
             # implementation practically won't be able to identify the
             # sub reference assigned to $FOO.
-            self.assertTriggerMatches("&$FOO(<|>", name="perl-calltip-call-signature")
-            self.assertTriggerMatches("&$ FOO(<|>", name="perl-calltip-call-signature")
+            self.assertTriggerMatches(
+                "&$FOO(<|>", name="perl-calltip-call-signature")
+            self.assertTriggerMatches(
+                "&$ FOO(<|>", name="perl-calltip-call-signature")
         self.assertNoTrigger("$FOO(")
         self.assertNoTrigger("$ FOO(")
         self.assertNoTrigger("@FOO(")
@@ -253,7 +274,7 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("sub (<|>")
         self.assertNoTrigger("sub FOO(<|>")
         self.assertNoTrigger("sub FOO::BAR(<|>")
-        self.assertNoTrigger("sub FOO'BAR(<|>") # see bigrat.pl in Perl lib
+        self.assertNoTrigger("sub FOO'BAR(<|>")  # see bigrat.pl in Perl lib
         self.assertNoTrigger("sub FOO::BAR::BAZ(<|>")
         for keyword in ("if", "else", "elsif", "while", "for",
                         "sub", "unless", "my", "our"):
@@ -265,7 +286,7 @@ class TrgTestCase(CodeIntelTestCase):
     @tag("knownfailure")
     def test_calltip_call_signature_adv(self):
         self.assertTriggerMatches("-r <|>",
-            name="perl-calltip-space-call-signature", pos=3, length=1)
+                                  name="perl-calltip-space-call-signature", pos=3, length=1)
 
         for keyword in ("if", "else", "elsif", "while", "for",
                         "sub", "unless", "my", "our", "package"):
@@ -275,12 +296,12 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("'chdir <|>'")
         self.assertNoTrigger("# chdir <|>")
         self.assertTriggerMatches("chdir <|>",
-            name="perl-calltip-space-call-signature", pos=6)
+                                  name="perl-calltip-space-call-signature", pos=6)
 
         self.assertNoTrigger("'chdir(<|>'")
         self.assertNoTrigger("# chdir(<|>")
         self.assertTriggerMatches("chdir(<|>",
-            name="perl-calltip-call-signature", pos=6)
+                                  name="perl-calltip-call-signature", pos=6)
 
     def test_preceding_trg_from_pos(self):
         self.assertNoPrecedingTrigger("$Foo:: <|><$>")
@@ -330,7 +351,7 @@ class TrgTestCase(CodeIntelTestCase):
             """),
             name="perl-calltip-call-signature", pos=13)
 
-        #XXX Test in POD
+        # XXX Test in POD
 
         # Test out-of-range calltip
         self.assertPrecedingTriggerMatches(
@@ -361,9 +382,11 @@ class TrgTestCase(CodeIntelTestCase):
             "Foo::Bar2<$><|>3",
             name="perl-complete-package-members", pos=5)
 
+
 class CodeintelPerlTestCase(CodeIntelTestCase):
     lang = "Perl"
     _perlVersion = None
+
     @property
     def perl_version(self):
         # Return a tuple of (major, minor, subminor) version numbers
@@ -374,23 +397,24 @@ class CodeintelPerlTestCase(CodeIntelTestCase):
             self._perlVersion = tuple([int(x) for x in ver.split('.')])
         return self._perlVersion
 
+
 class CplnTestCase(CodeintelPerlTestCase):
     test_dir = join(os.getcwd(), "tmp")
 
     def test_curr_calltip_arg_range(self):
         # Python's equivalent test case covers paren-based calltips.
 
-        self.assertCurrCalltipArgRange("chdir <+>;<|>", "chdir DIR", (-1,-1))
+        self.assertCurrCalltipArgRange("chdir <+>;<|>", "chdir DIR", (-1, -1))
         self.assertCurrCalltipArgRange("join(',', split <+>$foo)<|>",
-                                       "split STRING", (-1,-1))
+                                       "split STRING", (-1, -1))
         self.assertCurrCalltipArgRange("$blah{join <+>',', $parts}<|>",
-                                       "join SEP, LIST", (-1,-1))
+                                       "join SEP, LIST", (-1, -1))
 
         # Currently commas in regex's *will* screw up determination.
         # Best way to handle that would be with style info. Or could
         # have a lang-specific dict of block chars -- Perl would have
         # {'/': '/'} in addition to the regulars.
-        #self.assertCurrCalltipArgRange("foo(<+>/first,last/, <|>'t,m');",
+        # self.assertCurrCalltipArgRange("foo(<+>/first,last/, <|>'t,m');",
         #                               "foo(a, b, c)", (7,8))
 
     def test_complete_available_imports(self):
@@ -416,20 +440,20 @@ class CplnTestCase(CodeintelPerlTestCase):
         self.assertCITDLExprIs("&$make_coffee(<|>", "$make_coffee")
         self.assertCITDLExprIs("$foo . $bar-><|>", "$bar")
         self.assertCITDLExprIs("foo[split <|>", "split")
-        #XXX Might want to consider aborting on the following case because
+        # XXX Might want to consider aborting on the following case because
         #    barewords are allowed in Perl hash indexing.
         self.assertCITDLExprIs("foo{split <|>", "split")
         self.assertCITDLExprIs("foo()-><|>", None)
         self.assertCITDLExprIs("foo(a,b)-><|>", None)
         self.assertCITDLExprIs("my $a = $foo-><|>", "$foo")
 
-        
         self.assertCITDLExprIs("foo;bar(<|>", "bar")
         self.assertCITDLExprIs("foo(bar,baz(<|>", "baz")
         self.assertCITDLExprIs("split join <|>", "join")
         self.assertCITDLExprIs("foo->bar(<|>", "foo.bar")
         self.assertCITDLExprIs("Win32::OLE-><|>", "Win32::OLE")
-        self.assertCITDLExprIs("Win32::OLE->GetObject(<|>", "Win32::OLE.GetObject")
+        self.assertCITDLExprIs(
+            "Win32::OLE->GetObject(<|>", "Win32::OLE.GetObject")
 
         self.assertCITDLExprIs("split(/foo/,\n    join(<|>", "join")
         self.assertCITDLExprIs("split(/foo()/,\n    join(<|>", "join")
@@ -487,7 +511,8 @@ class CplnTestCase(CodeintelPerlTestCase):
             $ baz-><|>     # $baz
         """).splitlines(0)
         for testcase in testcases:
-            if not testcase.strip(): continue
+            if not testcase.strip():
+                continue
             input, expected = testcase.split('#')
             expected = expected.strip()
             if not expected:
@@ -500,16 +525,15 @@ class CplnTestCase(CodeintelPerlTestCase):
             self.assertCITDLExprIs(input, expected_citdl,
                                    prefix_filter=expected_filter)
 
-
     def test_calltip_call_signature(self):
         self.assertCalltipIs("chdir <|>",
-            "chdir EXPR\nChanges the working directory to EXPR, if possible.")
+                             "chdir EXPR\nChanges the working directory to EXPR, if possible.")
         self.assertCalltipIs("chmod <|>",
-            "chmod LIST\nChanges the permissions of a list of files.")
+                             "chmod LIST\nChanges the permissions of a list of files.")
 
-    @tag("bug65247")        
+    @tag("bug65247")
     def test_empty_use_completion_block(self):
-        self.assertCompletionsAre("use NoSuchDir::<|>", None);
+        self.assertCompletionsAre("use NoSuchDir::<|>", None)
 
     @tag("bug68900")
     def test_bug35769(self):
@@ -523,15 +547,16 @@ class CplnTestCase(CodeintelPerlTestCase):
             $req-><|>
         """)
         self.assertCompletionsInclude(markedup_content,
-                # some methods from HTTP::Request
-               [('function', 'as_string'),
-                ('function', 'clone'),
-                ('function', 'new'),
-                # some methods from base HTTP::Message
-                ('function', 'add_content'),
-                ('function', 'protocol'),
-                ('function', 'headers_as_string')
-                ])
+                                      # some methods from HTTP::Request
+                                      [('function', 'as_string'),
+                                     ('function', 'clone'),
+                                          ('function', 'new'),
+                                          # some methods from base
+                                          # HTTP::Message
+                                          ('function', 'add_content'),
+                                          ('function', 'protocol'),
+                                          ('function', 'headers_as_string')
+                                      ])
 
     @tag("bug68900c")
     def test_bug68900_1(self):
@@ -567,16 +592,16 @@ class CplnTestCase(CodeintelPerlTestCase):
 
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
-            [# methods from HTTP::Request
-             ('function', 'as_string'),
-             ('function', 'clone'),
-             ('function', 'new'),
-             # some methods from base HTTP::Message
-             ('function', 'add_content'),
-             ('function', 'protocol'),
-             ('function', 'headers_as_string')]
+            [  # methods from HTTP::Request
+                ('function', 'as_string'),
+                ('function', 'clone'),
+                ('function', 'new'),
+                # some methods from base HTTP::Message
+                ('function', 'add_content'),
+                ('function', 'protocol'),
+                ('function', 'headers_as_string')]
         )
-        
+
     @tag("bug81788")
     def test_bug81788a(self):
         self.assertTriggerMatches("$req-><|>", name="perl-complete-*-subs")
@@ -592,10 +617,10 @@ class CplnTestCase(CodeintelPerlTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [# methods from HTTP::Request
-             ('function', 'as_string'),]
+            [  # methods from HTTP::Request
+                ('function', 'as_string'), ]
         )
-        
+
     @tag("bug68900b")
     def test_my_vars(self):
         test_dir = join(self.test_dir, "test_myvars")
@@ -656,21 +681,21 @@ class CplnTestCase(CodeintelPerlTestCase):
 
         script_buf = self.mgr.buf_from_path(script_path)
         self.assertCompletionsAre2(script_buf, script_positions[2],
-            [('function', 'myfunc'),
-             ('class', 'SubModule')])
+                                   [('function', 'myfunc'),
+                                  ('class', 'SubModule')])
         self.assertCompletionsAre2(script_buf, script_positions[3],
-            [('function', 'subfunc')])
+                                   [('function', 'subfunc')])
         self.assertCompletionsAre2(script_buf, script_positions[4],
-            # ensure that $localvar is NOT in the list
-            [('@variable', 'myarray'),
-             ('%variable', 'myhash'),
-             ('$variable', 'myscalar'),
-             ('class', 'SubModule')])
+                                   # ensure that $localvar is NOT in the list
+                                   [('@variable', 'myarray'),
+                                  ('%variable', 'myhash'),
+                                       ('$variable', 'myscalar'),
+                                       ('class', 'SubModule')])
         self.assertCompletionsAre2(script_buf, script_positions[5],
-            # ensure that $localvar is NOT in the list
-            [('@variable', 'subarray'),
-             ('%variable', 'subhash'),
-             ('$variable', 'subscalar')])
+                                   # ensure that $localvar is NOT in the list
+                                   [('@variable', 'subarray'),
+                                  ('%variable', 'subhash'),
+                                       ('$variable', 'subscalar')])
 
     @tag("bug80856")
     def test_bug80856a(self):
@@ -681,8 +706,8 @@ class CplnTestCase(CodeintelPerlTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [# methods from HTTP::Request
-             ('function', 'as_string'),]
+            [  # methods from HTTP::Request
+                ('function', 'as_string'), ]
         )
 
     def test_my_vars_2(self):
@@ -749,7 +774,7 @@ class CplnTestCase(CodeintelPerlTestCase):
                                  "foo($a, $b)")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "bar($c, $d)")
-        
+
     @tag("lwp")
     def test_lwp_includes_nodebug(self):
         perl_version = self.perl_version
@@ -760,7 +785,7 @@ class CplnTestCase(CodeintelPerlTestCase):
             # perl version: %s
         """ % (perl_version,)))
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]), # LWP::<|>
+            markup_text(content, pos=positions[1]),  # LWP::<|>
             [("class", "Protocol"),
              ("class", "UserAgent")])
         if perl_version < (5, 9):
@@ -772,7 +797,7 @@ class CplnTestCase(CodeintelPerlTestCase):
             self.assertCompletionsDoNotInclude(
                 markup_text(content, pos=positions[1]),
                 [("class", "Debug")])
-        
+
     @tag("lwp")
     def test_lwp_includes_with_debug(self):
         content, positions = unmark_text(dedent(r"""
@@ -782,11 +807,10 @@ class CplnTestCase(CodeintelPerlTestCase):
             #              -- should include Debug as well
         """))
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]), # LWP::<|>
+            markup_text(content, pos=positions[1]),  # LWP::<|>
             [("class", "Debug"),
              ("class", "Protocol"),
              ("class", "UserAgent")])
-
 
     @tag("gisle")
     def test_lwp(self):
@@ -809,7 +833,7 @@ class CplnTestCase(CodeintelPerlTestCase):
                 @ISA = qw(LWP::UserAgent);
 
                 sub new
-                { 
+                {
                     my $self = LWP::UserAgent::new(@_);
                     $self->agent("lwp-request/$main::VERSION");
                     $self;
@@ -835,62 +859,63 @@ class CplnTestCase(CodeintelPerlTestCase):
             $ra->_elem(<0>);
             # Perl version: """ + "%s" % (self.perl_version,)))
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]), # HTTP::<|>
+            markup_text(content, pos=positions[1]),  # HTTP::<|>
             [("class", "Request"),
              ("class", "Response"),
              ("class", "Date")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[2]), # HTTP::Response::<|>
+            markup_text(content, pos=positions[2]),  # HTTP::Response::<|>
             [("function", "as_string"),
              ("function", "base"),
              ("function", "clone")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[3]), # LWP::<|>
+            markup_text(content, pos=positions[3]),  # LWP::<|>
             [("class", "Protocol"),
              ("class", "UserAgent")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[4]), # LWP::UserAgent-><|>
+            markup_text(content, pos=positions[4]),  # LWP::UserAgent-><|>
             [("function", "new")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[5]), # $ua-><|>
+            markup_text(content, pos=positions[5]),  # $ua-><|>
             [("function", "agent"),
              ("function", "conn_cache"),
              ("function", "clone"),
              ("function", "mirror")])
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[6]), # $ua->mirror(<|>)
+                markup_text(content, pos=positions[6]),  # $ua->mirror(<|>)
                 ("$ua->mirror( $url, $filename )\n"
                  "This method will get the document identified by $url and\n"
                  "store it in file called $filename."))
         else:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[6]), # $ua->mirror(<|>)
+                markup_text(content, pos=positions[6]),  # $ua->mirror(<|>)
                 "mirror($self, $url, $file)")
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[7]), # RequestAgent-><|>
-            [# new or overriden methods
-             ("function", "new"),
-             ("function", "foobar"),
-             ("function", "get_basic_credentials"),
-             # inherited methods
-             ("function", "agent"),
-             ("function", "conn_cache"),
-             ("function", "clone"),
-             ("function", "mirror")])
+            markup_text(content, pos=positions[7]),  # RequestAgent-><|>
+            [  # new or overriden methods
+                ("function", "new"),
+                ("function", "foobar"),
+                ("function", "get_basic_credentials"),
+                # inherited methods
+                ("function", "agent"),
+                ("function", "conn_cache"),
+                ("function", "clone"),
+                ("function", "mirror")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[8]), # $ra-><|>
-            [# new or overriden methods
-             ("function", "new"),
-             ("function", "foobar"),
-             ("function", "get_basic_credentials"),
-             # inherited methods
-             ("function", "agent"),
-             ("function", "conn_cache"),
-             ("function", "clone"),
-             ("function", "mirror")])
+            markup_text(content, pos=positions[8]),  # $ra-><|>
+            [  # new or overriden methods
+                ("function", "new"),
+                ("function", "foobar"),
+                ("function", "get_basic_credentials"),
+                # inherited methods
+                ("function", "agent"),
+                ("function", "conn_cache"),
+                ("function", "clone"),
+                ("function", "mirror")])
         self.assertCalltipIs(
-            markup_text(content, pos=positions[9]), # $ra->get_basic_credentials(<|>
+            markup_text(content, pos=positions[
+                        9]),  # $ra->get_basic_credentials(<|>
             "get_basic_credentials($self, $realm, $uri)")
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
@@ -912,7 +937,7 @@ class CplnTestCase(CodeintelPerlTestCase):
         # CPAN.pm defines more package than just "CPAN". This test
         # ensures that those get included in "CPAN::<|>".
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]), # CPAN::<|>
+            markup_text(content, pos=positions[1]),  # CPAN::<|>
             [("class", "Bundle")])
 
     @tag("import", "play")
@@ -928,16 +953,16 @@ class CplnTestCase(CodeintelPerlTestCase):
         """))
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # Dumper(<|>)
+                markup_text(content, pos=positions[1]),  # Dumper(<|>)
                 ("Dumper(LIST)\n"
                  "Returns the stringified form of the values in the list,\n"
                  "subject to the configuration options below."))
         else:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # Dumper(<|>)
+                markup_text(content, pos=positions[1]),  # Dumper(<|>)
                 "Dumper()")
         self.assertCalltipIs(
-            markup_text(content, pos=positions[2]), # DumperX(<|>)
+            markup_text(content, pos=positions[2]),  # DumperX(<|>)
             None)
 
     @tag("import", "play", "bug65739")
@@ -950,16 +975,16 @@ class CplnTestCase(CodeintelPerlTestCase):
         """))
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # Dumper(<|>)
+                markup_text(content, pos=positions[1]),  # Dumper(<|>)
                 ("Dumper(LIST)\n"
                  "Returns the stringified form of the values in the list,\n"
                  "subject to the configuration options below."))
         else:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # Dumper(<|>)
+                markup_text(content, pos=positions[1]),  # Dumper(<|>)
                 "Dumper()")
         self.assertCalltipIs(
-            markup_text(content, pos=positions[2]), # DumperX(<|>)
+            markup_text(content, pos=positions[2]),  # DumperX(<|>)
             "DumperX()")
 
     @tag("import")
@@ -981,21 +1006,21 @@ class CplnTestCase(CodeintelPerlTestCase):
         """))
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # timeit(<|>)
+                markup_text(content, pos=positions[1]),  # timeit(<|>)
                 ("timeit(COUNT, CODE)\n"
                  "Arguments: COUNT is the number of times to run the loop,\n"
                  "and CODE is the code to run."))
             self.assertCalltipIs(
-                markup_text(content, pos=positions[2]), # timesum(<|>)
+                markup_text(content, pos=positions[2]),  # timesum(<|>)
                 ("timesum ( T1, T2 )\n"
                  "Returns the sum of two Benchmark times as a Benchmark\n"
                  "object suitable for passing to timestr()."))
         else:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[1]), # timeit(<|>)
+                markup_text(content, pos=positions[1]),  # timeit(<|>)
                 "timeit($n, $code)")
             self.assertCalltipIs(
-                markup_text(content, pos=positions[2]), # timesum(<|>)
+                markup_text(content, pos=positions[2]),  # timesum(<|>)
                 "timesum($a, $b)")
         self.assertCalltipIs(
             markup_text(content, pos=positions[3]),
@@ -1044,7 +1069,7 @@ class CplnTestCase(CodeintelPerlTestCase):
                 markup_text(content, pos=positions[1]),
                 "Dumper()")
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[2]), # Data::Dumper-><|>
+            markup_text(content, pos=positions[2]),  # Data::Dumper-><|>
             [("function", "Dumper")])
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
@@ -1058,10 +1083,10 @@ class CplnTestCase(CodeintelPerlTestCase):
                 markup_text(content, pos=positions[3]),
                 "Dump()")
         self.assertCompletionsAre(
-            markup_text(content, pos=positions[4]), # $Data::
+            markup_text(content, pos=positions[4]),  # $Data::
             [("class", "Dumper")])
         self.assertCompletionsInclude(
-            markup_text(content, pos=positions[5]), # $Data::Dumper::<|>
+            markup_text(content, pos=positions[5]),  # $Data::Dumper::<|>
             [("$variable", "Indent"),
              ("$variable", "Purity")])
         self.assertCompletionsInclude(
@@ -1105,23 +1130,23 @@ class CplnTestCase(CodeintelPerlTestCase):
         # module -- "HTTP" should still be a completion for the above
         # trigger.
         self.assertCompletionsInclude("use <|>",
-            [("directory", "HTTP"),
-             ("directory", "File"),
-             ("directory", "XML"),
-             ("directory", "LWP"),
-             ("module", "LWP")])
+                                      [("directory", "HTTP"),
+                                     ("directory", "File"),
+                                          ("directory", "XML"),
+                                          ("directory", "LWP"),
+                                          ("module", "LWP")])
         self.assertCompletionsAre("use LWP::<|>",
-            [("directory", "Authen"),
-             ("module", "ConnCache"),
-             ("module", "Debug"),
-             ("module", "DebugFile"),
-             ("module", "MediaTypes"),
-             ("module", "MemberMixin"),
-             ("directory", "Protocol"),
-             ("module", "Protocol"),
-             ("module", "RobotUA"),
-             ("module", "Simple"),
-             ("module", "UserAgent")])
+                                  [("directory", "Authen"),
+                                 ("module", "ConnCache"),
+                                      ("module", "Debug"),
+                                      ("module", "DebugFile"),
+                                      ("module", "MediaTypes"),
+                                      ("module", "MemberMixin"),
+                                      ("directory", "Protocol"),
+                                      ("module", "Protocol"),
+                                      ("module", "RobotUA"),
+                                      ("module", "Simple"),
+                                      ("module", "UserAgent")])
 
     def test_http(self):
         content, positions = unmark_text(dedent("""\
@@ -1135,10 +1160,12 @@ class CplnTestCase(CodeintelPerlTestCase):
         self.assertCompletionsAre(
             markup_text(content, pos=positions[2]),
             [("class", "Date"),
-             ("class", "Headers"),  # Message.pm imports HTTP::Headers (among others)
+             ("class", "Headers"),
+             # Message.pm imports HTTP::Headers (among
+                                 # others)
              ("class", "Message"),  # Request.pm imports HTTP::Message
              ("class", "Request"),  # directly imported
-             ("class", "Response"), # Message.pm imports HTTP::Response
+             ("class", "Response"),  # Message.pm imports HTTP::Response
              ("class", "Status")])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
@@ -1163,13 +1190,13 @@ class CplnTestCase(CodeintelPerlTestCase):
         self.assertCompletionsAre(
             markup_text(content, pos=positions[1]),
             [("class", "ConnCache"), ("class", "Debug"),
-             ("class", "MediaTypes"), ("class", "MemberMixin"), 
+             ("class", "MediaTypes"), ("class", "MemberMixin"),
              ("class", "Protocol"), ("class", "UserAgent"),
              ("function", "Version")])
         self.assertCompletionsAre(
             markup_text(content, pos=positions[2]),
             [("class", "ConnCache"), ("class", "Debug"),
-             ("class", "MediaTypes"), ("class", "MemberMixin"), 
+             ("class", "MediaTypes"), ("class", "MemberMixin"),
              ("class", "Protocol"), ("class", "UserAgent"),
              ("$variable", "VERSION")])
         self.assertCompletionsAre(
@@ -1180,19 +1207,19 @@ class CplnTestCase(CodeintelPerlTestCase):
             [("function", "new"), ("function", "proxy"),
              ("function", "agent"), ("function", "redirect_ok")])
 
-        self.assertCompletionsInclude( #TODO
+        self.assertCompletionsInclude(  # TODO
             markup_text(content, pos=positions[5]),
             [("function", "mirror"), ("function", "proxy"),
              ("function", "agent"), ("function", "redirect_ok")])
         if PERL_STDLIB_HAS_POD_INFO:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[6]), # $ua->mirror(<|>)
+                markup_text(content, pos=positions[6]),  # $ua->mirror(<|>)
                 ("$ua->mirror( $url, $filename )\n"
                  "This method will get the document identified by $url and\n"
                  "store it in file called $filename."))
         else:
             self.assertCalltipIs(
-                markup_text(content, pos=positions[6]), # $ua->mirror(<|>)
+                markup_text(content, pos=positions[6]),  # $ua->mirror(<|>)
                 "mirror($self, $url, $file)")
 
     @tag("play")
@@ -1249,13 +1276,13 @@ class CplnTestCase(CodeintelPerlTestCase):
             dedent("""\
                 new( $str )
                 new( $str, $scheme )
-                
+
                 Constructs a new URI object.  The string representation of a
                 URI is given as argument, together with an optional scheme
                 specification.
             """))
         self.assertCalltipIs(
-            markup_text(content, pos=positions[4]), # CPAN::Bundle->force(<|>)
+            markup_text(content, pos=positions[4]),  # CPAN::Bundle->force(<|>)
             ("force($method,@args)\n"
              "Forces CPAN to perform a task that normally would have failed."))
 
@@ -1327,7 +1354,7 @@ class CplnTestCase(CodeintelPerlTestCase):
                 @ISA = qw(Data::Dumper);
 
                 sub new
-                { 
+                {
                     my $self = Data::Dumper::new(@_);
                     $self;
                 }
@@ -1462,7 +1489,6 @@ class CplnTestCase(CodeintelPerlTestCase):
             [("function", "noyou")])
 
 
-
 class DefnTestCase(CodeintelPerlTestCase):
     lang = "Perl"
     test_dir = join(os.getcwd(), "tmp")
@@ -1526,10 +1552,10 @@ class DefnTestCase(CodeintelPerlTestCase):
                                    path=join(test_dir, "Bar.pm"), lang="Perl")
 
         buf = self.mgr.buf_from_path(join(test_dir, "foo.pl"))
-        for pos in (1,4,5,6,7,8):
+        for pos in (1, 4, 5, 6, 7, 8):
             self.assertDefnMatches2(buf, foo_positions[1],
                                     **barsub_expectations)
-        for pos in (2,3):
+        for pos in (2, 3):
             self.assertDefnMatches2(buf, foo_positions[2],
                                     **barpkg_expectations)
 
@@ -1559,25 +1585,35 @@ class DefnTestCase(CodeintelPerlTestCase):
         writefile(path, content)
         buf = self.mgr.buf_from_path(path)
         lines = lines_from_pos(content, positions)
-        self.assertDefnMatches2(buf, path=path, pos=positions[1], line=lines[1],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[1], line=lines[1],
                                 ilk="class", name="Foo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[2], line=lines[2],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[2], line=lines[2],
                                 ilk="argument", name="$class")
-        self.assertDefnMatches2(buf, path=path, pos=positions[3], line=lines[2],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[3], line=lines[2],
                                 ilk="argument", name="$class")
-        self.assertDefnMatches2(buf, path=path, pos=positions[4], line=lines[4],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[4], line=lines[4],
                                 ilk="function", name="getBar")
-        self.assertDefnMatches2(buf, path=path, pos=positions[5], line=lines[5],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[5], line=lines[5],
                                 ilk="function", name="makeFoo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[6], line=lines[6],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[6], line=lines[6],
                                 ilk="variable", name="$newFoo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[7], line=lines[1],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[7], line=lines[1],
                                 ilk="class", name="Foo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[8], line=lines[6],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[8], line=lines[6],
                                 ilk="variable", name="$newFoo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[9], line=lines[9],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[9], line=lines[9],
                                 ilk="variable", name="$foo")
-        self.assertDefnMatches2(buf, path=path, pos=positions[10], line=lines[5],
+        self.assertDefnMatches2(
+            buf, path=path, pos=positions[10], line=lines[5],
                                 ilk="function", name="makeFoo")
 
     @tag("bug99105")
@@ -1633,7 +1669,7 @@ class DefnTestCase(CodeintelPerlTestCase):
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="testx", line=5,
             path=path, scopestart=1, scopeend=0)
-        
+
     @tag("bug99113")
     def test_scope_bounds_01(self):
         test_dir = join(self.test_dir, "test_scope_bounds_01")
@@ -1715,12 +1751,12 @@ class DefnTestCase(CodeintelPerlTestCase):
         self.assertDefnMatches2(buf, foo_positions[3],
             ilk="function", name="test1", line=4, path=path,
                                 lpath=[],
-            #scopestart=4, scopeend=6)
+            # scopestart=4, scopeend=6)
             scopestart=1, scopeend=0)
         self.assertDefnMatches2(buf, foo_positions[4],
             ilk="function", name="test2", line=9, path=path,
                                 lpath=['Outer'],
-            #scopestart=9, scopeend=11)
+            # scopestart=9, scopeend=11)
             scopestart=8, scopeend=17)
 #        self.assertScopeLpathIs(
 #            markup_text(foo_content, pos=foo_positions[1]),
@@ -1749,7 +1785,7 @@ class DefnTestCase(CodeintelPerlTestCase):
                 @ISA = qw(LWP::UserAgent);
 
                 sub new<10>
-                { 
+                {
                     my $self = LWP::UserAgent::new(@_);
                     $self->agent("lwp-request/$main::VERSION");
                     $self;
@@ -1767,7 +1803,7 @@ class DefnTestCase(CodeintelPerlTestCase):
             my $ra<11> = Reque<6>stAgent->ne<7>w();
             $r<8>a->get_basic_<9>credentials();
         """))
-        
+
         # When/if perl.cix grows 'src' attributes on blobs, then the
         # 'path' can be asserted for stdlib hits here.
         self.assertDefnMatches(markup_text(content, positions[1]),
@@ -1797,11 +1833,6 @@ class DefnTestCase(CodeintelPerlTestCase):
                           lpath=["RequestAgent", "get_basic_credentials"])
 
 
-
-
 #---- mainline
-
 if __name__ == "__main__":
     unittest.main()
-
-

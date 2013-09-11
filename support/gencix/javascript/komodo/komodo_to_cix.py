@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -64,20 +64,16 @@ class Error(Exception):
     pass
 
 
-
 #---- globals
-
 log = logging.getLogger("komodo_to_cix")
 log.setLevel(logging.INFO)
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
-#TODO: the Komodo JS API should define a version somewhere
+# TODO: the Komodo JS API should define a version somewhere
 komodo_js_api_version = "0.2"
 
 
-
 #---- internal support routines
-
 # Recipe: paths_from_path_patterns (0.3.6)
 def _should_include_path(path, includes, excludes):
     """Return True iff the given path should be included."""
@@ -106,6 +102,8 @@ def _should_include_path(path, includes, excludes):
     return True
 
 _NOT_SPECIFIED = ("NOT", "SPECIFIED")
+
+
 def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                               recursive=True, includes=[], excludes=[],
                               on_error=_NOT_SPECIFIED):
@@ -210,7 +208,7 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 # 'includes' SHOULD affect whether a dir is yielded.
                 if (dirs == "always"
                     or (dirs == "if-not-recursive" and not recursive)
-                   ) and _should_include_path(path, includes, excludes):
+                    ) and _should_include_path(path, includes, excludes):
                     yield path
 
                 # However, if recursive, 'includes' should NOT affect
@@ -248,13 +246,15 @@ def _gen_komodo_js_api_files(javascript_dirlist):
             continue
         yield path
 
+
 def _filter_namespaces(tree, keep_namespaces=None):
     for scope in list(tree.findall("file/scope")):
         for child in list(scope):
             name = child.get("name")
             if name and (not keep_namespaces or name not in keep_namespaces):
-                #print "Removing: %r:%s" % (child.tag, name)
+                # print "Removing: %r:%s" % (child.tag, name)
                 scope.remove(child)
+
 
 def _remove_private_elements(tree):
     parent_map = dict((c, p) for p in tree.getiterator() for c in p)
@@ -277,18 +277,19 @@ def _update_cix_file(path, content, p4_edit=False):
     open(path, "w").write(content)
     print "`%s' updated" % path
 
+
 def _get_komodo_dev_dir():
     komodo_dev_dir = dirname(       # Komodo-devel/
-                      dirname(      #  src/
-                       dirname(     #   codeintel/
-                        dirname(    #    support/
-                         dirname(   #     gencix/
-                          dirname(  #      javascript/
-                           dirname( #       komodo_to_cix.py
+                      dirname(  # src/
+                       dirname(  # codeintel/
+                        dirname(  # support/
+                         dirname(  # gencix/
+                          dirname(  # javascript/
+                           dirname(  # komodo_to_cix.py
                             abspath(__file__))))))))
     candidates = [
         komodo_dev_dir,
-        dirname(komodo_dev_dir), # in a Komodo bk build
+        dirname(komodo_dev_dir),  # in a Komodo bk build
     ]
     for candidate in candidates:
         if exists(join(candidate, "Blackfile.py")):
@@ -298,16 +299,14 @@ def _get_komodo_dev_dir():
                     "dir: '%s'" % "', '".join(candidates))
 
 
-
 #---- main module functionality
-
 def komodo_to_cix(output_path, p4_edit=False):
     print "komodo_to_cix `%s'" % output_path
-    
+
     cix_komodo = createCixRoot(name="Komodo",
         description="Komodo JavaScript API - version %s" % komodo_js_api_version)
-    #cix_yui_file = createCixFile(cix_yui, "yui", lang="JavaScript")
-    #cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
+    # cix_yui_file = createCixFile(cix_yui, "yui", lang="JavaScript")
+    # cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
     # We use one JavaScript ciler instance for all the files we scan. This is
     # so we can record all variable/function/etc... information into one
@@ -319,7 +318,7 @@ def komodo_to_cix(output_path, p4_edit=False):
     komodo_chrome_dir = join(_get_komodo_dev_dir(), "build", "release",
                              "chrome", "komodo", "content")
     for path in _gen_komodo_js_api_files([xtk_chrome_dir, komodo_chrome_dir]):
-        #if path in ("utilities.js", "yahoo-dom-event.js"):
+        # if path in ("utilities.js", "yahoo-dom-event.js"):
         #    # This is just a compressed up version of multiple files
         #    continue
         log.info("scanning `%s'" % path)
@@ -338,12 +337,12 @@ def komodo_to_cix(output_path, p4_edit=False):
     jscile.cile.updateAllScopeNames()
     jscile.convertToElementTreeFile(cix_komodo, "JavaScript")
 
-    #mergeElementTreeScopes(cix_yui_module)
-    #remove_cix_line_numbers_from_tree(cix_komodo)
+    # mergeElementTreeScopes(cix_yui_module)
+    # remove_cix_line_numbers_from_tree(cix_komodo)
     _filter_namespaces(cix_komodo, keep_namespaces=["ko", "xtk"])
     # Don't remove the private elements, they are needed for codeintel. See:
     #   http://bugs.activestate.com/show_bug.cgi?id=72562
-    #_remove_private_elements(cix_komodo)
+    # _remove_private_elements(cix_komodo)
 
     # Write out the tree
     _update_cix_file(output_path, get_cix_string(cix_komodo), p4_edit)
@@ -353,6 +352,7 @@ def komodo_to_cix(output_path, p4_edit=False):
     mgr.finalize()
 
 #---- mainline
+
 
 def _prepare_xpcom():
     # If we are running with XPCOM available, some parts of the
@@ -369,6 +369,7 @@ def _prepare_xpcom():
             .getService(components.interfaces.koITestService)
         koTestSvc.init()
 
+
 def main(argv):
     logging.basicConfig()
 
@@ -383,4 +384,4 @@ def main(argv):
     komodo_to_cix(opts.output_path, opts.p4_edit)
 
 if __name__ == '__main__':
-    sys.exit( main(sys.argv) )
+    sys.exit(main(sys.argv))

@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Author: Todd Whiteman
@@ -51,6 +51,7 @@ from optparse import OptionParser
 from ciElementTree import ElementTree as ET
 from ciElementTree import parse
 
+
 def report_missing(elem, names):
     for name in sorted(names):
         childElem = elem.names[name]
@@ -58,6 +59,7 @@ def report_missing(elem, names):
         if elem_type == "variable" and len(childElem):
             elem_type = "namespace"
         print "  missing %-10s %r" % (elem_type, name)
+
 
 def report_additional(elem, names):
     for name in sorted(names):
@@ -71,17 +73,21 @@ def report_additional(elem, names):
         else:
             print "  additional %-10s %r" % (elem_type, name)
 
+
 def report_missing_attributes(elem, names):
     for name in sorted(names):
         print "  missing attr %-10r => %r" % (name, elem.get(name))
+
 
 def report_additional_attributes(elem, names):
     for name in sorted(names):
         print "  additional attr %-10r => %r" % (name, elem.get(name))
 
+
 def report_attribute_differences(elem1, elem2, names):
     for name in sorted(names):
         print "  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name))
+
 
 def diffElements(opts, lpath, e1, e2):
     # Ignore elements with these set attributes.
@@ -132,6 +138,7 @@ def diffElements(opts, lpath, e1, e2):
         for name in names_shared:
             diffElements(opts, lpath + [name], e1.names[name], e2.names[name])
 
+
 def diffCixFiles(opts, filename1, filename2):
     e1 = parse(filename1).getroot().getchildren()[0]
     e2 = parse(filename2).getroot().getchildren()[0]
@@ -157,6 +164,7 @@ def diffCixFiles(opts, filename1, filename2):
         print "Diffing elements: %r, %r" % (e1, e2)
         diffElements(opts, [], e1, e2)
 
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -167,14 +175,15 @@ def main(argv=None):
                       help="Include the attribute changes of elements.")
     parser.add_option("-d", "--max-depth", dest="max_depth",
                       type="int", help="Maximum recursion depth into the tree")
-    #parser.add_option("-i", "--ignore-case", dest="ignore_case",
+    # parser.add_option("-i", "--ignore-case", dest="ignore_case",
     #                  action="store_true", help="Case insensitve searching")
     parser.add_option("-l", "--lpath", dest="lpath",
                       action="append",
                       help="Diff from this lpath onwards.")
-    parser.add_option("-n", "--ignore-with-attribute", dest="ignore_with_attributes",
-                      action="append",
-                      help="Ignore element differences that use this attribute.")
+    parser.add_option(
+        "-n", "--ignore-with-attribute", dest="ignore_with_attributes",
+        action="append",
+        help="Ignore element differences that use this attribute.")
     parser.add_option("-x", "--ignore-attribute", dest="ignore_attributes",
                       action="append",
                       help="Ignore these attribute differences.")
@@ -182,8 +191,8 @@ def main(argv=None):
     if len(args) != 2:
         parser.print_usage()
         return 0
-    #print "opts:", opts
-    #print "args:", args
+    # print "opts:", opts
+    # print "args:", args
     diffCixFiles(opts, *args)
     return 1
 

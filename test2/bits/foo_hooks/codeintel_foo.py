@@ -20,17 +20,12 @@ except ImportError:
     _xpcom_ = False
 
 
-
 #---- globals
-
 log = logging.getLogger("codeintel.foo")
-#log.setLevel(logging.DEBUG)
-
-
+# log.setLevel(logging.DEBUG)
 
 
 #---- main functionality
-
 class FooHookHandler(HookHandler):
     name = "foo"
     langs = ["Python"]
@@ -41,21 +36,14 @@ class FooHookHandler(HookHandler):
         #       def foo(self):
         #           pass
         foo_class = ET.SubElement(blob, "scope", ilk="class", name="Foo",
-                               classrefs="object", line="0")
+                                  classrefs="object", line="0")
         foo_method = ET.SubElement(foo_class, "scope", ilk="function",
-                                name="foo", signature="foo()", line="0")
+                                   name="foo", signature="foo()", line="0")
         self_arg = ET.SubElement(foo_method, "variable", citdl="Foo",
-                              ilk="argument", name="self")
-
+                                 ilk="argument", name="self")
 
 
 #---- internal support stuff
-
-
-
-
 #---- registration
-
 def register(mgr):
     mgr.add_hook_handler(FooHookHandler(mgr))
-

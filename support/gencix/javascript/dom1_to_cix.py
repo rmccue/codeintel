@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -64,6 +64,7 @@ from cStringIO import StringIO
 # Shared code for cix generation
 from cix_utils import *
 
+
 def generateCIXFromXML(root, filepath):
     # Find all main doc namespaces
 
@@ -85,9 +86,9 @@ def generateCIXFromXML(root, filepath):
 
     for interfacenode in interfacenodes:
         interface = interfacenode.attrib["name"]
-        #if interface not in ("Node", "Document"):
+        # if interface not in ("Node", "Document"):
         #    continue
-        #print "interface: %r" % (interface)
+        # print "interface: %r" % (interface)
 
         cixinterface = createCixInterface(cixmodule, interface)
         inherits = interfacenode.get("inherits")
@@ -121,16 +122,19 @@ def generateCIXFromXML(root, filepath):
             signature = "%s(%s)" % (methodname, ", ".join(arguments))
             setCixSignature(cixelement, signature)
             for returnsnode in methodnode.findall('./returns'):
-                addCixReturns(cixelement, standardizeJSType(returnsnode.get("type")))
+                addCixReturns(cixelement, standardizeJSType(
+                    returnsnode.get("type")))
             setCixDocFromNodeChildren(cixelement, methodnode, './descr')
 
     return cix
+
 
 def getDom1XMLFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
     zippath = "DOM.zip"
     if not os.path.exists(zippath):
-        urlOpener = urllib.urlopen("http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/DOM.zip")
+        urlOpener = urllib.urlopen(
+            "http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/DOM.zip")
         file(zippath, "wb").write(urlOpener.read())
 
         # Get the xml-source.zip file
@@ -145,9 +149,10 @@ def getDom1XMLFilesFromWebpage():
     try:
         zf = zipfile.ZipFile(zippath)
         for zfile in zf.filelist:
-            #print zfile.filename
-            if os.path.dirname(zfile.filename) in ("xml/definitions/level-one-core",
-                                                  ):
+            # print zfile.filename
+            if os.path.dirname(
+                zfile.filename) in ("xml/definitions/level-one-core",
+                                    ):
                                                    #"xml/definitions/level-one-html"):
                 name = os.path.basename(zfile.filename)
                 data = zf.read(zfile.filename)
@@ -164,18 +169,21 @@ def getDom1XMLFilesFromWebpage():
                     data = "".join(lines)
                 files[name] = StringIO(data)
     finally:
-        #os.remove(zippath)
+        # os.remove(zippath)
         pass
     return files
 
+
 def main():
     cix_dom1 = createCixRoot()
-    cix_dom1_file = createCixFile(cix_dom1, "javascript_dom1", lang="JavaScript")
+    cix_dom1_file = createCixFile(
+        cix_dom1, "javascript_dom1", lang="JavaScript")
     cix_dom1_module = createCixModule(cix_dom1_file, "*", lang="JavaScript")
 
     files = getDom1XMLFilesFromWebpage()
     for filename, xml_file in files.items():
-    #for xml_file in glob.glob(os.path.join("dom2_docs", "definitions", "*.xml")):
+    # for xml_file in glob.glob(os.path.join("dom2_docs", "definitions",
+    # "*.xml")):
         print "filename: %r" % (filename)
         tree = ElementTree()
         tree.parse(xml_file)

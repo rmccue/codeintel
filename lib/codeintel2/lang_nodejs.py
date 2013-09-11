@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2010-2011
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """NodeJS support for CodeIntel"""
@@ -53,7 +53,7 @@ from codeintel2.tree_javascript import JavaScriptTreeEvaluator
 
 lang = "Node.js"
 log = logging.getLogger("codeintel.nodejs")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 makePerformantLogger(log)
 
 
@@ -73,7 +73,8 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
 
     def _hits_from_commonjs_require(self, requirename, scoperef):
         """Resolve hits from a CommonJS require() invocation"""
-        # this overrides the version in tree_javascript (JavaScriptTreeEvaluator)
+        # this overrides the version in tree_javascript
+        # (JavaScriptTreeEvaluator)
         from codeintel2.database.langlib import LangDirsLib
         from codeintel2.database.multilanglib import MultiLangDirsLib
         from codeintel2.database.catalog import CatalogLib
@@ -84,14 +85,16 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
         if stdlib.has_blob(requirename + ".js"):
             # require(X) where X is a core module
             self.log("require(%r) is a core module", requirename)
-            blob = stdlib.blobs_with_basename(requirename + ".js", ctlr=self.ctlr)[0]
+            blob = stdlib.blobs_with_basename(
+                requirename + ".js", ctlr=self.ctlr)[0]
             exports = blob.names.get("exports")
             return self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
 
         srcdir = os.path.dirname(scoperef[0].get("src") or self.buf.path)
         if srcdir == "":
             # no source directory, can't do non-core lookups
-            self.log("no source directory found, can't resolve require(%r)", requirename)
+            self.log(
+                "no source directory found, can't resolve require(%r)", requirename)
             return []
 
         def get_hits_from_lib(lib, filename):
@@ -106,14 +109,16 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                 self.log("require() found at %s", filename)
                 exports = blob.names.get("exports")
                 if exports is not None and exports.tag == "variable":
-                    hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
+                    hits += self._hits_from_variable_type_inference(
+                        exports, [blob, ["exports"]])
                 else:
                     # try module.exports
                     module = blob.names.get("module")
                     if module is not None:
                         exports = module.names.get("exports")
                         if exports is not None and exports.tag == "variable":
-                            hits += self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]])
+                            hits += self._hits_from_variable_type_inference(
+                                exports, [blob, ["module", "exports"]])
             return hits or None
 
         def load_as_file(path):
@@ -144,12 +149,14 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     # Found a lib with the directory we want. Whether we found
                     # a hit or not, we don't need to look in any other libs
                     # (since they will just give the same results)
-                    self.log("looking up lib %r (filename %r)", lib.dirs, filename)
+                    self.log(
+                        "looking up lib %r (filename %r)", lib.dirs, filename)
                     return get_hits_from_lib(lib, filename)
 
             # none of the libs we know about has it, but we do have a file...
             # try to force scan it
-            lib = self.mgr.db.get_lang_lib(self.lang, "node_modules_lib", (dirname,))
+            lib = self.mgr.db.get_lang_lib(
+                self.lang, "node_modules_lib", (dirname,))
             return get_hits_from_lib(lib, filename)
 
         def load_as_directory(path):
@@ -191,13 +198,15 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                 # invalid name
                 return []
             filename = os.path.normpath(filename)
-            self.log("resolving relative require(%r) via %s", requirename, filename)
+            self.log(
+                "resolving relative require(%r) via %s", requirename, filename)
             hits = load_as_file(filename)
             if hits is None:
                 hits = load_as_directory(filename)
             return hits or []
 
-        # if we get here, this is a bare module name, require("foo") or require("foo/bar")
+        # if we get here, this is a bare module name, require("foo") or
+        # require("foo/bar")
         parts = os.path.normpath(srcdir).split(os.sep)
         try:
             root_index = parts.index("node_modules") - 1
@@ -218,7 +227,8 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
         # last-ditch: try the extradirs pref
         extra_dirs = []
         for pref in self.buf.env.get_all_prefs(self.langintel.extraPathsPrefName):
-            if not pref: continue
+            if not pref:
+                continue
             for dir in pref.split(os.pathsep):
                 dir = dir.strip()
                 if not os.path.isdir(dir):
@@ -240,6 +250,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
 
 class NodeJSLexer(JavaScriptLexer):
     lang = lang
+
 
 class NodeJSLangIntel(JavaScriptLangIntel):
     lang = lang
@@ -270,7 +281,7 @@ class NodeJSLangIntel(JavaScriptLangIntel):
         if p.returncode != 0:
             log.info("Failed to find Node.js version: %r: %s",
                      p.returncode, stderr)
-            return None # Failed to run
+            return None  # Failed to run
         version = stdout.lstrip("v")
         short_ver = ".".join(version.split(".", 2)[:2])
         return short_ver
@@ -288,7 +299,7 @@ class NodeJSLangIntel(JavaScriptLangIntel):
             versions = [tuple(int(part or 0) for part in v.split("."))
                         for v in os.listdir(libdir)
                         if os.path.isdir(os.path.join(libdir, v))
-                            and not v.strip("0123456789.")]
+                        and not v.strip("0123456789.")]
             if versions:
                 max_version = sorted(versions, reverse=True)[0]
                 version = ".".join(str(v) for v in max_version)
@@ -300,16 +311,20 @@ class NodeJSLangIntel(JavaScriptLangIntel):
         return [node_sources_lib,
                 db.get_stdlib(self.lang)]
 
+
 class NodeJSBuffer(JavaScriptBuffer):
     lang = lang
 
+
 class NodeJSImportHandler(JavaScriptImportHandler):
     lang = lang
+
 
 class NodeJSCILEDriver(JavaScriptCILEDriver):
     lang = lang
 
 #---- registration
+
 
 def register(mgr):
     """Register language support with the Manager."""

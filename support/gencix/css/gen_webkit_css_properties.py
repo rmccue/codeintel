@@ -21,13 +21,15 @@ from hashlib import md5
 
 from BeautifulSoup import BeautifulSoup, NavigableString
 
+
 def unescape(text):
-    """Removes HTML or XML character references 
+    """Removes HTML or XML character references
        and entities from a text string.
     from Fredrik Lundh
     http://effbot.org/zone/re-sub.htm#unescape-html
     """
     text = text.replace("\r\n", "\n")
+
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -47,11 +49,12 @@ def unescape(text):
             except KeyError:
                 print "keyerror"
                 pass
-        return text # leave as is
+        return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
     # Reduce multiple spaces.
     text = re.sub(r"\s(\s)+", " ", text)
     return text
+
 
 def getNextTagWithName(tag, name):
     tag = tag.nextSibling
@@ -61,16 +64,18 @@ def getNextTagWithName(tag, name):
                 return tag
         tag = tag.nextSibling
 
+
 def getText(elem):
     l = []
     for element in elem:
-        #if isinstance(element, NavigableString):
+        # if isinstance(element, NavigableString):
         #    continue
         if element.string:
             l.append(element.string)
         else:
             l.append(getText(element))
     return unescape(" ".join(l))
+
 
 def getTextStoppingAtTag(tag, name):
     l = []
@@ -83,15 +88,17 @@ def getTextStoppingAtTag(tag, name):
             l.append(getTextStoppingAtTag(element, name))
     return unescape(" ".join(l))
 
+
 def getNextSibling(tag):
     sibling = tag.nextSibling
     while sibling and isinstance(sibling, NavigableString):
         sibling = sibling.nextSibling
     return sibling
 
+
 def getHtmlForUrl(url):
     urlhash = md5(url).hexdigest()
-    #print 'urlhash: %r' % (urlhash, )
+    # print 'urlhash: %r' % (urlhash, )
     cache_filename = join(".cache", urlhash)
     if exists(cache_filename):
         return file(cache_filename).read()
@@ -99,6 +106,7 @@ def getHtmlForUrl(url):
     content = urlOpener.read()
     file(cache_filename, "wb").write(content)
     return content
+
 
 def parseParameters(tag):
     values = {}
@@ -108,6 +116,7 @@ def parseParameters(tag):
         description = getText(dd_tag.p or dd_tag)
         values[value] = description
     return values
+
 
 def parseValues(tag):
     values = {}
@@ -121,12 +130,14 @@ def parseValues(tag):
             values[attribute] = ''
     return values
 
+
 def parseVersions(tag):
     versions = []
     for child_tag in tag('li'):
         text = getText(child_tag)
         versions.append(text)
     return versions
+
 
 def parseProperty(property_name):
     property_details = {}
@@ -137,7 +148,7 @@ def parseProperty(property_name):
     except:
         print "Unable to pass HTML for property: %r" % (property_name, )
         return property_details
-        
+
     tags = soup.html.body("h2")
     for tag in tags:
         if tag.string == "Description":
@@ -151,6 +162,7 @@ def parseProperty(property_name):
         elif tag.string == "Versions":
             property_details["versions"] = parseVersions(getNextSibling(tag))
     return property_details
+
 
 def parseWebKitProperties():
     properties = {}
@@ -172,11 +184,13 @@ def parseWebKitProperties():
     return properties
 
 # Soup parsing of API documentation from webpage
+
+
 def main(filename):
     properties = parseWebKitProperties()
 
     # Write out the properties.
-    
+
     f = file(filename, "w")
 
     f.write("CSS_WEBKIT_DATA = {\n")

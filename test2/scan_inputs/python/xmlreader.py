@@ -88,6 +88,7 @@ class XMLReader:
         "Sets the value of a SAX2 property."
         raise SAXNotRecognizedException("Property '%s' not recognized" % name)
 
+
 class IncrementalParser(XMLReader):
     """This interface adds three extra methods to the XMLReader
     interface that allow XML parsers to support incremental
@@ -160,6 +161,7 @@ class IncrementalParser(XMLReader):
 
 # ===== LOCATOR =====
 
+
 class Locator:
     """Interface for associating a SAX event with a document
     location. A locator object will return valid results only during
@@ -184,6 +186,7 @@ class Locator:
 
 # ===== INPUTSOURCE =====
 
+
 class InputSource:
     """Encapsulation of the information needed by the XMLReader to
     read entities.
@@ -200,12 +203,12 @@ class InputSource:
     allowed to modify InputSource objects passed to it from the
     application, although it may make copies and modify those."""
 
-    def __init__(self, system_id = None):
+    def __init__(self, system_id=None):
         self.__system_id = system_id
         self.__public_id = None
-        self.__encoding  = None
-        self.__bytefile  = None
-        self.__charfile  = None
+        self.__encoding = None
+        self.__bytefile = None
+        self.__charfile = None
 
     def setPublicId(self, public_id):
         "Sets the public identifier of this InputSource."
@@ -273,6 +276,7 @@ class InputSource:
 
 # ===== ATTRIBUTESIMPL =====
 
+
 class AttributesImpl:
 
     def __init__(self, attrs):
@@ -294,13 +298,13 @@ class AttributesImpl:
         return self._attrs[name]
 
     def getNameByQName(self, name):
-        if not self._attrs.has_key(name):
-            raise KeyError, name
+        if name not in self._attrs:
+            raise KeyError(name)
         return name
 
     def getQNameByName(self, name):
-        if not self._attrs.has_key(name):
-            raise KeyError, name
+        if name not in self._attrs:
+            raise KeyError(name)
         return name
 
     def getNames(self):
@@ -319,7 +323,7 @@ class AttributesImpl:
         return self._attrs.keys()
 
     def has_key(self, name):
-        return self._attrs.has_key(name)
+        return name in self._attrs
 
     def get(self, name, alternative=None):
         return self._attrs.get(name, alternative)
@@ -334,6 +338,7 @@ class AttributesImpl:
         return self._attrs.values()
 
 # ===== ATTRIBUTESNSIMPL =====
+
 
 class AttributesNSImpl(AttributesImpl):
 
@@ -350,14 +355,14 @@ class AttributesNSImpl(AttributesImpl):
             if qname == name:
                 return self._attrs[nsname]
 
-        raise KeyError, name
+        raise KeyError(name)
 
     def getNameByQName(self, name):
         for (nsname, qname) in self._qnames.items():
             if qname == name:
                 return nsname
 
-        raise KeyError, name
+        raise KeyError(name)
 
     def getQNameByName(self, name):
         return self._qnames[name]

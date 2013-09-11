@@ -16,13 +16,14 @@ from codeintel2.lang_python import (PythonLexer, PythonLangIntel,
 
 lang = "Python3"
 log = logging.getLogger("codeintel.python3")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 #---- language support
 
 class Python3Lexer(PythonLexer):
     lang = lang
+
 
 class Python3LangIntel(PythonLangIntel):
     lang = lang
@@ -34,16 +35,20 @@ class Python3LangIntel(PythonLangIntel):
         from SilverCity.Keywords import python3_keywords
         return python3_keywords.split(" ")
 
+
 class Python3Buffer(PythonBuffer):
     lang = lang
 
+
 class Python3ImportHandler(PythonImportHandler):
     lang = lang
+
 
 class Python3CILEDriver(PythonCILEDriver):
     lang = lang
 
 #---- registration
+
 
 def register(mgr):
     """Register language support with the Manager."""

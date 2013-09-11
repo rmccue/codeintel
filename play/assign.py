@@ -3,7 +3,9 @@
 
 from time import *
 from traceback import print_exception
-import sys, os
+import sys
+import os
+
 
 def myfunc(a, b=1, *args, **kwargs):
     """myfunc shows many argument attributes"""
@@ -11,44 +13,51 @@ def myfunc(a, b=1, *args, **kwargs):
     c = 3.14159
     c = "trentm"
 
+
 class Foo(Base):
     """class Foo is a helper for type inferencing work"""
     import re
     classvar = 1
+
     def __init__(self):
         self.classvar = 3
         self.postclassvar = 4
     postclassvar = 1
+
     def setInstanceVar(self, value):
         self.instancevar = value
+
     def getInstanceVar(self):
         return self.instancevar
+
     def bar(self):
         import xml as XML
         return 43
+
     def bar_user(self):
         b = self.bar
         a = b
         c = self
 
-myglobal = [1,2,3]
+myglobal = [1, 2, 3]
 
 
 #---- simple assignments
-bar = 1; bar = "trent"
+bar = 1
+bar = "trent"
 foo, bar = 1, 2
 Foo.bar.spam = 4L
-Foo.blam.spam = 5 # we bail on this because Foo.blam doesn't exist
-bar[1:2] = "foo" # we bail on this because it is too hard
+Foo.blam.spam = 5  # we bail on this because Foo.blam doesn't exist
+bar[1:2] = "foo"  # we bail on this because it is too hard
 [foo, Foo.bar.spam] = 1L, 2
-key1, key2 = {'one':1, 'two':2}
-foo, bar, blam = sys.exc_info() # bail on this, too hard for now
+key1, key2 = {'one': 1, 'two': 2}
+foo, bar, blam = sys.exc_info()  # bail on this, too hard for now
 bar[1] = 1
 
 #---- try to cover remaining types and operations
 L = []
 D = {}
-T = (1,2)
+T = (1, 2)
 ADD_S = "trent" + "e" + "mick"
 MUL_IS = 3*"trent"
 MUL_SI = "trent"*3
@@ -72,22 +81,22 @@ POWER_IF = 2**3.0
 POWER_LF = 2L**3.0
 POWER_IC = 2**3j
 POWER_CF = 2j**3.0
-RSHIFT = 4>>2
-LSHIFT = 4>>2
-BACKQUOTE = `[1,2]`
+RSHIFT = 4 >> 2
+LSHIFT = 4 >> 2
+BACKQUOTE = repr([1, 2])
 BITAND = 42 & 0xf0
-BITOR  = 42 | 0xf0
+BITOR = 42 | 0xf0
 BITXOR = 42 ^ 0xf0
 COMPARE1 = 1 > 2
 COMPARE2 = 1 == 2
 COMPARE3 = 1 < 2
 COMPARE4 = 1 <= 2
 COMPARE5 = 1 >= 2
-COMPARE6 = 1 <> 2
+COMPARE6 = 1 != 2
 COMPARE7 = 1 != 2
 INVERT = ~1
-LSLICE = [1,2,3][1:2]
-TSLICE = (1,2,3)[1:2]
+LSLICE = [1, 2, 3][1:2]
+TSLICE = (1, 2, 3)[1:2]
 UNARYADD = +2
 UNARYSUB = -2
 
@@ -109,7 +118,7 @@ EXCINFO = sys.exc_info()
 # type(call(assign.Foo.getInstanceVar))
 FOO = Foo.getInstanceVar()
 
-NONE = None # do NOT find 'None', types=type(None scope assign.py)
+NONE = None  # do NOT find 'None', types=type(None scope assign.py)
 # do NOT find 'sys', types=type(sys.version_info scope assign.py)
 ver = sys.version_info
 cv = Foo.classvar
@@ -125,13 +134,13 @@ name = name.capitalize()
 #---- Gotcha's found in the stdlib
 # CITDL would be something like: assign os.popen CALL read GETATTR CALL
 # But don't have GETATTR, so punt.
-stuff = os.popen("pick %s 2>/dev/null" % `seq`).read()
+stuff = os.popen("pick %s 2>/dev/null" % repr(seq)).read()
 # From mimify.py
 newline = ('=%02x' % ord('F')).upper()
 # From pyclbr.py
 _getnext = re.compile(r"""...""", re.VERBOSE | re.DOTALL | re.MULTILINE).search
 
-def foo(a, (b,c)=(1,2), *args, **kwargs):
+
+def foo(a, (b, c)=(1, 2), *args, **kwargs):
     pass
 bar = lambda a, (b, c), *args, **kwargs: cmp(a, b)
-

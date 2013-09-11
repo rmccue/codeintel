@@ -2,26 +2,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -33,7 +33,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some Ruby-specific codeintel handling."""
@@ -56,9 +56,7 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 log = logging.getLogger("test")
-
 
 
 class _BaseTestCase(CodeIntelTestCase):
@@ -71,7 +69,7 @@ class _BaseTestCase(CodeIntelTestCase):
     test_dir = join(os.getcwd(), "tmp")
 
     # Set up some commonly used strings here
-    #TODO: this is only used in one test case, move it there
+    # TODO: this is only used in one test case, move it there
     _var_check_string = dedent("""\
             class C
                def initialize
@@ -94,21 +92,22 @@ class _BaseTestCase(CodeIntelTestCase):
             z.<3>def
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("class", "Deflate"),
-             ("class", "ZStream"),
-             ])
+                                      [("class", "Deflate"),
+                                     ("class", "ZStream"),
+                                      ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "new"),
-             ])
+                                      [("function", "new"),
+                                       ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "deflate"),
-             ("function", "flush"),
-             ("function", "params"),
-             ])
-        
+                                      [("function", "deflate"),
+                                     ("function", "flush"),
+                                          ("function", "params"),
+                                      ])
+
     def _finish_testing_step_calltip(self, markedup_content, implicit=True):
         self.assertCalltipMatches(markedup_content,
-        dedent(r"""(?:num.)?step\(.*?\).*?Invokes.*?with the sequence of numbers starting at.*?on each call. The loop finishes.*?when the value to be passed to the block is greater than"""),
+                                  dedent(
+                                  r"""(?:num.)?step\(.*?\).*?Invokes.*?with the sequence of numbers starting at.*?on each call. The loop finishes.*?when the value to be passed to the block is greater than"""),
                                   flags=re.DOTALL, implicit=implicit)
 
     # bug 48858
@@ -119,17 +118,17 @@ class _BaseTestCase(CodeIntelTestCase):
             z.<3>def
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("class", "Deflate"),
-             ("class", "ZStream"),
-             ])
+                                      [("class", "Deflate"),
+                                     ("class", "ZStream"),
+                                      ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "new"),
-             ])
+                                      [("function", "new"),
+                                       ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "deflate"),
-             ("function", "flush"),
-             ("function", "params"),
-             ])
+                                      [("function", "deflate"),
+                                     ("function", "flush"),
+                                          ("function", "params"),
+                                      ])
 
     @tag("bug56127")
     def test_binary_include(self):
@@ -141,24 +140,24 @@ class _BaseTestCase(CodeIntelTestCase):
             z.<3>def
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("class", "Deflate"),
-             ("class", "ZStream"),
-             ])
+                                      [("class", "Deflate"),
+                                     ("class", "ZStream"),
+                                      ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "new"),
-             ])
+                                      [("function", "new"),
+                                       ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "deflate"),
-             ("function", "flush"),
-             ("function", "params"),
-             ])
+                                      [("function", "deflate"),
+                                     ("function", "flush"),
+                                          ("function", "params"),
+                                      ])
 
     @tag("k4b2", "bug56127", "bug65600", "bug65708")
     def test_include_stmt(self):
         test_dir = join(self.test_dir, "test_include_stmt")
         bar_filename = "bar%s" % self.ext
         bar_content, bar_positions = \
-          unmark_text(self.adjust_content(dedent("""\
+            unmark_text(self.adjust_content(dedent("""\
             require 'foo'
             require 'other.rb'
             fa = FooModule::<1>FooClass.<2>new
@@ -167,7 +166,7 @@ class _BaseTestCase(CodeIntelTestCase):
             include FooModule
             fb = FooClass.<4>new
             fb.<5>foo_method
-            
+
             fc = Oth<8>erModule::<6>OtherClass.new
             fc.<7>other_method
         """)))
@@ -198,30 +197,30 @@ class _BaseTestCase(CodeIntelTestCase):
         bar_buf = self.mgr.buf_from_path(join(test_dir, bar_filename))
 
         self.assertCompletionsInclude2(bar_buf, bar_positions[1],
-            [("class", "FooClass")])
+                                       [("class", "FooClass")])
         self.assertCompletionsInclude2(bar_buf, bar_positions[2],
-            [("function", "new")])
+                                       [("function", "new")])
         self.assertCompletionsInclude2(bar_buf, bar_positions[3],
-            [("function", "foo_method")])
+                                       [("function", "foo_method")])
 
         self.assertCompletionsInclude2(bar_buf, bar_positions[4],
-            [("function", "new")])
+                                       [("function", "new")])
         self.assertCompletionsInclude2(bar_buf, bar_positions[5],
-            [("function", "foo_method")])
-        
+                                       [("function", "foo_method")])
+
         self.assertCompletionsInclude2(bar_buf, bar_positions[6],
-            [("class", "OtherClass")])
+                                       [("class", "OtherClass")])
         self.assertCompletionsInclude2(bar_buf, bar_positions[7],
-            [("function", "other_method")])
+                                       [("function", "other_method")])
         self.assertCompletionsInclude2(bar_buf, bar_positions[8],
-            [("namespace", "OtherModule")])
+                                       [("namespace", "OtherModule")])
 
     @tag("k4b2", "bug56127")
     def test_require_include_in_diff_scopes(self):
         test_dir = join(self.test_dir, "test_require_include_in_diff_scopes")
         bar_filename = "bar%s" % self.ext
         bar_content, bar_positions = \
-          unmark_text(self.adjust_content(dedent("""\
+            unmark_text(self.adjust_content(dedent("""\
             require 'foo'
             class C1
               include FooModule
@@ -245,14 +244,14 @@ class _BaseTestCase(CodeIntelTestCase):
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(join(test_dir, bar_filename))
         self.assertCompletionsInclude2(bar_buf, bar_positions[1],
-            [("function", "foo_method")])
+                                       [("function", "foo_method")])
 
     @tag("bug72417", "knownfailure")
     def test_require_through_three_files(self):
         test_dir = join(self.test_dir, "test_require_through_three_files")
         main_filename = "main%s" % self.ext
         main_content, main_positions = \
-          unmark_text(self.adjust_content(dedent("""\
+            unmark_text(self.adjust_content(dedent("""\
             require 'boy'
             b = Boy.new(12, "Charlie")
             puts b.<1>age
@@ -282,8 +281,8 @@ class _BaseTestCase(CodeIntelTestCase):
                 class Human
                     # size of people
                     attr :size, true
-                    def name  
-                      @name     
+                    def name
+                      @name
                     end
                     def lastname
                       @name.capitalize
@@ -292,7 +291,7 @@ class _BaseTestCase(CodeIntelTestCase):
                     def initialize(name)
                       @name = name
                     end
-                    
+
                     # give mug
                     def print_name(mug)
                       "#{@name} : #{mug}"
@@ -306,19 +305,18 @@ class _BaseTestCase(CodeIntelTestCase):
             writefile(path, content)
         main_buf = self.mgr.buf_from_path(join(test_dir, main_filename))
         self.assertCompletionsInclude2(main_buf, main_positions[1],
-            [("function", "age")])
+                                       [("function", "age")])
         self.assertCompletionsInclude2(main_buf, main_positions[2],
-            [("function", "sex")])
+                                       [("function", "sex")])
         self.assertCompletionsInclude2(main_buf, main_positions[3],
-            [("function", "print_name")])
-
+                                       [("function", "print_name")])
 
     @tag("bug72417", "knownfailure")
     def test_require_inherits_required_names(self):
         test_dir = join(self.test_dir, "test_require_inherits_required_names")
         main_filename = "main%s" % self.ext
         main_content, main_positions = \
-          unmark_text(self.adjust_content(dedent("""\
+            unmark_text(self.adjust_content(dedent("""\
             require 'boy'
             #  No need to do this: require 'male'
             m = Male.new("George")
@@ -347,8 +345,8 @@ class _BaseTestCase(CodeIntelTestCase):
                 class Human
                     # size of people
                     attr :size, true
-                    def name  
-                      @name     
+                    def name
+                      @name
                     end
                     def lastname
                       @name.capitalize
@@ -357,7 +355,7 @@ class _BaseTestCase(CodeIntelTestCase):
                     def initialize(name)
                       @name = name
                     end
-                    
+
                     # give mug
                     def print_name(mug)
                       "#{@name} : #{mug}"
@@ -371,7 +369,7 @@ class _BaseTestCase(CodeIntelTestCase):
             writefile(path, content)
         main_buf = self.mgr.buf_from_path(join(test_dir, main_filename))
         self.assertCompletionsInclude2(main_buf, main_positions[1],
-            [("function", "print_name")])
+                                       [("function", "print_name")])
 
     def test_stdlib_import_1(self):
         content, positions = unmark_text(dedent("""\
@@ -379,8 +377,9 @@ class _BaseTestCase(CodeIntelTestCase):
             puts YAML::<1>parse('blah')
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "parse")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+                                      [("function", "parse")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("function", "no_such_func")])
 
     # bug56228
@@ -390,8 +389,9 @@ class _BaseTestCase(CodeIntelTestCase):
             puts YAML::<1>parse('blah')
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "emitter"), ("function", "generic_parser")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+                                      [("function", "emitter"), ("function", "generic_parser")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("function", "emitter;"), ("function", "generic_parser;")])
 
     # @tag("bug55417")
@@ -401,7 +401,7 @@ class _BaseTestCase(CodeIntelTestCase):
             req = Net::<|>
         """)
         self.assertCompletionsInclude(content,
-            [("class", "HTTP"), ("class", "HTTPRequest")])
+                                      [("class", "HTTP"), ("class", "HTTPRequest")])
 
     # @tag("bug56127")
     def test_stdlib_import_include_1(self):
@@ -412,10 +412,10 @@ class _BaseTestCase(CodeIntelTestCase):
             req.<1>method()
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("function", "method"),
-             ("function", "body"),
-             ("function", "path")
-             ])
+                                      [("function", "method"),
+                                     ("function", "body"),
+                                          ("function", "path")
+                                      ])
 
     # class HTTPRequest is resolved in the Net namespace
     # (inside loaded blob net/http), but it inherits from
@@ -423,18 +423,18 @@ class _BaseTestCase(CodeIntelTestCase):
     # type name HTTPGenericRequest, we no longer know that it
     # was evaluated against namespace net/http::Net, and come
     # up empty-handled.
-    # 
-    @tag("k4b2", "bug56277") #was 57057 - this is a python bug
+    #
+    @tag("k4b2", "bug56277")  # was 57057 - this is a python bug
     def test_carry_classref_scope(self):
         content = dedent("""\
             require 'net/http'
             req1 = Net::HTTPRequest.new.<|>method
         """)
         self.assertCompletionsInclude(content,
-            [("function", "method"),
-             ("function", "body"),
-             ("function", "path")
-             ])
+                                      [("function", "method"),
+                                     ("function", "body"),
+                                          ("function", "path")
+                                      ])
 
     @tag("bug57077")
     def test_cross_module_classref(self):
@@ -442,7 +442,7 @@ class _BaseTestCase(CodeIntelTestCase):
         test_dir = join(self.test_dir, "test_cross_module_classref")
         bar_filename = "bar%s" % self.ext
         bar_content, bar_positions = \
-          unmark_text(self.adjust_content(dedent("""\
+            unmark_text(self.adjust_content(dedent("""\
             require 'b'
             x = B2::C2.new
             y = x.<1>foo_c2(<2>)
@@ -465,13 +465,13 @@ class _BaseTestCase(CodeIntelTestCase):
                   end
                 end""")),
             (bar_filename, bar_content),
-            ]
+        ]
         for file, content in manifest:
             path = join(test_dir, file)
             writefile(path, content)
         bar_buf = self.mgr.buf_from_path(join(test_dir, bar_filename))
         self.assertCompletionsInclude2(bar_buf, bar_positions[1],
-            [("function", "foo_c1"), ("function", "foo_c2")])
+                                      [("function", "foo_c1"), ("function", "foo_c2")])
         self.assertCalltipIs2(bar_buf, bar_positions[2],
                               dedent("foo_c2(g,h,i)"))
 
@@ -500,14 +500,14 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("class", "FTP"),
              ("function", "foo")])
-        ptn =  r'.*?\(bin\).*?Returns the Base64-encoded version of (\+?)(?:str|bin)\1'
+        ptn = r'.*?\(bin\).*?Returns the Base64-encoded version of (\+?)(?:str|bin)\1'
         self.assertCalltipMatches(markup_text(content, pos=positions[1]),
             ptn, flags=re.DOTALL)
         self.assertCalltipMatches(markup_text(content, pos=positions[4]),
             ptn, flags=re.DOTALL)
         # The evaluator can't see anything off "FTP"
-        #sys.stderr.write("calltip 3: %r\n\n" % markup_text(content, pos=positions[3]))
-        #self.assertCalltipMatches(markup_text(content, pos=positions[3]),
+        # sys.stderr.write("calltip 3: %r\n\n" % markup_text(content, pos=positions[3]))
+        # self.assertCalltipMatches(markup_text(content, pos=positions[3]),
         #    r'.*?Enters exclusive section', flags=re.DOTALL)
 
     @tag("bug56277")
@@ -521,7 +521,8 @@ class _BaseTestCase(CodeIntelTestCase):
             [("class", "HTTP"), ("class", "HTTPRequest")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("function", "new")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[3]),
             [("function", "no_such_func")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
             [("function", "body"),
@@ -540,7 +541,8 @@ class _BaseTestCase(CodeIntelTestCase):
             [("class", "HTTP"), ("class", "FTP")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("function", "get")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
             [("function", "wombawombawomba")])
 
     def test_namespace_simple(self):
@@ -578,7 +580,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[7]),
             "b1(y, z)")
 
-    #XXX Merge all the different sub-tests in test_module_internal_include
+    # XXX Merge all the different sub-tests in test_module_internal_include
     #    when they're all passing.
 
     @tag("bug68427")
@@ -631,7 +633,8 @@ class _BaseTestCase(CodeIntelTestCase):
             """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "bar")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("function", "gleep")])
 
     # This test should be run to verify that the evaluator
@@ -706,27 +709,31 @@ class _BaseTestCase(CodeIntelTestCase):
         # Ruby.
 
         # Assert can deal with calltip with no args.
-        self.assertCurrCalltipArgRange("foo(<+><|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>one, two<|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "foo()", (-1,-1))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>one, two<|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "foo()", (-1, -1))
 
         # Should still be able to terminate properly if no signature to
         # work with.
-        self.assertCurrCalltipArgRange("foo(<+><|>", "not a signature", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "not a signature", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "not a signature", (-1,-1))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>blah<|>", "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>blah)<|>", "not a signature", (-1, -1))
 
-        self.assertCurrCalltipArgRange("foo(<+><|>", "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange("foo(<+>art<|>", "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange("foo(<+>art,<|>", "foo(a, b, c)", (7,8))
-        self.assertCurrCalltipArgRange("foo(<+>art,bla,<|>", "foo(a, b, c)", (10,11))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange("foo(<+>art<|>", "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>art,<|>", "foo(a, b, c)", (7, 8))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>art,bla,<|>", "foo(a, b, c)", (10, 11))
 
         # Currently commas in regex's *will* screw up determination.
         # Best way to handle that would be with style info. Or could
         # have a lang-specific dict of block chars -- Perl would have
         # {'/': '/'} in addition to the regulars.
-        #self.assertCurrCalltipArgRange("foo(<+>/first,last/, <|>'t,m');",
+        # self.assertCurrCalltipArgRange("foo(<+>/first,last/, <|>'t,m');",
         #                               "foo(a, b, c)", (7,8))
 
     @tag("trg")
@@ -813,7 +820,7 @@ class _BaseTestCase(CodeIntelTestCase):
 
     @tag("trg")
     def test_preceding_trg_object_methods(self):
-        name="ruby-complete-object-methods"
+        name = "ruby-complete-object-methods"
         self.assertPrecedingTriggerMatches("Foo.<$>cla<|>",
                                            name=name, pos=4)
 
@@ -840,14 +847,14 @@ class _BaseTestCase(CodeIntelTestCase):
             self.assertPrecedingTriggerMatches(content,
                                                name=ct_name, pos=start_pos)
             self.assertCompletionsAre(content, all_names, implicit=False);
-            
+
     @tag("trg")
     def test_hit_class_calltip(self):
         code = dedent("""\
             # null line due to rhtml codeintel bug on line 1
             class SampleClass <1>
             end
-            
+
             d = SampleClass(<2>)
             e = SampleClass <3>
             f = 10
@@ -866,16 +873,19 @@ class _BaseTestCase(CodeIntelTestCase):
             self.assertTriggerMatches(this_code, name=trg_name)
             self.assertCalltipIs(this_code,
                                  None)
-            
-        self.assertTriggerMatches(markup_text(fixed_code, pos=positions[2]), name=trg_name)
+
+        self.assertTriggerMatches(markup_text(
+            fixed_code, pos=positions[2]), name=trg_name)
         self.assertCalltipIs(markup_text(fixed_code, pos=positions[2]),
                              None)
-        
-        self.assertTriggerMatches(markup_text(fixed_code, pos=positions[3]), name=trg_name)
+
+        self.assertTriggerMatches(markup_text(
+            fixed_code, pos=positions[3]), name=trg_name)
         self.assertCalltipIs(markup_text(fixed_code, pos=positions[3]),
                              None)
-        
-        self.assertTriggerMatches(markup_text(fixed_code, pos=positions[4]), name=trg_name)
+
+        self.assertTriggerMatches(markup_text(
+            fixed_code, pos=positions[4]), name=trg_name)
         self.assertCalltipIs(markup_text(fixed_code, pos=positions[4]),
                              None)
 
@@ -884,11 +894,11 @@ class _BaseTestCase(CodeIntelTestCase):
     @tag("trg", "explicitName")
     def test_preceding_trg_complete_keyword(self):
         name = "ruby-complete-names"
-        
+
         self.assertPrecedingTriggerMatches(
             "# test starts on line 2.\n<$>clas<|>",
             name=name, pos=25)
-        
+
         ct_name = "ruby-calltip-call-signature"
         content_base = dedent("""
         varname1 = 10
@@ -910,7 +920,6 @@ class _BaseTestCase(CodeIntelTestCase):
                                                name=ct_name, pos=start_pos)
             self.assertCompletionsAre(content, all_names, implicit=False);
 
-            
     @tag("trg", "knownfailure")
     # This won't work until we implement global-name lists
     def test_preceding_trg_global_names(self):
@@ -932,7 +941,6 @@ class _BaseTestCase(CodeIntelTestCase):
         start_pos = positions["pos"] - 1
         self.assertPrecedingTriggerMatches(content, name=name, pos=start_pos)
         self.assertCompletionsInclude(content, all_names, implicit=False);
-        
 
     def test_preceding_trg_complete_names_test1(self):
         name = "ruby-complete-names"
@@ -942,12 +950,13 @@ class _BaseTestCase(CodeIntelTestCase):
         varname3 = 30
         puts v<$>arna<|>me3
         """)
-        all_names = [('variable', x) for x in ['varname1', 'varname2', 'varname3']]
+        all_names = [('variable', x) for x in [
+                      'varname1', 'varname2', 'varname3']]
         self.assertCompletionsAre(content, all_names, implicit=False);
 
-    #XXX Combine all bug68454 passing tests into one test as the problems
+    # XXX Combine all bug68454 passing tests into one test as the problems
     # are fixed.
-    
+
     @tag("trg", "bug68454")
     def test_no_complete_names_trg_in_blocks_01(self):
         self.assertNoTrigger("[1].each {|xyz<|>")
@@ -976,7 +985,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("val <|>", name=ctip)
         self.assertNoTrigger("vali<|>")
         self.assertTriggerMatches("vali <|>", name=ctip)
-        
+
     @tag("trg")
     def test_complete_names_explicit_triggers(self):
         name = "ruby-complete-names"
@@ -993,7 +1002,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(" <|>", name=name, implicit=False)
 
     @tag("trg")
-    def test_trg_complete_object_methods(self): # FOO.|
+    def test_trg_complete_object_methods(self):  # FOO.|
         name = "ruby-complete-object-methods"
         # Test with various surrounding whitespace.
         self.assertTriggerMatches("foo.", name=name)
@@ -1058,10 +1067,9 @@ class _BaseTestCase(CodeIntelTestCase):
             [('module', 'cgi'), ('directory', 'yaml')])
         self.assertCompletionsInclude(" require '<|>'",
             [('module', 'cgi'), ('directory', 'yaml')])
-        #self.assertCompletionsAre("require '<|>'", [('foo', 'bar')])
+        # self.assertCompletionsAre("require '<|>'", [('foo', 'bar')])
                 #"lib-paths",                # require '|, require "|
                 #"lib-subpaths",             # require 'foo/|, require "foo/
-
 
     @tag("trg")
     def test_trg_complete_lib_subpaths(self):
@@ -1099,7 +1107,7 @@ class _BaseTestCase(CodeIntelTestCase):
             self.assertNoTrigger(hdoc)
         else:
             self.assertTriggerMatches(hdoc, name=name)
-        
+
     def test_complete_lib_subpaths(self):
         candidates = [('module', 'ftp'), ('module', 'http')]
         self.assertCompletionsInclude("require 'net/<|>'",
@@ -1109,9 +1117,8 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(" require 'net/<|>'",
             candidates)
 
-
-    #TODO: should this be re-enabled or removed?
-    def DISABLED_test_complete_available_modules(self): # include |
+    # TODO: should this be re-enabled or removed?
+    def DISABLED_test_complete_available_modules(self):  # include |
         name = "ruby-complete-available-modules"
         self.assertTriggerMatches("include <|>", name=name)
         self.assertTriggerMatches(" include <|>", name=name)
@@ -1135,7 +1142,7 @@ class _BaseTestCase(CodeIntelTestCase):
         else:
             self.assertTriggerMatches(hdoc, name=name)
 
-    #TODO: should this be re-enabled or removed?
+    # TODO: should this be re-enabled or removed?
     def DISABLED_test_complete_available_modules_and_classes(self):
         name = "ruby-complete-available-modules-and-classes"
         self.assertTriggerMatches("class Foo < ", name=name)
@@ -1164,7 +1171,7 @@ class _BaseTestCase(CodeIntelTestCase):
         else:
             self.assertTriggerMatches(hdoc, name=name)
 
-    def test_calltip_call_signature(self): # FOO(
+    def test_calltip_call_signature(self):  # FOO(
         name = "ruby-calltip-call-signature"
         self.assertTriggerMatches("FOO(<|>", name=name)
         self.assertTriggerMatches("Foo(<|>", name=name)
@@ -1204,22 +1211,22 @@ class _BaseTestCase(CodeIntelTestCase):
         """)
         self.assertNoTrigger(hdoc)
 
-        #XXX Can't yet test this because don't have a convenient way to
+        # XXX Can't yet test this because don't have a convenient way to
         #    ensure 'delegate' module is loaded into CIDB.
-        #self.assertCalltipIs("require 'delegate'\nDelegator.new(<|>",
+        # self.assertCalltipIs("require 'delegate'\nDelegator.new(<|>",
         #    dedent("""\
         #    new(..."""))
-        
+
         # This is broken because we don't currently handle actually checking
         # for a class "new" method (having deferred to looking for the more
         # typical "initialize"). Calltip eval *should* fallback to "new".
-        #self.assertCalltipIs("require 'zlib'\nZlib::Deflate.new(<|>",
+        # self.assertCalltipIs("require 'zlib'\nZlib::Deflate.new(<|>",
         #    dedent("""\
         #    Zlib::Deflate.new(level=nil, windowBits=nil, memlevel=nil, strategy=nil)
         #    Creates a new deflate stream for compression. See zlib.h for
         #    details of each argument."""))
 
-        #XXX Builtins don't get calltip info
+        # XXX Builtins don't get calltip info
         self._finish_testing_step_calltip("Numeric.step(<|>")
 
     def test_delayed_type_info(self):
@@ -1245,31 +1252,33 @@ class _BaseTestCase(CodeIntelTestCase):
             None)
         self.assertCompletionsInclude(
             markup_text(fixed_code, pos=positions[2]),
-            [("function", "ceil"),])
+            [("function", "ceil"), ])
         self.assertCalltipMatches(markup_text(fixed_code, pos=positions[3]),
-        dedent(r"""(?:ceil\().*?Returns the smallest Integer greater than or equal to num\. Class Numeric achieves this by converting itself to a Float then invoking Float#ceil|.*?As `int' is already an Integer, all these methods simply.*?return the receiver\."""),
+        dedent(
+            r"""(?:ceil\().*?Returns the smallest Integer greater than or equal to num\. Class Numeric achieves this by converting itself to a Float then invoking Float#ceil|.*?As `int' is already an Integer, all these methods simply.*?return the receiver\."""),
                                   flags=re.DOTALL)
     #    self.assertCalltipIs(
-    #        
+    #
     #        dedent("""\
-    #int.to_i      => int
-    #int.to_int    => int
-    #int.floor     => int
-    #int.ceil      => int
-    #int.round     => int
-    #int.truncate  => int
-    #As `int' is already an Integer, all these methods simply
-    #return the receiver."""))
+    # int.to_i      => int
+    # int.to_int    => int
+    # int.floor     => int
+    # int.ceil      => int
+    # int.round     => int
+    # int.truncate  => int
+    # As `int' is already an Integer, all these methods simply
+    # return the receiver."""))
 
     def test_fixnum(self):
         ruby_literals, positions = unmark_text(dedent("""
             10.step(<0>1)
             """))
-        self._finish_testing_step_calltip(markup_text(ruby_literals, pos=positions[0]))
+        self._finish_testing_step_calltip(
+            markup_text(ruby_literals, pos=positions[0]))
 
     @tag("bug60687")
     def test_literals(self):
-        #XXX BUG: add a line-continuation to this snippet to have
+        # XXX BUG: add a line-continuation to this snippet to have
         #    the first trigger on line *0* and you'll get a failure
         #    about no module rows for <path>#0. There is a 0-based vs.
         #    1-based line problem somewhere.
@@ -1290,29 +1299,28 @@ class _BaseTestCase(CodeIntelTestCase):
             self.assertTriggerMatches(
                 markup_text(ruby_literals, pos=positions[marker]),
                 name=trg_name)
-        for marker in (2,3):
+        for marker in (2, 3):
             self.assertCompletionsInclude(
                 markup_text(ruby_literals, pos=positions[marker]),
                 [("function", "abs"),
                  ("function", "div"),
                  ("function", "round")])
-        for marker in (4,5,6,7):
-            self.assertCompletionsInclude( # String.<|>
+        for marker in (4, 5, 6, 7):
+            self.assertCompletionsInclude(  # String.<|>
                 markup_text(ruby_literals, pos=positions[marker]),
                 [("function", "capitalize!"),   # String
                  ("function", "capitalize"),    # String
                  ("function", "between?")])     # Comparable
-        self.assertCompletionsInclude( # Array.<|>
+        self.assertCompletionsInclude(  # Array.<|>
             markup_text(ruby_literals, pos=positions[8]),
             [("function", "slice!"),        # Array
              ("function", "slice"),         # Array
              ("function", "collect")])      # Enumerable
-        self.assertCompletionsInclude( # Hash.<|>
+        self.assertCompletionsInclude(  # Hash.<|>
             markup_text(ruby_literals, pos=positions[9]),
             [("function", "key?"),          # Hash
              ("function", "keys"),          # Hash
              ("function", "collect")])      # Enumerable
-
 
         ruby_literals, positions = unmark_text(dedent("""
             '...'.downcase(<1>)
@@ -1357,18 +1365,18 @@ class _BaseTestCase(CodeIntelTestCase):
             foo[blah].<7>bang
             foo2.<8>
         """))
-        for marker in (0,1,2):
+        for marker in (0, 1, 2):
             self.assertTriggerMatches(
                 markup_text(ruby_literals, pos=positions[marker]),
                 name=trg_name)
-        for marker in (3,4,5,6,7,8):
+        for marker in (3, 4, 5, 6, 7, 8):
             self.assertTriggerDoesNotMatch(
                 markup_text(ruby_literals, pos=positions[marker]),
                 name=trg_name)
 
     @tag("bug62397")
     def test_literal_fixnums(self):
-        # Track bug 
+        # Track bug
         ruby_literals, positions = unmark_text(dedent("""
             0.<1>class
         """))
@@ -1392,7 +1400,8 @@ class _BaseTestCase(CodeIntelTestCase):
         ruby_literals, positions = unmark_text(dedent("""
             10.step(<0>)
         """))
-        self._finish_testing_step_calltip(markup_text(ruby_literals, pos=positions[0]), implicit=False)
+        self._finish_testing_step_calltip(markup_text(
+            ruby_literals, pos=positions[0]), implicit=False)
 
     def test_hash_var_1(self):
         content = dedent("""
@@ -1407,19 +1416,23 @@ class _BaseTestCase(CodeIntelTestCase):
         vars_string, positions = unmark_text(var_check_string)
         _numeric_members = [("function", "abs"),
              ("function", "zero?")]
-        self.assertCompletionsInclude(markup_text(vars_string, pos=positions[1]), _numeric_members)
+        self.assertCompletionsInclude(markup_text(
+            vars_string, pos=positions[1]), _numeric_members)
         _pure_string_members = [("function", "downcase"),
              ("function", "eql?")
             ]
-        self.assertCompletionsInclude(markup_text(vars_string, pos=positions[2]), _pure_string_members)
+        self.assertCompletionsInclude(markup_text(
+            vars_string, pos=positions[2]), _pure_string_members)
         array_literals = [("function", "all?"),
-             ("function", "partition"),]
-        self.assertCompletionsInclude(markup_text(vars_string, pos=positions[3]), array_literals)
+             ("function", "partition"), ]
+        self.assertCompletionsInclude(markup_text(
+            vars_string, pos=positions[3]), array_literals)
         hash_literals = [
              ("function", "each_key"),
              ("function", "merge!"),
                              ]
-        self.assertCompletionsInclude(markup_text(vars_string, pos=positions[4]), hash_literals)
+        self.assertCompletionsInclude(markup_text(
+            vars_string, pos=positions[4]), hash_literals)
 
     def test_std_vars(self):
         # Std vars
@@ -1444,71 +1457,70 @@ class _BaseTestCase(CodeIntelTestCase):
                 @num_served = 0
                 add(<4>fruits)
               end
-            
+
               def add(fruits)
                 fruits.each do | name, count |
                   @ingredients[name] = 0 unless @ingredients.has_key?(<2>name)
                   @ingredients[name] += count
                 end
               end
-              
+
               def accumulate(sum, item)
                 sum + item[1]
               end
-            
+
               def servings()
                 # Step into a block
                 total_fruits = @ingredients.<1>inject(0) {|sum, item| accumulate(sum, item)}
                 total_fruits - @num_served
               end
-            
+
               def serve(n=1)
                 s = servings
                 raise "Not enough fruit -- requested #{n}, have #{s}" if n > s
                 @num_served += n
               end
             end
-            
+
             fs = FruitSalad.<5>new(<0>{'apples' => 4, 'bananas' => 3})
             fs.<8>add('peaches' => 3)
         """))
-        
-        self.assertCalltipIs( # FruitSalad.new(<|>
+
+        self.assertCalltipIs(  # FruitSalad.new(<|>
             markup_text(ruby_fruit_salad, pos=positions[0]),
             "new(fruits)")
-        self.assertCompletionsInclude( # @ingredients.<|>
+        self.assertCompletionsInclude(  # @ingredients.<|>
             markup_text(ruby_fruit_salad, pos=positions[1]),
             [("function", "all?"),
              ("function", "delete_if"),
              ("function", "each")])
-        self.assertCalltipMatches( # @ingredients.has_key?(<|>
+        self.assertCalltipMatches(  # @ingredients.has_key?(<|>
             markup_text(ruby_fruit_salad, pos=positions[2]),
             '.*?Returns true if the given key is present in.*?hsh',
             flags=re.DOTALL)
-        self.assertCalltipIs( # add(<|>
+        self.assertCalltipIs(  # add(<|>
             markup_text(ruby_fruit_salad, pos=positions[4]),
             "add(fruits)")
-        self.assertCompletionsInclude( # FruitSalad.<|>
+        self.assertCompletionsInclude(  # FruitSalad.<|>
             markup_text(ruby_fruit_salad, pos=positions[5]),
-            [("function", "new"),])
-        self.assertCompletionsInclude( # FruitSalad.<|>
+            [("function", "new"), ])
+        self.assertCompletionsInclude(  # FruitSalad.<|>
             markup_text(ruby_fruit_salad, pos=positions[8]),
             [("function", "add"),
              ("function", "serve"),
              ("function", "is_a?"),
              ("function", "object_id")])
-        self.assertCompletionsInclude( # require '<|>
+        self.assertCompletionsInclude(  # require '<|>
             markup_text(ruby_fruit_salad, pos=positions[6]),
             [("module", "uri"),
              ("module", "weakref"),
              ("directory", "yaml")])
-        self.assertCompletionsInclude( # require 'yaml/
+        self.assertCompletionsInclude(  # require 'yaml/
             markup_text(ruby_fruit_salad, pos=positions[7]),
             [("module", "dbm"),
              ("module", "store")])
 
-
-    def test_complete_module_names(self): # MODULE::
+    def test_complete_module_names(self):  # MODULE::
         name = "ruby-complete-module-names"
         self.assertTriggerMatches("Module::<|>", name=name)
         self.assertTriggerMatches("M::<|>", name=name)
@@ -1517,7 +1529,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(" Module::<|>", name=name)
         self.assertTriggerMatches(" M3::<|>", name=name)
 
-        #XXX These might need to change to actually trigger.
+        # XXX These might need to change to actually trigger.
         self.assertNoTrigger("Module ::<|>")
         self.assertNoTrigger("::<|>")
 
@@ -1526,7 +1538,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertNoTrigger("'Module::<|>")
         self.assertNoTrigger("bar = 'Module::<|>")
 
-    def DISABLED_test_complete_class_vars(self): # @@|
+    def DISABLED_test_complete_class_vars(self):  # @@|
         name = "ruby-complete-class-vars"
         self.assertTriggerMatches("@@<|>", name=name)
         self.assertTriggerMatches(" @@<|>", name=name)
@@ -1547,7 +1559,7 @@ class _BaseTestCase(CodeIntelTestCase):
         else:
             self.assertTriggerMatches(hdoc, name=name)
 
-    def DISABLED_test_complete_instance_vars(self): # @|
+    def DISABLED_test_complete_instance_vars(self):  # @|
         name = "ruby-complete-instance-vars"
         self.assertTriggerMatches("@<|>", name=name)
         self.assertTriggerMatches(" @<|>", name=name)
@@ -1568,7 +1580,7 @@ class _BaseTestCase(CodeIntelTestCase):
         else:
             self.assertTriggerMatches(hdoc, name=name)
 
-    def DISABLED_test_complete_global_vars(self): # $|
+    def DISABLED_test_complete_global_vars(self):  # $|
         name = "ruby-complete-global-vars"
         self.assertTriggerMatches("$<|>", name=name)
         self.assertTriggerMatches(" $<|>", name=name)
@@ -1595,15 +1607,16 @@ class _BaseTestCase(CodeIntelTestCase):
         # The following should work.
         self.assertTriggerMatches("{'abc'=> 1, 'def' => 2}.<|>keys",
                                   name="ruby-complete-literal-methods")
-    #    
-    #def _assertCompletionsDoNotInclude(self, *args):
+    #
+    # def _assertCompletionsDoNotInclude(self, *args):
     #    try:
     #        self.assertCompletionsInclude(*args)
     #        res = False
     #    except:
     #        res = True
     #    self.assertTrue(res)
-    #    
+    #
+
     @tag("knownfailure", "54847")
     def test_numeric_not_complex(self):
         content = dedent("""\
@@ -1612,11 +1625,11 @@ class _BaseTestCase(CodeIntelTestCase):
         """)
         self.assertCompletionsInclude(content, [("function", "ceil")])
         self.assertCompletionsDoNotInclude(content, [("function", "polar")])
-        
+
     def test_numeric_float_missing_nan(self):
         content = "4.2.<|>"
         self.assertCompletionsInclude(content, [("function", "nan?")])
-        
+
     @tag("bug60678")
     def test_exponential_floats_not_recognized(self):
         content, positions = unmark_text(dedent("""
@@ -1633,7 +1646,7 @@ class _BaseTestCase(CodeIntelTestCase):
              ]
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[4]), _object_members)
-        
+
     @tag("knownfailure", "bug62247")
     def test_not_a_number(self):
         content, positions = unmark_text(dedent("""
@@ -1642,7 +1655,6 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[1]),
             [("function", "abs")])
-        
 
     def test_everything_is_an_object(self):
         content, positions = unmark_text(dedent("""
@@ -1699,7 +1711,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]), _numeric_members,
             implicit=False)
-            
+
         _float_members = [
              ("function", "divmod"),
              ("function", "integer?"),
@@ -1748,8 +1760,8 @@ class _BaseTestCase(CodeIntelTestCase):
                              ]
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[6]), pure_hash_literals)
-    
-    @tag("bug94237")    
+
+    @tag("bug94237")
     def test_nested_literals_3(self):
         # lower-case names work
         content, positions = unmark_text(dedent("""
@@ -1758,7 +1770,7 @@ class _BaseTestCase(CodeIntelTestCase):
             """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "size"),])
+            [("function", "size"), ])
         # but the tree walker fails to handle names starting with a capital
         content, positions = unmark_text(dedent("""
             Aa = [1,2,3]
@@ -1766,8 +1778,8 @@ class _BaseTestCase(CodeIntelTestCase):
             """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "size"),])
-        
+            [("function", "size"), ])
+
     @tag("bug94237")
     def test_builtin_class_cplns(self):
         content, positions = unmark_text(dedent("""
@@ -1775,8 +1787,8 @@ class _BaseTestCase(CodeIntelTestCase):
             """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "new"),])
-        
+            [("function", "new"), ])
+
     @tag("bug94237")
     def test_builtin_class_calltip(self):
         content, positions = unmark_text(dedent("""
@@ -1787,7 +1799,7 @@ class _BaseTestCase(CodeIntelTestCase):
              + r'then `?arg\'?.to_a\.')
         self.assertCalltipMatches(markup_text(content, pos=positions[1]),
             ptn, flags=re.DOTALL)
-        
+
     def test_foo2(self):
         content, positions = unmark_text(dedent("""
             class Bar
@@ -1808,7 +1820,7 @@ class _BaseTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[1]),
             [("function", "bar"),
              ("function", "foo")])
-        
+
     def test_class_new_init(self):
         # test Foo.new
         # test Foo.initialize
@@ -1820,7 +1832,7 @@ class _BaseTestCase(CodeIntelTestCase):
         end
         myfoo = Foo.<|>""")
         self.assertCompletionsInclude(content, [("function", "new")])
-        
+
     # These tests are used to differentiate class methods from
     # instance methods
     _class_methods_text = dedent("""
@@ -1834,37 +1846,38 @@ class _BaseTestCase(CodeIntelTestCase):
         myfoo = Foo.new
         myfoo.<2>i
         """)
+
     def test_class_methods_1(self):
         content, positions = unmark_text(self._class_methods_text)
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("function", "cls_met1")])
-        
-    @tag("bug54998") # 
+
+    @tag("bug54998")
     def test_class_methods_2(self):
         content, positions = unmark_text(self._class_methods_text)
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[1]),
             [("function", "inst_met2")])
-        
+
     def test_class_methods_3(self):
         content, positions = unmark_text(self._class_methods_text)
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
             [("function", "inst_met2")])
 
-    @tag("bug54998") # 
+    @tag("bug54998")
     def test_class_methods_4(self):
         content, positions = unmark_text(self._class_methods_text)
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[2]),
             [("function", "cls_met1"), ("function", "new")])
 
-    @tag("bug62327") # 
+    @tag("bug62327")
     def test_class_methods_5(self):
         content, positions = unmark_text(self._class_methods_text)
         self.assertNoTrigger(markup_text(content, pos=positions[3]))
-    
+
     _class_methods_alias_text = dedent("""
         class Foo
             def Foo.cls_met1(x); end
@@ -1876,7 +1889,7 @@ class _BaseTestCase(CodeIntelTestCase):
         x.<2>i
         """)
 
-    @tag("knownfailure") # bug 55008
+    @tag("knownfailure")  # bug 55008
     def test_class_methods_alias_1(self):
         content, positions = unmark_text(self._class_methods_alias_text)
         self.assertCompletionsInclude(
@@ -1885,13 +1898,13 @@ class _BaseTestCase(CodeIntelTestCase):
 
     # bugs 55008 and 54998, currently passing due to
     # negative universe implications
-    @tag("knownfailure") # bug 55008
+    @tag("knownfailure")  # bug 55008
     def test_class_methods_alias_2(self):
         content, positions = unmark_text(self._class_methods_alias_text)
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[1]),
             [("function", "inst_met2")])
-        
+
     def test_class_methods_alias_3(self):
         content, positions = unmark_text(self._class_methods_alias_text)
         self.assertCompletionsInclude(
@@ -1899,7 +1912,7 @@ class _BaseTestCase(CodeIntelTestCase):
             [("function", "inst_met2")])
 
     # see also bug 54998 -- see test_class_methods_alias_2
-    @tag("bug55008") # 
+    @tag("bug55008")
     def test_class_methods_alias_4(self):
         content, positions = unmark_text(self._class_methods_alias_text)
         self.assertCompletionsInclude(
@@ -1908,11 +1921,11 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[2]),
             [("function", "cls_met1"), ("function", "new")])
-        
+
     def test_class_implicit_new(self):
         content = "class Foo2 ; end ; myfoo = Foo2.<|>"
         self.assertCompletionsInclude(content, [("function", "new")])
-        
+
     @tag("trg", "bug62327")
     def test_class_method_no_trg(self):
         content, positions = unmark_text(dedent("""\
@@ -1928,19 +1941,19 @@ class _BaseTestCase(CodeIntelTestCase):
             y = x.<3>blah
         """))
         self.assertNoTrigger(markup_text(content, pos=positions[1]))
-            
+
     def test_kernel_methods_calltips_explicit(self):
         """Test for calltips on the kernel methods
         """
         self._finish_rand_test('a = Kernel.rand(<1>2.3)')
-        
+
     @tag("bug69499")
     def test_kernel_methods_calltips_implicit(self):
         """Test for calltips on the kernel methods, without the
            explicit 'Kernel'
         """
         self._finish_rand_test('a = rand(<1>2.3)')
-        
+
     def _finish_rand_test(self, code):
         content, positions = unmark_text(code)
         # calltip changed in 1.9.3
@@ -1948,10 +1961,9 @@ class _BaseTestCase(CodeIntelTestCase):
                   + r'result is zero, returns a pseudorandom floating point'
                   + r'|rand\(p1 = v1\).*?'
                   + r'If max is .*?Range.*?, returns a pseudorandom number where '
-                  + r'range\.member\(number\) == true\.)') 
+                  + r'range\.member\(number\) == true\.)')
         self.assertCalltipMatches(markup_text(content, pos=positions[1]),
                              expected, flags=re.DOTALL)
-        
 
     def test_foo3(self):
         content, positions = unmark_text(dedent("""
@@ -2017,19 +2029,21 @@ class _BaseTestCase(CodeIntelTestCase):
             [("function", "mkdir"),
              ("function", "touch")])
         name = "ruby-calltip-call-signature"
-        self.assertTriggerMatches(markup_text(content, pos=positions[3]), name=name)
-        self.assertTriggerMatches(markup_text(content, pos=positions[4]), name=name)
-        
+        self.assertTriggerMatches(markup_text(
+            content, pos=positions[3]), name=name)
+        self.assertTriggerMatches(markup_text(
+            content, pos=positions[4]), name=name)
+
         expected = r'.*?\(dir, options.*\).*Options: verbose'
-        #dedent("""
+        # dedent("""
         #           (dir, options = {}) {|dir| ...}
         #           Options: verbose
         #    """).strip()
         self.assertCalltipMatches(
-            markup_text(content, pos=positions[3]), expected, flags=re.DOTALL)            
+            markup_text(content, pos=positions[3]), expected, flags=re.DOTALL)
         self.assertCalltipMatches(
             markup_text(content, pos=positions[4]), expected, flags=re.DOTALL)
-        
+
     @tag("bug56218")
     # This works when the aliases are captured in YAML docs
     def test_loadable_module_completions_3(self):
@@ -2040,7 +2054,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("function", "mkdir")])
-        
+
     @tag("bug56218")
     # rubycile doesn't grok aliases yet.
     def test_alias_methods(self):
@@ -2058,7 +2072,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("function", "faker_method"),
-            ("function", "real_method"),])
+            ("function", "real_method"), ])
         self.assertCalltipIs(
             markup_text(content, pos=positions[2]), "faker_method(x)")
 
@@ -2073,15 +2087,17 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("class", "ConditionVariable")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("function", "passive")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("class", "FTP"), ("class", "HTTPRequest")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("function", "passive")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[3]),
             [("class", "ConditionVariable")])
-        
+
     @tag("bug44831")
     # The tree walker has to allow for multiple occurrences of nested
     # classes within a container.
@@ -2093,7 +2109,7 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "body_stream"),])
+            [("function", "body_stream"), ])
 
     @tag("bug44831")
     # The tree walker has to allow for multiple occurrences of nested
@@ -2107,7 +2123,7 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "body_stream"),])
+            [("function", "body_stream"), ])
 
     @tag("bug44831")
     # The tree walker has to allow for multiple occurrences of nested
@@ -2121,7 +2137,7 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "body_stream"),])
+            [("function", "body_stream"), ])
 
     @tag("bug44831")
     # The tree walker has to allow for multiple occurrences of nested
@@ -2136,7 +2152,7 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "body_stream"),])
+            [("function", "body_stream"), ])
 
     @tag("bug44831")
     # The tree walker has to allow for multiple occurrences of nested
@@ -2151,7 +2167,7 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "body_stream"),])
+            [("function", "body_stream"), ])
 
     @tag("bug50597")
     def test_quick_completions(self):
@@ -2169,7 +2185,7 @@ class _BaseTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[i]), [('function', cplns[i])])
 
     # The calltip walker has to do the same kind of analysis as the
-    # completion walker.                                        
+    # completion walker.
     def test_peer_classes_1(self):
         content, positions = unmark_text(dedent("""
             require 'net/http'
@@ -2185,7 +2201,7 @@ class _BaseTestCase(CodeIntelTestCase):
         for i in (0, 2):
             self.assertCompletionsInclude(
                 markup_text(content, pos=positions[i + 1]),
-                [("function", "body_stream="),])
+                [("function", "body_stream="), ])
             expected = "body_stream(...)"
             self.assertCalltipIs(
                 markup_text(content, pos=positions[i + 2]), expected)
@@ -2226,7 +2242,6 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                                       [("function", "open")])
 
-
     @tag("knownfailure", "bug58908")
     def test_class_extension(self):
         content, positions = unmark_text(dedent("""
@@ -2234,7 +2249,7 @@ class _BaseTestCase(CodeIntelTestCase):
                 def self.cmethod(a, b, c)
                     return 42
                 end
-                
+
                 def imethod(d1, e2, *f3)
                     return "Hello"
                 end
@@ -2252,8 +2267,8 @@ class _BaseTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "imethod_2"),])
-                         
+            [("function", "imethod_2"), ])
+
     @tag("bug62598")
     def test_class_compound_names(self):
         content, positions = unmark_text(dedent("""\
@@ -2270,15 +2285,14 @@ class _BaseTestCase(CodeIntelTestCase):
             [("function", "new")])
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[2]),
-            [("function", "exception"),])
+            [("function", "exception"), ])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
-            [("function", "exception"),("function", "reload")])
+            [("function", "exception"), ("function", "reload")])
         self.assertCompletionsDoNotInclude(
             markup_text(content, pos=positions[3]),
-            [("function", "new"),])
+            [("function", "new"), ])
 
-                         
     # Looks like bug 62338, but was broken only for RHTML.
     def test_attr_accessor_local(self):
         content, positions = unmark_text(dedent("""\
@@ -2328,7 +2342,6 @@ class _BaseTestCase(CodeIntelTestCase):
              ("function", "delete"),
              ("function", "update"),
              ])
-        
 
     @tag("bug62778")
     def test_class_class_instance_method_name_collision(self):
@@ -2416,7 +2429,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(markup_text(content, pos=positions[1]),
                                   name=name)
         self.assertNoTrigger(markup_text(content, pos=positions[2]))
-        
+
         self.assertNoTrigger(markup_text(content, pos=positions[3]))
 
     @tag("global")
@@ -2463,9 +2476,10 @@ class _BaseTestCase(CodeIntelTestCase):
             ("function mx4e"),
             ]
         for i in range(len(non_targets)):
-            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[i + 1]),
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[i + 1]),
             [non_targets[i]])
-            
+
         targets = [
             ("variable", "zyo8u"),
             ("function", "got_it"),
@@ -2475,7 +2489,8 @@ class _BaseTestCase(CodeIntelTestCase):
             # Verify we don't trigger on 5-char
         pos_offset = len(non_targets) + 1
         for i in range(0, len(targets)):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i + pos_offset]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i + pos_offset]),
             [targets[i]])
 
     @tag("global")
@@ -2487,7 +2502,7 @@ class _BaseTestCase(CodeIntelTestCase):
             other = 'other'
             lon<3>g += 5        # local scope
             yie<4>ld                      # keyword
-            
+
             """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
@@ -2519,7 +2534,7 @@ class _BaseTestCase(CodeIntelTestCase):
              ("function", "for"),
              ("variable", "other"),
              ])
-            
+
     @tag("global")
     def test_basic_top_level_in_class(self):
         content, positions = unmark_text(dedent("""
@@ -2572,7 +2587,8 @@ class _BaseTestCase(CodeIntelTestCase):
              ("function", "func3"),
              ]
         var_exp = (var_set_1, var_set_2, var_set_3)
-        var_not = (var_set_2 +  var_set_3, var_set_1 + var_set_3, var_set_1 + var_set_2)
+        var_not = (var_set_2 + var_set_3,
+                   var_set_1 + var_set_3, var_set_1 + var_set_2)
         func_exp = (func_set_1, func_set_1, func_set_2)
         func_not = (func_set_2, func_set_2, func_set_1)
 
@@ -2589,8 +2605,8 @@ class _BaseTestCase(CodeIntelTestCase):
             self.assertCompletionsDoNotInclude(
                 markup_text(content, pos=positions[2 * i + 2]),
                 func_not[i])
-           
-    @tag("defns") 
+
+    @tag("defns")
     def test_inline_defns(self):
         test_dir = join(self.test_dir, "test_inline_defns")
         main_filename = "main%s" % self.ext
@@ -2660,7 +2676,7 @@ class _BaseTestCase(CodeIntelTestCase):
             ilk="class", name="C2", line=lines[105])
         self.assertDefnMatches2(buf, main_positions[106],
             ilk="function", name="f2a", line=lines[106])
-        
+
     @tag("defns")
     def test_peer_module_defns(self):
         test_dir = join(self.test_dir, "test_peer_module_defns")
@@ -2718,9 +2734,9 @@ class _BaseTestCase(CodeIntelTestCase):
             ilk="function", name="horn_count", line=2)
         self.assertDefnMatches2(buf, main_positions[7],
             ilk="function", name="language", line=4)
-        # path=rhino_path, 
-           
-    @tag("defns")  
+        # path=rhino_path,
+
+    @tag("defns")
     def test_inline_variables(self):
         test_dir = join(self.test_dir, "test_inline_variables")
         main_filename = "main%s" % self.ext
@@ -2783,7 +2799,7 @@ class _BaseTestCase(CodeIntelTestCase):
                                     ])
         self.assertDefnMatches2(buf, main_positions[5],
             ilk="variable", name="@@cls_var", citdl="Fixnum", line=3)
-                                                      
+
     @tag("bug99108")
     def test_scope_bounds(self):
         test_dir = join(self.test_dir, "test_defn")
@@ -2803,7 +2819,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, foo_positions[1],
             ilk="function", name="test1", line=3,
             scopestart=1, scopeend=0, path=path, )
-                                                      
+
     @tag("bug99108")
     def test_scope_bounds_02(self):
         test_dir = join(self.test_dir, "test_defn")
@@ -2864,8 +2880,8 @@ class PureTestCase(_BaseTestCase):
     lang = "Ruby"
     ext = ".rb"
     heredoc_support = True
-    
-    #XXX Figure out how to express this in mixedlang mode as well.
+
+    # XXX Figure out how to express this in mixedlang mode as well.
     def test_citdl_expr_from_trg(self):
         test_cases = """
             z.<|>                       z
@@ -2879,7 +2895,7 @@ class PureTestCase(_BaseTestCase):
             #@assigned.<|>               @assigned
             #@@foo.<|>                   @foo
             #$blah.<|>                   @blah
-            
+
             # Skipping this one for now because we'd need to do the smarter
             # convert-literals-to-class-instance thang first.
             #0.step(<|>                  Numeric.step
@@ -2903,8 +2919,10 @@ class PureTestCase(_BaseTestCase):
             [1,2,3].each(<|>            Array.each
         """
         for line in test_cases.splitlines(0):
-            if not line.strip(): continue
-            if line.lstrip().startswith("#"): continue
+            if not line.strip():
+                continue
+            if line.lstrip().startswith("#"):
+                continue
             buffer, expected_citdl_expr = line.split()
             self.assertCITDLExprIs(buffer, expected_citdl_expr)
 
@@ -2931,7 +2949,7 @@ class PureTestCase(_BaseTestCase):
             #@assigned.<|>               @assigned
             #@@foo.<|>                   @foo
             #$blah.<|>                   @blah
-            
+
             # Skipping this one for now because we'd need to do the smarter
             # convert-literals-to-class-instance thang first.
             #0.step(<|>                  Numeric.step
@@ -2956,8 +2974,10 @@ class PureTestCase(_BaseTestCase):
             [1,2,3].each(<|>            Array.each
         """
         for line in test_cases.splitlines(0):
-            if not line.strip(): continue
-            if line.lstrip().startswith("#"): continue
+            if not line.strip():
+                continue
+            if line.lstrip().startswith("#"):
+                continue
             buffer, expected_citdl_expr = line.split()
             self.assertCITDLExprUnderPosIs(buffer, expected_citdl_expr)
 
@@ -2984,7 +3004,7 @@ class PureTestCase(_BaseTestCase):
                                            class_targets)
         finally:
             os.unlink(main_path)
-     
+
     @tag("defns")
     def test_external_defns(self):
         main_content, main_positions = \
@@ -2999,12 +3019,12 @@ class PureTestCase(_BaseTestCase):
         # Don't provide line numbers because they change from version to version of
         # Ruby, and they aren't used by Komodo, so we no longer write line attributes
         # into the cix files.
-        self.assertDefnMatches2(buf, main_positions[2], 
+        self.assertDefnMatches2(buf, main_positions[2],
             ilk="class", name="HTTPGenericRequest")
-        self.assertDefnMatches2(buf, main_positions[1], 
+        self.assertDefnMatches2(buf, main_positions[1],
             ilk="namespace", name="Net")
 
-    def test_complete_module_names_heredoc(self): # MODULE::
+    def test_complete_module_names_heredoc(self):  # MODULE::
         name = "ruby-complete-module-names"
         hdoc = self.adjust_content(dedent("""\
             string = <<END_OF_STRING
@@ -3031,7 +3051,7 @@ class PureTestCase(_BaseTestCase):
         if not things:
             raise TestSkipped("icalendar not installed in %s" % gemDir2)
         # Now that we know we have icalendar, run the test.
-        
+
     @tag("cplns")
     def test_dispersed_module_defns_01(self):
         self._verify_icalendar()
@@ -3043,7 +3063,7 @@ class PureTestCase(_BaseTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("class", "Calendar"), ("class", "Geo")])
-  
+
     @tag("bug72335", "cplns")
     def test_dispersed_module_defns_02(self):
         """
@@ -3059,8 +3079,9 @@ class PureTestCase(_BaseTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("function", "find_event"), ("function", "todo")])
-  
+
 re_cursor = re.compile(r'<[\|\d]+>')
+
 
 class MultiLangTestCase(_BaseTestCase):
     lang = "RHTML"
@@ -3069,10 +3090,12 @@ class MultiLangTestCase(_BaseTestCase):
 
     _rhtml_prefix = "<body><p><% "
     _rhtml_suffix = " %>"
+
     def adjust_content(self, content):
         if not re_cursor.search(content):
             content += "<|>"
         return self._rhtml_prefix + content + self._rhtml_suffix
+
     def adjust_pos(self, pos):
         return pos + len(self._rhtml_prefix)
 
@@ -3087,13 +3110,13 @@ class MultiLangTestCase(_BaseTestCase):
         """)))
         path = os.path.join("<Unsaved>", "rand%d" % random.randint(0, 100))
         buf = self.mgr.buf_from_content(main_content, lang="Ruby", path=path)
-        self.assertDefnMatches2(buf, main_positions[2], 
+        self.assertDefnMatches2(buf, main_positions[2],
             ilk="class", name="HTTPGenericRequest", line=1431)
-        self.assertDefnMatches2(buf, main_positions[1], 
+        self.assertDefnMatches2(buf, main_positions[1],
             ilk="namespace", name="Net", line=31)
 
     @tag("bug70747", "knownfailure")
-    def test_complete_module_names_heredoc(self): # MODULE::
+    def test_complete_module_names_heredoc(self):  # MODULE::
         """When bug 70747 is fixed delete
         PureTestCase.test_complete_module_names_heredoc and
         put this code back into
@@ -3114,5 +3137,3 @@ class MultiLangTestCase(_BaseTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

@@ -16,18 +16,19 @@ import logging
 
 from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, \
-                            unmark_text, CompareNPunctLast
+    unmark_text, CompareNPunctLast
 from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase
 from codeintel2.css_linter import CSSLinter
 
 log = logging.getLogger("test")
 
+
 class CSSLintTest(CodeIntelTestCase):
     lang = "CSS"
     test_dir = os.getcwd()
     csslinter = CSSLinter()
-    
+
     langs = ("CSS", "SCSS", "Less")
 
     def _check_zero_results_show_error(self, code, language="CSS"):
@@ -36,29 +37,32 @@ class CSSLintTest(CodeIntelTestCase):
             # Show the result that triggered the failure
             self.assertEqual(0, len(results), results[0])
         self.assertEqual(0, len(results))
-    
+
     def _check_one_result_check_error_on_line(self, code, startswith, expected, language="CSS"):
         results = self.csslinter.lint(code, language)
-        self.assertEqual(1, len(results), "expected at least one error, got none")
+        self.assertEqual(1, len(
+            results), "expected at least one error, got none")
         r = results[0]
         self.assertTrue(r.message.startswith(startswith), r.message)
-        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], expected)
-                    
+        self.assertEqual(code.splitlines()[
+                         r.line_start - 1][r.col_start:r.col_end], expected)
+
     def _check_one_result_check_error_at_eof(self, code, startswith, language="CSS"):
         results = self.csslinter.lint(code, language)
         self.assertEqual(1, len(results))
         r = results[0]
         self.assertTrue(r.message.startswith(startswith), r)
         self.assertEqual(r.line_start, None, r)
-        
+
     def _check_some_errors_on_line(self, code, startswith, expected, lineNo=0, language="CSS"):
         results = self.csslinter.lint(code, language)
         self.assertTrue(len(results) > 0)
         r = results[0]
         self.assertTrue(r.message.startswith(startswith),
                         r.message)
-        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], expected)
-                    
+        self.assertEqual(code.splitlines()[
+                         r.line_start - 1][r.col_start:r.col_end], expected)
+
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
         print "Test files in path %s" % test_dir
@@ -66,14 +70,15 @@ class CSSLintTest(CodeIntelTestCase):
             fd = open(path, 'r')
             code = fd.read().decode("utf-8")
             fd.close()
-            #print "Test file %s" % basename(path)
+            # print "Test file %s" % basename(path)
             results = self.csslinter.lint(code)
             self.assertEqual([], results, "Failed to parse file %s" % path)
-         
+
     _test_dir = abspath(__file__)
     # Running these tests via bk test gives strange results for abspath,
     # so manually adjust
-    _m = re.compile(r'(.*)src[/\\]codeintel[/\\](src[/\\](?:codeintel|modules))(.*)').match(_test_dir)
+    _m = re.compile(
+        r'(.*)src[/\\]codeintel[/\\](src[/\\](?:codeintel|modules))(.*)').match(_test_dir)
     if _m:
         _test_dir = ''.join(_m.groups())
     _ko_src_dir = dirname(dirname(dirname(_test_dir)))
@@ -82,6 +87,7 @@ class CSSLintTest(CodeIntelTestCase):
     _skipSkinFiles = [
         # No openkomodo files in this category.
     ]
+
     def _walk_skin_files(self, data, dirname, fnames):
         for fname in fnames:
             if fname.endswith(".css"):
@@ -92,18 +98,20 @@ class CSSLintTest(CodeIntelTestCase):
                 code = fd.read().decode("utf-8")
                 fd.close()
                 for lang in self.langs:
-                    #sys.stderr.write("Test file %s\n" % basename(fpath))
+                    # sys.stderr.write("Test file %s\n" % basename(fpath))
                     results = self.csslinter.lint(code, language=lang)
-                    self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (fpath, lang, [str(x) for x in results]))
+                    self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (
+                        fpath, lang, [str(x) for x in results]))
 
     def test_komodo_skin_files_01(self):
         # Test these under CSS, SCSS, and Less
-        self.assertTrue(os.path.exists(join(self._skin_dir, "codeintel.p.css")), "%s: missing codeintel.p.css" % self._skin_dir)
+        self.assertTrue(os.path.exists(join(
+            self._skin_dir, "codeintel.p.css")), "%s: missing codeintel.p.css" % self._skin_dir)
         os.path.walk(self._skin_dir, self._walk_skin_files, None)
 
     def test_komodo_skin_files_02(self):
         os.path.walk(self._modules_dir, self._walk_skin_files, None)
-        
+
     def test_komodo_skin_files_problem_01(self):
         if not self._skipSkinFiles:
             self.assertTrue(1)
@@ -113,19 +121,21 @@ class CSSLintTest(CodeIntelTestCase):
         code = fd.read().decode("utf-8")
         fd.close()
         for lang in self.langs:
-            #sys.stderr.write("Test file %s\n" % basename(fpath))
+            # sys.stderr.write("Test file %s\n" % basename(fpath))
             results = self.csslinter.lint(code, language=lang)
-            self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (fpath, lang, [str(x) for x in results]))
+            self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (
+                fpath, lang, [str(x) for x in results]))
 
     def test_jezdez(self):
-        path = join(self.test_dir, "bits", "bad_css_files", "jezdez-reset-fonts-grids.css")
+        path = join(self.test_dir, "bits",
+                    "bad_css_files", "jezdez-reset-fonts-grids.css")
         fd = open(path, 'r')
         code = fd.read().decode("utf-8")
         fd.close()
         print "Test file %s" % basename(path)
         results = self.csslinter.lint(code)
-        self.assertTrue(len(results) > 0)            
-            
+        self.assertTrue(len(results) > 0)
+
     def test_css_charset_selector(self):
         code = dedent("""\
 @charset "utf-8";
@@ -137,11 +147,13 @@ h1 {
 
     def test_css_charset_stub_01(self):
         code = "@charset "
-        self._check_one_result_check_error_at_eof(code, "expecting a string after @charset")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting a string after @charset")
 
     def test_css_charset_stub_02(self):
         code = "@charset moo"
-        self._check_one_result_check_error_on_line(code, "expecting a string after @charset", 'moo')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a string after @charset", 'moo')
 
     def test_css_charset_stub_03(self):
         code = "@charset 'utf-8'"  # missing semi-colon
@@ -150,25 +162,29 @@ h1 {
     def test_css_special_selector_01(self):
         codes = ["#", '.', ':']
         for code in codes:
-            self._check_one_result_check_error_at_eof(code, "expecting an identifier after %s" % (code,))
+            self._check_one_result_check_error_at_eof(
+                code, "expecting an identifier after %s" % (code,))
 
     def test_css_special_selector_02(self):
         codes = ["#", '.', ':']
         for char in codes:
             code = char + "{}"
-            self._check_one_result_check_error_on_line(code, "expecting an identifier after %s" % (char,), '{')
+            self._check_one_result_check_error_on_line(
+                code, "expecting an identifier after %s" % (char,), '{')
 
     def test_css_special_selector_03(self):
         codes = ["#", '.', ':']
         for char in codes:
             code = "gleep " + char
-            self._check_one_result_check_error_at_eof(code, "expecting an identifier after %s" % (char,))
+            self._check_one_result_check_error_at_eof(
+                code, "expecting an identifier after %s" % (char,))
 
     def test_css_special_selector_04(self):
         codes = ["#", '.', ':']
         for char in codes:
             code = "gleep " + char + " {"
-            self._check_one_result_check_error_on_line(code, "expecting an identifier after %s" % (char,), '{')
+            self._check_one_result_check_error_on_line(
+                code, "expecting an identifier after %s" % (char,), '{')
 
     def test_css_special_selector_05(self):
         code = dedent("""\
@@ -181,7 +197,7 @@ treechildren::-moz-tree-cell-text(showDetail) {
     def test_css_special_selector_06(self):
         # Multiple selectors
         code = dedent("""\
-treechildren::-moz-tree-cell-text(showDetail), 
+treechildren::-moz-tree-cell-text(showDetail),
 treechildren::-moz-tree-cell-text(showDetail) {
     background-color: infobackground;
 }
@@ -195,11 +211,12 @@ treechildren::-moz-tree-cell-text(), {
     background-color: infobackground;
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting a property name", ')')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a property name", ')')
 
     def test_css_special_selector_missing_paren_08(self):
         code = dedent("""\
-treechildren::-moz-tree-cell-text(showDetail, 
+treechildren::-moz-tree-cell-text(showDetail,
 treechildren::-moz-tree-cell-text(showDetail) {
     background-color: infobackground;
 }
@@ -213,7 +230,8 @@ treechildren::-moz-tree-cell-text(showDetail),
     background-color: infobackground;
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting a selector", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a selector", '{')
 
     def test_css_special_selector_bad_syntax_10(self):
         # Multiple selectors
@@ -222,7 +240,8 @@ treechildren::-moz-tree-cell-text(&) {
     background-color: infobackground;
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting a property name", '&')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a property name", '&')
 
     def test_css_special_selector_missing_rest_11(self):
         # Multiple selectors
@@ -231,7 +250,8 @@ treechildren::-moz-tree-cell-text( {
     background-color: infobackground;
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting a property name", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a property name", '{')
 
     def test_css_no_selector_01(self):
         code = dedent("""\
@@ -242,7 +262,8 @@ toolbarbutton#stb_update { /* verify the linter recovered */
   width: 10
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting a selector, got", '1')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a selector, got", '1')
 
     def test_css_no_selector_02(self):
         code = dedent("""\
@@ -253,12 +274,13 @@ toolbarbutton#stb_update { /* verify the linter recovered */
   width: 10
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting a selector, got", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a selector, got", '{')
 
     def test_css_missing_second_selector(self):
         code = "@charset moo"
-        self._check_one_result_check_error_on_line(code, "expecting a string after @charset", 'moo')
-
+        self._check_one_result_check_error_on_line(
+            code, "expecting a string after @charset", 'moo')
 
     def test_css_tilde_selector_01(self):
         code = dedent("""\
@@ -274,15 +296,18 @@ gortz[zoom ~= "toolbar"] {
 
     def test_css_no_directive_01(self):
         code = "@"  # missing semi-colon
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier after @")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier after @")
 
     def test_css_no_directive_02(self):
         code = "@ charset 'utf8';"  # space not allowed
-        self._check_one_result_check_error_on_line(code, "expecting a directive immediately after @", ' ')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a directive immediately after @", ' ')
 
     def test_css_no_directive_cascade(self):
         code = "@ charset ;"  # space not allowed
-        self._check_one_result_check_error_on_line(code, "expecting a directive immediately after @", ' ')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a directive immediately after @", ' ')
 
     def test_css_missing_semicolon_01(self):
         code = dedent("""\
@@ -309,9 +334,11 @@ h {
                         r.message)
         self.assertEqual(code.splitlines()[2][r.col_start:r.col_end], "}")
         r = results[1]
-        self.assertTrue(r.message.startswith("@charset allowed only at start of file"),
-                        r.message)
-        self.assertEqual(code.splitlines()[3][r.col_start:r.col_end], "charset")
+        self.assertTrue(
+            r.message.startswith("@charset allowed only at start of file"),
+            r.message)
+        self.assertEqual(code.splitlines()[
+                         3][r.col_start:r.col_end], "charset")
 
     def test_css_charset_too_late(self):
         code = dedent("""\
@@ -320,23 +347,28 @@ body {
 }
 @charset "utf-8";
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "@charset allowed only at start of file", 'charset')
+        self._check_one_result_check_error_on_line(
+            code, "@charset allowed only at start of file", 'charset')
 
     def test_css_import_missing_arg_01(self):
         code = '@import ;'
-        self._check_one_result_check_error_on_line(code, "expecting a string or url", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a string or url", ';')
 
     def test_css_import_missing_arg_02(self):
         code = '@import 33'
-        self._check_one_result_check_error_on_line(code, "expecting a string or url", '33')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting a string or url", '33')
+
     def test_css_import_missing_arg_03(self):
         code = '@import fish;'
-        self._check_one_result_check_error_on_line(code, "expecting a string or url", 'fish')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a string or url", 'fish')
 
     def test_css_import_missing_arg_04(self):
         code = '@import'
-        self._check_one_result_check_error_at_eof(code, "expecting a string or url")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting a string or url")
 
     def test_css_import_good_url_01(self):
         code = '@import url(http://wawa.moose/);'
@@ -348,7 +380,8 @@ body {
 
     def test_css_import_bad_url_01(self):
         code = '@import url( ;'
-        self._check_one_result_check_error_on_line(code, "expecting a quoted URL", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a quoted URL", ';')
 
     def test_css_import_bad_url_02(self):
         code = '@import url(http://example.com/) print'
@@ -361,8 +394,9 @@ body {
 }
 @import url(http://example.com/) print;
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "@import allowed only near start of file", 'import')
-        
+        self._check_one_result_check_error_on_line(
+            code, "@import allowed only near start of file", 'import')
+
     def test_css_media_good_basic_01(self):
         code = dedent("""\
 @media screen {
@@ -383,17 +417,21 @@ body {
         self._check_one_result_check_error_at_eof(code, "expecting '}'")
 
     _media_list_error_1 = "expecting an identifier or a parenthesized expression"
+
     def test_css_media_bad_01(self):
         code = '@media'
-        self._check_one_result_check_error_at_eof(code, self._media_list_error_1)
+        self._check_one_result_check_error_at_eof(
+            code, self._media_list_error_1)
 
     def test_css_media_bad_02(self):
         code = '@media ;'
-        self._check_one_result_check_error_on_line(code, self._media_list_error_1, ';')
+        self._check_one_result_check_error_on_line(
+            code, self._media_list_error_1, ';')
 
     def test_css_media_bad_03(self):
         code = '@media @walrus'
-        self._check_one_result_check_error_on_line(code, self._media_list_error_1, '@')
+        self._check_one_result_check_error_on_line(
+            code, self._media_list_error_1, '@')
 
     def test_css_media_bad_04(self):
         code = '@media walrus'
@@ -401,11 +439,13 @@ body {
 
     def test_css_media_bad_05(self):
         code = '@media walrus chomps'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'chomps')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'chomps')
 
     def test_css_media_bad_06(self):
         code = '@media walrus "chomps"'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", '"chomps"')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", '"chomps"')
 
     def test_css_media_bad_07(self):
         code = '@media walrus {'
@@ -413,62 +453,76 @@ body {
 
     def test_css_media_bad_08(self):
         code = '@media walrus { "chomps"'
-        self._check_one_result_check_error_on_line(code, "expecting a selector", '"chomps"')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a selector", '"chomps"')
 
     def test_css_media_bad_09(self):
         code = '@media abc,'
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier")
 
     def test_css_media_bad_10(self):
         code = '@media abc, {'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '{')
 
     def test_css_media_bad_11(self):
         code = '@media abc, 765 {'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '765')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '765')
+
     def test_css_media_bad_12(self):
         code = '@media abc, { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '{')
 
     def test_css_media_bad_13(self):
         code = '@media abc, "not a string" { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '"not a string"')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '"not a string"')
 
     def test_css_media_mediaqueries_bad_01(self):
         code = '@media only stuff extraIdentifier { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'extraIdentifier')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'extraIdentifier')
 
     def test_css_media_mediaqueries_bad_01(self):
         code = '@media only stuff mediaqueries_bad_01 { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'mediaqueries_bad_01')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'mediaqueries_bad_01')
 
     def test_css_media_mediaqueries_bad_02(self):
         code = '@media onlyx stuff mediaqueries_bad_02 { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'stuff')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'stuff')
 
     def test_css_media_mediaqueries_bad_03(self):
         code = '@media not stuff mediaqueries_bad_03 { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'mediaqueries_bad_03')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'mediaqueries_bad_03')
 
     def test_css_media_mediaqueries_bad_04(self):
         code = '@media media_type1 and mediaqueries_bad_04 { color: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '('", 'mediaqueries_bad_04')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '('", 'mediaqueries_bad_04')
 
     def test_css_media_mediaqueries_bad_05(self):
         # Should be an identifier
         code = '@media media_type1 and ( "mediaqueries_bad_05") { p { color: red } }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '"mediaqueries_bad_05"')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '"mediaqueries_bad_05"')
 
     def test_css_media_mediaqueries_bad_06(self):
         # Multiple terms in media_expression
         code = '@media media_type1 and ( ident mediaqueries_bad_06) { p { color: red } }'
-        self._check_one_result_check_error_on_line(code, "expecting ':' or ')'", 'mediaqueries_bad_06')
+        self._check_one_result_check_error_on_line(
+            code, "expecting ':' or ')'", 'mediaqueries_bad_06')
 
     def test_css_media_mediaqueries_bad_07(self):
         # Multiple terms in media_expression
         code = '@media media_type1 and ( ident : ) { p { color: red } }'
-        self._check_one_result_check_error_on_line(code, "expecting a value", ')')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a value", ')')
 
     def test_css_media_mediaqueries_bad_08(self):
         # Multiple terms in media_expression
@@ -478,7 +532,8 @@ body {
     def test_css_media_mediaqueries_bad_09(self):
         # Multiple terms in media_expression
         code = '@media media_type1 and ( ident : 3 ), { p { color: red } }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier or a parenthesized expression", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier or a parenthesized expression", '{')
 
     def test_css_media_good_unrecognized_tag(self):
         code = dedent("""\
@@ -506,7 +561,7 @@ b {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
-        
+
     def test_css_attr_after_star_01(self):
         code = dedent("""\
 *[dub] {
@@ -515,7 +570,7 @@ b {
 """).decode("utf-8")
         for lang in self.langs:
             self._check_zero_results_show_error(code, language=lang)
-        
+
     def test_css_namespace_selector_01(self):
         code = dedent("""\
 xul|textbox[invalid="true"] .textbox-input-box
@@ -546,11 +601,13 @@ a ~ b
 
     def test_css_import_bad_page_01(self):
         code = '@page : { background: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '{')
 
     def test_css_import_bad_page_02(self):
         code = '@page woop { background: red; }'
-        self._check_one_result_check_error_on_line(code, "expecting '{'", 'woop')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '{'", 'woop')
 
     def test_css_import_bad_page_03(self):
         code = '@page :: { background: red; }'
@@ -571,7 +628,7 @@ a ~ b
 """)
         for lang in self.langs:
             self._check_zero_results_show_error(code, lang)
-            
+
     def test_less_mixins_01(self):
         code = dedent("""\
 .box-shadow (@radius: 5px) {
@@ -614,32 +671,34 @@ pre {
 @namespace blatz2 's1';
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
-        
+
     def test_css_namespace_missing_value_02(self):
         code = dedent("""\
 @namespace ;
 """).decode("utf-8")
         self._check_some_errors_on_line(code, "expecting a string or url", ';')
-        
+
     def test_css_namespace_missing_value_03(self):
         code = dedent("""\
 @namespace 35 ;
 """).decode("utf-8")
-        self._check_some_errors_on_line(code, "expecting a string or url", '35')
-        
+        self._check_some_errors_on_line(
+            code, "expecting a string or url", '35')
+
     def test_css_namespace_missing_semicolon_04(self):
         code = dedent("""\
 @namespace flip "blatz" "extra";
 """).decode("utf-8")
         self._check_some_errors_on_line(code, "expecting ';'", '"extra"')
-        
+
     def test_css_ruleset_bad_04(self):
         code = 'h1 { background'
         self._check_one_result_check_error_at_eof(code, "expecting ':'")
 
     def test_css_missing_classname_01(self):
         code = '. { }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '{')
 
     def test_css_ruleset_bad_property_01(self):
         code = 'h1 { background: '
@@ -647,7 +706,8 @@ pre {
 
     def test_css_ruleset_bad_property_02(self):
         code = 'h1 { background: }'
-        self._check_one_result_check_error_on_line(code, "expecting a value", '}')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a value", '}')
 
     def test_css_ruleset_bad_property_03(self):
         code = 'h1 { background }'
@@ -655,11 +715,13 @@ pre {
 
     def test_css_ruleset_bad_property_04(self):
         code = 'h1 { border-width: -@shlub; }'
-        self._check_one_result_check_error_on_line(code, "expecting a number", '@')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a number", '@')
 
     def test_css_ruleset_bad_property_05(self):
         code = 'h1 { border-width: mssyntax:; }'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", ';')
 
     def test_css_ruleset_bad_property_fn_06(self):
         code = 'h1 { border-width: f(10'
@@ -675,11 +737,13 @@ pre {
 
     def test_css_ruleset_bad_property_09(self):
         code = 'h1 { border-width: f(10) !'
-        self._check_one_result_check_error_at_eof(code, "expecting '!important'")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting '!important'")
 
     def test_css_ruleset_bad_property_10(self):
         code = 'h1 { border-width: f(10) !;'
-        self._check_one_result_check_error_on_line(code, "expecting '!important'", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '!important'", ';')
 
     def test_css_ruleset_bad_property_11(self):
         code = 'h1 {'
@@ -687,7 +751,8 @@ pre {
 
     def test_css_ruleset_bad_property_12(self):
         code = 'h1 {;'
-        self._check_one_result_check_error_on_line(code, "expecting a property name", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting a property name", ';')
 
     def test_css_depends_nested_blocks_01(self):
         code = dedent("""\
@@ -710,74 +775,92 @@ body {
 
     def test_css_bad_attribute_01(self):
         code = 'h1['
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier")
 
     def test_css_bad_attribute_02(self):
         code = 'h1[='
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '=')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '=')
 
     def test_css_bad_attribute_03(self):
         code = 'h1[ ='
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", '=')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", '=')
 
     def test_css_bad_stringeol_01(self):
         code = 'h1[x = "flip\n'
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"flip')
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"flip')
 
     def test_css_bad_stringeol_02(self):
-        code = 'h1[x = "flip' # ends at eof
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"flip')
+        code = 'h1[x = "flip'  # ends at eof
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"flip')
 
     def test_css_bad_stringeol_03(self):
-        code = 'h1[x = \'flip' # ends at eof
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '\'flip')
+        code = 'h1[x = \'flip'  # ends at eof
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '\'flip')
 
     def test_css_bad_stringeol_04(self):
-        code = '@charset "utf-8' # ends at eof
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"utf-8')
+        code = '@charset "utf-8'  # ends at eof
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"utf-8')
 
     def test_css_bad_stringeol_05(self):
-        code = '@charset "utf-8\n' # ends at eof
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"utf-8')
+        code = '@charset "utf-8\n'  # ends at eof
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"utf-8')
 
     def test_css_bad_stringeol_06(self):
-        code = '@import "utf-8' # ends at eof
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"utf-8')
+        code = '@import "utf-8'  # ends at eof
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"utf-8')
 
     def test_css_bad_stringeol_07(self):
-        code = '@import "utf-8\n' # ends at eof
-        self._check_some_errors_on_line(code, "missing string close-quote", '"utf-8', lineNo=0)
+        code = '@import "utf-8\n'  # ends at eof
+        self._check_some_errors_on_line(
+            code, "missing string close-quote", '"utf-8', lineNo=0)
 
     def test_css_bad_stringeol_08(self):
         code = 'body { font: "Verdana'
-        self._check_some_errors_on_line(code, "missing string close-quote", '"Verdana', lineNo=0)
+        self._check_some_errors_on_line(
+            code, "missing string close-quote", '"Verdana', lineNo=0)
 
     def test_css_bad_stringeol_09(self):
         code = 'body { font: "Verdana\n'
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"Verdana')
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"Verdana')
 
     def test_css_bad_termid_01(self):
         code = 'body { font: Microsoft.'
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier")
 
     def test_css_bad_termid_02(self):
         code = 'body { font: Microsoft. ;}'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier", ';')
+        self._check_one_result_check_error_on_line(
+            code, "expecting an identifier", ';')
 
     def test_css_ms_hack_property_name_01(self):
         code = '.yui-gb .yui-u{*margin-left:1.9%;*width:31.9%;}'
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
         r = results[0]
-        self.assertTrue(r.message.startswith("Use of non-standard property-name '*margin-left'"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '*margin-left')
+        self.assertTrue(
+            r.message.startswith(
+                "Use of non-standard property-name '*margin-left'"),
+            r.message)
+        self.assertEqual(code.splitlines()[0][
+                         r.col_start:r.col_end], '*margin-left')
         self.assertEqual(r.status, 0, "%s:%r" % (r.message, r.status))
 
     def test_css_ms_hack_property_name_botched_02(self):
         code = '.yui-gb .yui-u{* margin-left:1.9%;*    width:31.9%;}'
-        self._check_one_result_check_error_on_line(code, "expecting ':'", 'margin-left')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting ':'", 'margin-left')
+
     def test_css_quoted_urls_01(self):
         code = dedent("""\
 .browser-toolbar {
@@ -785,7 +868,7 @@ body {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
-        
+
     def test_css_attr_no_value(self):
         code = dedent("""\
 .file-status-icons[file_scc_status] {
@@ -822,7 +905,7 @@ notification:not(:-moz-any([details][open])) [anonid="details"] {
 }
 """)
         self._check_zero_results_show_error(code)
-        
+
     def test_css_structual_pseudo_class_good01(self):
         code = dedent("""\
 table tr:nth-child(odd) {
@@ -870,7 +953,7 @@ table tr:nth-child(EvEn) {
 }
 """)
         self._check_zero_results_show_error(code)
-        
+
     def test_css_structual_pseudo_class_bad01(self):
         code = dedent("""\
 /* bad ones:*/
@@ -879,40 +962,45 @@ table tr:nth-child() {
   margin: 1px;
 }
 """)
-        self._check_some_errors_on_line(code, "expecting a value", ')', lineNo=2)
-        
+        self._check_some_errors_on_line(
+            code, "expecting a value", ')', lineNo=2)
+
     def test_css_structual_pseudo_class_bad02(self):
         code = dedent("""\
 table tr:nth-child(-) {
   margin: 1px;
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting a number", ')')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting a number", ')')
+
     def test_css_structual_pseudo_class_bad03(self):
         code = dedent("""\
 table tr:nth-child(- 3) {
   margin: 1px;
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting no space before 3", '3')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting no space before 3", '3')
+
     def test_css_structual_pseudo_class_bad04(self):
         code = dedent("""\
 table tr:nth-child(4 n+5) {
   margin: 1px;
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting no space before n", 'n')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting no space before n", 'n')
+
     def test_css_structual_pseudo_class_bad05(self):
         code = dedent("""\
 table tr:nth-child(3 even) {
   margin: 1px;
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting ')'", 'even')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting ')'", 'even')
+
     def test_css_structual_pseudo_class_bad06(self):
         code = dedent("""\
 table tr:nth-child(odd 5) {
@@ -920,7 +1008,7 @@ table tr:nth-child(odd 5) {
 }
 """)
         self._check_one_result_check_error_on_line(code, "expecting ')'", '5')
-        
+
     def test_css_structual_pseudo_class_bad07(self):
         code = dedent("""\
 table tr:nth-child(3 5) {
@@ -928,15 +1016,16 @@ table tr:nth-child(3 5) {
 }
 """)
         self._check_one_result_check_error_on_line(code, "expecting ')'", '5')
-        
+
     def test_css_structual_pseudo_class_bad08(self):
         code = dedent("""\
 table tr:nth-child(squirt) {
   margin: 1px;
 }
 """)
-        self._check_one_result_check_error_on_line(code, "expecting a number or N", 'squirt')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting a number or N", 'squirt')
+
     def test_css_structual_pseudo_class_bad09(self):
         code = dedent("""\
 table tr:nth-child(3 {
@@ -944,15 +1033,16 @@ table tr:nth-child(3 {
 }
 """)
         self._check_one_result_check_error_on_line(code, "expecting ')'", '{')
-        
+
     def test_css_structual_pseudo_class_bad10(self):
         code = dedent("""\
 table tr:nth-child("bink") {
   margin: 1px;
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting a number or N", '"bink"')
-        
+        self._check_one_result_check_error_on_line(
+            code, "expecting a number or N", '"bink"')
+
     def test_css_tight_comment(self):
         code = dedent("""\
 /*/ ? in a comment !
@@ -960,7 +1050,6 @@ table tr:nth-child("bink") {
 """)
         for lang in self.langs:
             self._check_zero_results_show_error(code, language=lang)
-        
 
     _nested_block_code_01 = dedent("""\
 body.abc {
@@ -970,10 +1059,11 @@ body.abc {
         li.ghi {
             background-color: flip;
         }
-        
+
     }
 }
 """).decode("utf-8")
+
     def test_css_nested_block_01(self):
         # Fail: it's plain CSS
         code = self._nested_block_code_01
@@ -999,32 +1089,36 @@ body.abc {
             r = results[0]
             self.assertTrue(r.message.startswith("expecting ':'"),
                             r.message)
-            self.assertEqual(code.splitlines()[1][r.col_start:r.col_end], '.', r)
+            self.assertEqual(code.splitlines()[
+                             1][r.col_start:r.col_end], '.', r)
             r = results[1]
             # This tests a recovery algorithm, so it's more volatile.
             self.assertTrue(r.message.startswith("expecting ':'"),
                             r.message)
             cdo = code.splitlines()[4][r.col_start:r.col_end]
-            self.assertEqual(code.splitlines()[4][r.col_start:r.col_end], '.', r)
+            self.assertEqual(code.splitlines()[
+                             4][r.col_start:r.col_end], '.', r)
 
     @tag("knownfailure", "causes unsupported utf8 exceptions on kobuild-snow")
     def test_css_bad_random_input_01(self):
-        import string, random
+        import string
+        import random
         chars = string.letters + string.digits\
             + string.punctuation + string.whitespace
         prog = []
         for i in range(1000):
             prog.append(random.choice(chars))
         code = "".join(prog)
-        #print code
-        #f = open("/tmp/code.css", 'w')
-        #f.write(code)
-        #f.close()
+        # print code
+        # f = open("/tmp/code.css", 'w')
+        # f.write(code)
+        # f.close()
         for lang in self.langs:
             results = self.csslinter.lint(code, language=lang)
-            #print "\n".join([str(x) for x in results])
-            self.assertTrue(len(results) > 0, "this code passed!:<<%s/%s>>" % (lang, code,))
-   
+            # print "\n".join([str(x) for x in results])
+            self.assertTrue(len(
+                results) > 0, "this code passed!:<<%s/%s>>" % (lang, code,))
+
     def test_css_less_atsign_assignment(self):
         code = dedent("""\
 @color: #4D926F;
@@ -1037,9 +1131,11 @@ h2 {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
-        self._check_some_errors_on_line(code, "expecting a directive", 'color', lineNo=0, language="CSS")
-        self._check_some_errors_on_line(code, "expecting a directive", 'color', lineNo=0, language="SCSS")
-            
+        self._check_some_errors_on_line(
+            code, "expecting a directive", 'color', lineNo=0, language="CSS")
+        self._check_some_errors_on_line(
+            code, "expecting a directive", 'color', lineNo=0, language="SCSS")
+
     def test_css_scss_nested_properties(self):
         code = dedent("""\
 li {
@@ -1055,13 +1151,15 @@ li {
             r = results[0]
             self.assertTrue(r.message.startswith("blif"),
                             r)
-            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+            self.assertEqual(code.splitlines()[
+                             0][r.col_start:r.col_end], 'flib')
         self.assertEqual(0, len(results))
         for lang in ("CSS", "Less"):
-            self._check_some_errors_on_line(code, "expecting a value", '{', lineNo=1, language=lang)
+            self._check_some_errors_on_line(
+                code, "expecting a value", '{', lineNo=1, language=lang)
 
     def test_css_less_operators(self):
-        code = dedent("""\ 
+        code = dedent("""\
         @the-border: 1px;
 @base-color: #111;
 @red:        #842210;
@@ -1071,7 +1169,7 @@ li {
   border-left: @the-border;
   border-right: @the-border * 2;
 }
-#footer { 
+#footer {
   color: @base-color + #003300;
   border-color: desaturate(@red, 10%);
 }
@@ -1079,7 +1177,7 @@ li {
         self._check_zero_results_show_error(code, language="Less")
 
     def test_css_less_mixins_01(self):
-        code = dedent("""\ 
+        code = dedent("""\
 .rounded-corners (@radius: 5px) {
   border-radius: @radius;
   -webkit-border-radius: @radius;
@@ -1097,7 +1195,7 @@ li {
 
     def test_css_less_mixins_02(self):
         # No semi-colon needed after the mixin insertion
-        code = dedent("""\ 
+        code = dedent("""\
 .wrap () {
   text-wrap: wrap;
   white-space: pre-wrap;
@@ -1122,7 +1220,8 @@ pre { .wrap }
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
-        self._check_some_errors_on_line(code, "expecting a property name", '.', lineNo=1, language="CSS")
+        self._check_some_errors_on_line(
+            code, "expecting a property name", '.', lineNo=1, language="CSS")
         self._check_zero_results_show_error(code, language="SCSS")
 
     def test_css_less_expressions(self):
@@ -1140,9 +1239,8 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
         for lang in ("CSS", "SCSS"):
-            self._check_some_errors_on_line(code, "expecting a directive", 'base', lineNo=0, language="lang")
-       
-        
+            self._check_some_errors_on_line(
+                code, "expecting a directive", 'base', lineNo=0, language="lang")
 
     def test_css_less_multiple_at_signs(self):
         code = dedent("""\
@@ -1165,9 +1263,11 @@ pre { .wrap }
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
-        self._check_some_errors_on_line(code, "expecting a value", '~', lineNo=1, language="CSS")
-        self._check_some_errors_on_line(code, "expecting a value", '~', lineNo=1, language="SCSS")
-   
+        self._check_some_errors_on_line(
+            code, "expecting a value", '~', lineNo=1, language="CSS")
+        self._check_some_errors_on_line(
+            code, "expecting a value", '~', lineNo=1, language="SCSS")
+
     def test_css_less_tilde_escape_02(self):
         code = dedent("""\
 @var: ~`"@{str}".toUpperCase() + '!'`;
@@ -1179,7 +1279,8 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
         for lang in ("CSS", "SCSS"):
-            self._check_some_errors_on_line(code, "expecting a directive", 'var', lineNo=0, language=lang)
+            self._check_some_errors_on_line(
+                code, "expecting a directive", 'var', lineNo=0, language=lang)
 
     def test_css_scss_parse_mixins(self):
         code = dedent("""\
@@ -1205,7 +1306,7 @@ $other: 34px;
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="SCSS")
-        
+
     def test_moz_document_directive_01(self):
         code = dedent("""\
 @-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
@@ -1234,15 +1335,16 @@ $other: 34px;
   }
 """).decode("utf-8")
         for lang in ("CSS", "SCSS", "Less"):
-            self._check_one_result_check_error_at_eof(code, "expecting '}'", language=lang)
+            self._check_one_result_check_error_at_eof(
+                code, "expecting '}'", language=lang)
 
     def test_moz_document_directive_03_moz_items(self):
         code = dedent("""\
-@-moz-document url(chrome://url0) { 
+@-moz-document url(chrome://url0) {
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   }}
-@-moz-document url('chrome://url1') { 
+@-moz-document url('chrome://url1') {
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   }}
@@ -1250,7 +1352,7 @@ $other: 34px;
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   } }
-@-moz-document url-prefix('chrome://url3') { 
+@-moz-document url-prefix('chrome://url3') {
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   }}
@@ -1258,7 +1360,7 @@ $other: 34px;
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   } }
-@-moz-document domain('chrome://url5') { 
+@-moz-document domain('chrome://url5') {
   notification .twisty > .twistyImageWrapper {
     padding-bottom: 0;
   }}
@@ -1269,7 +1371,7 @@ $other: 34px;
 """).decode("utf-8")
         for lang in ("CSS", "SCSS", "Less"):
             self._check_zero_results_show_error(code, language=lang)
-  
+
     def test_moz_document_directive_unquoted_regex_bad(self):
         code = dedent("""\
 @-moz-document regexp(chrome://url) {
@@ -1279,17 +1381,19 @@ $other: 34px;
 """).decode("utf-8")
         for lang in ("CSS", "SCSS", "Less"):
             self._check_some_errors_on_line(code,
-                "the regexp argument must be a quoted string",
-                "regexp(chrome://url)", 2, language=lang)
-               
+                                            "the regexp argument must be a quoted string",
+                                            "regexp(chrome://url)", 2, language=lang)
+
     def test_css_scss_bad_mixin_01(self):
         code = "@mixin  {"
-        self._check_some_errors_on_line(code, "expecting a mixin name", '{', lineNo=0, language="SCSS")
-        
+        self._check_some_errors_on_line(
+            code, "expecting a mixin name", '{', lineNo=0, language="SCSS")
+
     def test_css_scss_bad_mixin_02(self):
         code = "@mixin table-base missing-brace {"
-        self._check_some_errors_on_line(code, "expecting '{'", 'missing-brace', lineNo=0, language="SCSS")
-        
+        self._check_some_errors_on_line(
+            code, "expecting '{'", 'missing-brace', lineNo=0, language="SCSS")
+
     def test_css_scss_bad_mixin_03(self):
         code = dedent("""\
 @mixin table-base {
@@ -1300,8 +1404,9 @@ $other: 34px;
   @zeep;
 }
 """).decode("utf-8")
-        self._check_some_errors_on_line(code, "expecting 'include'", 'zeep', lineNo=5, language="SCSS")
-        
+        self._check_some_errors_on_line(
+            code, "expecting 'include'", 'zeep', lineNo=5, language="SCSS")
+
     def test_css_scss_bad_mixin_04(self):
         code = dedent("""\
 @mixin table-base {
@@ -1312,8 +1417,9 @@ $other: 34px;
   @include;
 }
 """).decode("utf-8")
-        self._check_some_errors_on_line(code, "expecting a mixin name", ';', lineNo=5, language="SCSS")
-        
+        self._check_some_errors_on_line(
+            code, "expecting a mixin name", ';', lineNo=5, language="SCSS")
+
     def test_css_scss_minified_numeric_property(self):
         code = dedent("""\
 body{margin:0; }
@@ -1325,7 +1431,8 @@ p {
 """).decode("utf-8")
         for lang in ("SCSS", "Less"):
             self._check_zero_results_show_error(code, language=lang)
-        self._check_some_errors_on_line(code, "expecting a selector", '/', lineNo=0, language="CSS")
+        self._check_some_errors_on_line(
+            code, "expecting a selector", '/', lineNo=0, language="CSS")
 
     def test_css_scss_parent_selector_01(self):
         code = dedent("""\
@@ -1350,7 +1457,7 @@ p {
         self._check_some_errors_on_line(code, "expecting a property name",
                                         '&', lineNo=3, language="CSS")
         self._check_some_errors_on_line(code,
-                        "expecting a selector",
+                                        "expecting a selector",
                                         '>', lineNo=3, language="Less")
 
     def test_css_scss_parent_selector_02(self):
@@ -1395,8 +1502,9 @@ p {
     def test_css_bad_missing_selector(self):
         code = "td,  {padding: 2px;}"
         for lang in self.langs:
-            self._check_some_errors_on_line(code, "expecting a selector", "{", lineNo=0, language=lang)
-        
+            self._check_some_errors_on_line(
+                code, "expecting a selector", "{", lineNo=0, language=lang)
+
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print
@@ -1411,7 +1519,7 @@ h1[ =
         self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ';')
 
     def test_css_bad_noted_input_01(self):
-        code = dedent("""\ 
+        code = dedent("""\
 Ot/ {sa @(-"ZqMn3b	Of1f<$0
 gL0K.2n9ux@@_co:
 .{(>VK{
@@ -3913,7 +4021,8 @@ margin-left: 20px;
     @tag("bug94548")
     def test_bug94548_full_code(self):
         # Full text of sample code for bug94548 (can't repro on linux/win)
-        self._check_zero_results_show_error(self._bug_94548_full_code, language="Less")
+        self._check_zero_results_show_error(
+            self._bug_94548_full_code, language="Less")
 
     @tag("bug94548")
     def test_bug94548_partial_code(self):
@@ -3923,18 +4032,20 @@ margin-left: 20px;
             codeLen = len(self._bug_94548_full_code)
             halfLen = codeLen / 2
             pick = int(random.uniform(halfLen, codeLen))
-            #sys.stderr.write("Linting %d/%d bytes\n" % (pick, codeLen))
+            # sys.stderr.write("Linting %d/%d bytes\n" % (pick, codeLen))
             partialCode = self._bug_94548_full_code[:pick]
             try:
                 results = self.csslinter.lint(partialCode, "CSS")
                 self.assertTrue(True, "finished linting %d bytes" % (pick,))
                 if results:
-                    # sys.stderr.write("results: %s\n" % "\n   ".join([str(x) for x in results]))
+                    # sys.stderr.write("results: %s\n" % "\n   ".join([str(x)
+                    # for x in results]))
                     pass
             except:
-                self.assertTrue(False, "Got exception while linting %d/%d bytes" % (pick, codeLen))
+                self.assertTrue(
+                    False, "Got exception while linting %d/%d bytes" % (pick, codeLen))
 
-    unsupported_unrecognized_numeric_unit="got an unsupported or unrecognized numeric unit"
+    unsupported_unrecognized_numeric_unit = "got an unsupported or unrecognized numeric unit"
 
     @tag("bug94652")
     def test_validate_numeric_units(self):
@@ -3946,7 +4057,8 @@ div {
     margin-left: 4khz; /* syntactically correct, semantically wrong */
 }
 """)
-        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "p")
+        self._check_one_result_check_error_on_line(
+            code, self.unsupported_unrecognized_numeric_unit, "p")
 
     @tag("bug94652")
     def test_validate_numeric_units_02(self):
@@ -3958,7 +4070,8 @@ div {
     margin-left: 4khz; /* syntactically correct, semantically wrong */
 }
 """)
-        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "pta")
+        self._check_one_result_check_error_on_line(
+            code, self.unsupported_unrecognized_numeric_unit, "pta")
 
     @tag("bug94652")
     def test_validate_numeric_units_03(self):
@@ -3971,46 +4084,49 @@ div {
     margin-left: 4khz; /* syntactically correct, semantically wrong */
 }
 """ % (suffix,))
-        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, suffix)
+        self._check_one_result_check_error_on_line(
+            code, self.unsupported_unrecognized_numeric_unit, suffix)
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_01(self):
         code = 'input['
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier")
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_02(self):
         code = 'input[test'
-        self._check_one_result_check_error_at_eof(code, "expecting one of ], =, ~=, |=, *, $, ^")
-
+        self._check_one_result_check_error_at_eof(
+            code, "expecting one of ], =, ~=, |=, *, $, ^")
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_03(self):
         code = 'input[test='
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier or string")
-
+        self._check_one_result_check_error_at_eof(
+            code, "expecting an identifier or string")
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_04(self):
         code = 'input[test="'
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"')
-
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"')
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_05(self):
         code = 'input[test="b'
-        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"b')
+        self._check_one_result_check_error_on_line(
+            code, "missing string close-quote", '"b')
 
     @tag("bug94621")
     def test_qualified_selector_internal_error_06(self):
         code = 'input[test="b"'
         self._check_one_result_check_error_at_eof(code, "expecting a ']'")
 
-
     @tag("bug94621")
     def test_qualified_selector_internal_error_07(self):
         code = 'input[test="b"]'
-        self._check_one_result_check_error_at_eof(code, "expecting a block of declarations")
+        self._check_one_result_check_error_at_eof(
+            code, "expecting a block of declarations")
 
     @tag("bug91721")
     def test_substring_matcher_caret_01(self):
@@ -4021,7 +4137,7 @@ div {
     @tag("bug91721")
     def test_substring_matcher_dollar_01(self):
         code = 'E[foo$="bar"] {}'
-        for lang in ("SCSS",): #self.langs:
+        for lang in ("SCSS",):  # self.langs:
             self._check_zero_results_show_error(code, language=lang)
 
     @tag("bug91721")
@@ -4034,20 +4150,24 @@ div {
     def test_substring_matcher_caret_missing_equal_02(self):
         code = 'E[foo^"bar"] {}'
         for lang in self.langs:
-            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '^'", '"bar"', language=lang)
+            self._check_one_result_check_error_on_line(
+                code, "expecting '=' after substring operator '^'", '"bar"', language=lang)
 
     @tag("bug91721")
     def test_substring_matcher_star_missing_equal_02(self):
         code = 'E[foo*"bar"] {}'
-        self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '*'", '"bar"')
+        self._check_one_result_check_error_on_line(
+            code, "expecting '=' after substring operator '*'", '"bar"')
         for lang in self.langs:
-            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '*'", '"bar"', language=lang)
+            self._check_one_result_check_error_on_line(
+                code, "expecting '=' after substring operator '*'", '"bar"', language=lang)
 
     @tag("bug91721")
     def test_substring_matcher_dollar_missing_equal_02(self):
         code = 'E[foo$"bar"] {}'
         for lang in self.langs:
-            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '$'", '"bar"', language=lang)
+            self._check_one_result_check_error_on_line(
+                code, "expecting '=' after substring operator '$'", '"bar"', language=lang)
 
     @tag("bug98538")
     def test_resolution_suffixes(self):
@@ -4065,4 +4185,5 @@ div {
 @media screen and (min-resolution: 23dppxdpi) {
 }
 """)
-        self._check_one_result_check_error_on_line(code, "got an unsupported or unrecognized numeric unit:", 'dppxdpi')
+        self._check_one_result_check_error_on_line(
+            code, "got an unsupported or unrecognized numeric unit:", 'dppxdpi')

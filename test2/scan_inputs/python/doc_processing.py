@@ -1,7 +1,7 @@
 
 """
     This is the summary line for this module. So is this.
-    
+
     And this is other:
         information
     that is not part of the summary.
@@ -11,24 +11,28 @@
 # processing. (Note: these are similar to the
 # test_misc.py::test__parsePyFuncDoc() test cases.)
 
+
 def read(s=None):
     "read([s]) -- Read s characters, or the rest of the string"
     pass
 
-def b2a_qp(data, quotetabs=0, istext=1, header=0):
-    """b2a_qp(data, quotetabs=0, istext=1, header=0) -> s; 
- Encode a string using quoted-printable encoding. 
 
-On encoding, when istext is set, newlines are not encoded, and white 
-space at end of lines is.  When istext is not set, \r and \n (CR/LF) are 
+def b2a_qp(data, quotetabs=0, istext=1, header=0):
+    """b2a_qp(data, quotetabs=0, istext=1, header=0) -> s;
+ Encode a string using quoted-printable encoding.
+
+On encoding, when istext is set, newlines are not encoded, and white
+space at end of lines is.  When istext is not set, \r and \n (CR/LF) are
 both encoded.  When quotetabs is set, space and tabs are encoded."""
     pass
+
 
 def new_module(name):
     """new_module(name) -> module
     Create a new module.  Do not enter it in sys.modules.
     The module name must include the full package name, if any.
     """
+
 
 def getaddrinfo(host, port, family=None, socktype=None, proto=None,
                 flags=None):
@@ -38,17 +42,21 @@ def getaddrinfo(host, port, family=None, socktype=None, proto=None,
     Resolve host and port into addrinfo struct.
     """
 
+
 def MessageBeep(x=None):
     """MessageBeep(x) - call Windows MessageBeep(x). x defaults to MB_OK."""
+
 
 def logreader(filename):
     """logreader(filename) --> log-iterator
     Create a log-reader for the timing information file."""
     pass
 
+
 def resolution():
     """resolution() -> (performance-counter-ticks, update-frequency)"""
     pass
+
 
 def gethostbyname(host):
     """gethostbyname(host) -> address
@@ -56,6 +64,7 @@ def gethostbyname(host):
     Return the IP address (a string of the form '255.255.255.255') for a host.
     """
     pass
+
 
 def replace(str, old, new, maxsplit=None):
     """replace (str, old, new[, maxsplit]) -> string
@@ -65,6 +74,7 @@ def replace(str, old, new, maxsplit=None):
     given, only the first maxsplit occurrences are replaced.
     """
     pass
+
 
 def joinfields(list, sep=None):
     """join(list [,sep]) -> string
@@ -79,6 +89,7 @@ def joinfields(list, sep=None):
 
 join = joinfields
 
+
 def QueryValueEx(key, value_name):
     """value,type_id = QueryValueEx(key, value_name) - Retrieves the type and data for a specified value name associated with an open registry key.
 
@@ -86,4 +97,3 @@ def QueryValueEx(key, value_name):
     value_name is a string indicating the value to query
     """
     pass
-

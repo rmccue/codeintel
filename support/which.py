@@ -19,7 +19,7 @@ whichall(command, path=None, verbose=0, exts=None)
 whichgen(command, path=None, verbose=0, exts=None)
     Return a generator which will yield full paths to all matches of the
     given command on the path.
-    
+
 By default the PATH environment variable is searched (as well as, on
 Windows, the AppPaths key in the registry), but a specific 'path' list
 to search may be specified as well.  On Windows, the PATHEXT environment
@@ -82,9 +82,7 @@ class WhichError(Exception):
     pass
 
 
-
 #---- internal support stuff
-
 def _getRegisteredExecutable(exeName):
     """Windows allow application paths to be registered in the registry."""
     registered = None
@@ -107,12 +105,14 @@ def _getRegisteredExecutable(exeName):
             registered = None
     return registered
 
+
 def _samefile(fname1, fname2):
     if sys.platform.startswith('win'):
-        return ( os.path.normpath(os.path.normcase(fname1)) ==\
-            os.path.normpath(os.path.normcase(fname2)) )
+        return (os.path.normpath(os.path.normcase(fname1)) ==
+                os.path.normpath(os.path.normcase(fname2)))
     else:
         return os.path.samefile(fname1, fname2)
+
 
 def _cull(potential, matches, verbose=0):
     """Cull inappropriate matches. Possible reasons:
@@ -132,20 +132,20 @@ def _cull(potential, matches, verbose=0):
             if verbose:
                 sys.stderr.write("not a regular file: %s (%s)\n" % potential)
         elif sys.platform != "win32" \
-             and not os.access(potential[0], os.X_OK):
+                and not os.access(potential[0], os.X_OK):
             if verbose:
-                sys.stderr.write("no executable access: %s (%s)\n"\
+                sys.stderr.write("no executable access: %s (%s)\n"
                                  % potential)
         else:
             matches.append(potential)
             return potential
 
-        
+
 #---- module API
 
 def whichgen(command, path=None, verbose=0, exts=None):
     """Return a generator of full paths to the given command.
-    
+
     "command" is a the name of the executable to search for.
     "path" is an optional alternate path list to search. The default it
         to use the PATH environment variable.
@@ -187,7 +187,7 @@ def whichgen(command, path=None, verbose=0, exts=None):
             raise TypeError("'exts' argument must be a list or None")
     else:
         if exts is not None:
-            raise WhichError("'exts' argument is not supported on "\
+            raise WhichError("'exts' argument is not supported on "
                              "platform '%s'" % sys.platform)
         exts = []
 
@@ -238,7 +238,7 @@ def whichgen(command, path=None, verbose=0, exts=None):
 def which(command, path=None, verbose=0, exts=None):
     """Return the full path to the first match of the given command on
     the path.
-    
+
     "command" is a the name of the executable to search for.
     "path" is an optional alternate path list to search. The default it
         to use the PATH environment variable.
@@ -262,7 +262,7 @@ def which(command, path=None, verbose=0, exts=None):
 
 def whichall(command, path=None, verbose=0, exts=None):
     """Return a list of full paths to all matches of the given command
-    on the path.  
+    on the path.
 
     "command" is a the name of the executable to search for.
     "path" is an optional alternate path list to search. The default it
@@ -277,12 +277,10 @@ def whichall(command, path=None, verbose=0, exts=None):
         not a VisualBasic script but ".vbs" is on PATHEXT. This option
         is only supported on Windows.
     """
-    return list( whichgen(command, path, verbose, exts) )
-
+    return list(whichgen(command, path, verbose, exts))
 
 
 #---- mainline
-
 def main(argv):
     all = 0
     verbose = 0
@@ -290,10 +288,10 @@ def main(argv):
     exts = None
     try:
         optlist, args = getopt.getopt(argv[1:], 'haVvqp:e:',
-            ['help', 'all', 'version', 'verbose', 'quiet', 'path=', 'exts='])
+                                      ['help', 'all', 'version', 'verbose', 'quiet', 'path=', 'exts='])
     except getopt.GetoptError:
         msg = sys.exc_info()[1]
-        sys.stderr.write("which: error: %s. Your invocation was: %s\n"\
+        sys.stderr.write("which: error: %s. Your invocation was: %s\n"
                          % (msg, argv))
         sys.stderr.write("Try 'which --help'.\n")
         return 1
@@ -326,7 +324,7 @@ def main(argv):
 
     failures = 0
     for arg in args:
-        #print("debug: search for %r" % arg)
+        # print("debug: search for %r" % arg)
         nmatches = 0
         for match in whichgen(arg, path=altpath, verbose=verbose, exts=exts):
             if verbose:
@@ -342,6 +340,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit( main(sys.argv) )
-
-
+    sys.exit(main(sys.argv))

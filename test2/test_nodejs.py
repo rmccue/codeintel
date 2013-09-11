@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some Node.js-specific codeintel handling."""
@@ -58,6 +58,7 @@ from distutils.version import LooseVersion
 
 log = logging.getLogger("test")
 
+
 def write_files(test_case, manifest={}, name="unnamed"):
     """
     Wrapper to write out the files for testing
@@ -79,11 +80,12 @@ def write_files(test_case, manifest={}, name="unnamed"):
             content, positions = unmark_text(content)
             test_js = path
         writefile(path, content)
-    buf = test_case.mgr.buf_from_path(test_js, lang="Node.js", encoding="utf-8")
+    buf = test_case.mgr.buf_from_path(
+        test_js, lang="Node.js", encoding="utf-8")
     # Our files may include subdirectories, which won't get scanned by
     # default (because curdirlib doesn't want to be recursive).  Manually
     # ensure everything is scanned here.
-    curdirlib = buf.libs[0] # XXX: make this not so fragile
+    curdirlib = buf.libs[0]  # XXX: make this not so fragile
     dirs = set(curdirlib.dirs)
     for name in manifest.keys():
         dirname, basename = os.path.split(name)
@@ -130,9 +132,9 @@ class CplnTestCase(CodeIntelTestCase):
         }
         buf, positions = write_files(self, manifest=manifest, name="require")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("class", "Server"), ])
+                                       [("class", "Server"), ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "rename"), ])
+                                       [("function", "rename"), ])
 
     def test_require_nonvar(self):
         """
@@ -148,9 +150,10 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="require_nonvar")
+        buf, positions = write_files(
+            self, manifest=manifest, name="require_nonvar")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "method"), ])
+                                       [("function", "method"), ])
 
     def test_require_module_exports(self):
         """
@@ -166,9 +169,10 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="require_module_exports")
+        buf, positions = write_files(
+            self, manifest=manifest, name="require_module_exports")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "method"), ])
+                                       [("function", "method"), ])
 
     def test_require_not_buf_path(self):
         """
@@ -187,9 +191,10 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="require_not_buf_path")
+        buf, positions = write_files(
+            self, manifest=manifest, name="require_not_buf_path")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "method"), ])
+                                       [("function", "method"), ])
 
     def test_module_simple(self):
         """
@@ -205,9 +210,10 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="module_simple")
+        buf, positions = write_files(
+            self, manifest=manifest, name="module_simple")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "simpleMethod"), ])
+                                       [("function", "simpleMethod"), ])
 
     def test_module_package_manifest(self):
         """
@@ -230,9 +236,10 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="module_package_manifest")
+        buf, positions = write_files(
+            self, manifest=manifest, name="module_package_manifest")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "method"), ])
+                                       [("function", "method"), ])
 
     def test_require_prefer_core(self):
         """
@@ -246,9 +253,10 @@ class CplnTestCase(CodeIntelTestCase):
                 exports = {}
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="require_prefer_core")
+        buf, positions = write_files(
+            self, manifest=manifest, name="require_prefer_core")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "createServer"), ])
+                                       [("function", "createServer"), ])
 
     def test_modules_no_repeat_subdir(self):
         """
@@ -274,11 +282,12 @@ class CplnTestCase(CodeIntelTestCase):
                 }
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="modules_no_repeat_subdir")
+        buf, positions = write_files(
+            self, manifest=manifest, name="modules_no_repeat_subdir")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "other"), ])
+                                       [("function", "other"), ])
         self.assertCompletionsDoNotInclude2(buf, positions[2],
-            [("function", "method"), ])
+                                            [("function", "method"), ])
 
     def test_modules_updir(self):
         """
@@ -304,9 +313,10 @@ class CplnTestCase(CodeIntelTestCase):
                 }
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="modules_updir")
+        buf, positions = write_files(
+            self, manifest=manifest, name="modules_updir")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "method"), ])
+                                       [("function", "method"), ])
 
     @tag("bug90331")
     def test_require_extras(self):
@@ -314,24 +324,25 @@ class CplnTestCase(CodeIntelTestCase):
         Check that we can tack extra properties onto require()d objects
         """
         manifest = {
-                "test.js": """
+            "test.js": """
                     require('./foo').<1>;
                     """,
-                "foo.js": """
+            "foo.js": """
                     exports = require('./bar');
                     exports.foo = function() {};
                     """,
-                "bar.js": """
+            "bar.js": """
                     exports = {
                         bar: function() {}
                     }
                     """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="require_extras")
+        buf, positions = write_files(
+            self, manifest=manifest, name="require_extras")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "foo"),
-             ("function", "bar"),
-            ])
+                                       [("function", "foo"),
+                                      ("function", "bar"),
+                                       ])
 
     def test_globals(self):
         """
@@ -354,40 +365,40 @@ class CplnTestCase(CodeIntelTestCase):
         }
         buf, positions = write_files(self, manifest=manifest, name="globals")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("variable", "console"),
-            ])
+                                       [("variable", "console"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("variable", "process"),
-            ])
+                                       [("variable", "process"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "require"),
-            ])
+                                       [("function", "require"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[4],
-            [("variable", "__filename"),
-            ])
+                                       [("variable", "__filename"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[5],
-            [("variable", "clearTimeout"),
-             ("variable", "clearInterval"),
-            ])
+                                       [("variable", "clearTimeout"),
+                                      ("variable", "clearInterval"),
+                                       ])
         self.assertCompletionsInclude2(buf, positions[6],
-            [("variable", "setTimeout"),
-             ("variable", "setInterval"),
-            ])
+                                       [("variable", "setTimeout"),
+                                      ("variable", "setInterval"),
+                                       ])
         self.assertCompletionsInclude2(buf, positions[7],
-            [("variable", "__dirname"),
-            ])
+                                       [("variable", "__dirname"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[8],
-            [("variable", "global"),
-            ])
+                                       [("variable", "global"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[9],
-            [("variable", "Buffer"),
-            ])
+                                       [("variable", "Buffer"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[10],
-            [("namespace", "module"),
-            ])
+                                       [("namespace", "module"),
+                                        ])
         self.assertCompletionsInclude2(buf, positions[11],
-            [("variable", "exports"),
-            ])
+                                       [("variable", "exports"),
+                                        ])
 
     def test_globals_props(self):
         """
@@ -404,30 +415,33 @@ class CplnTestCase(CodeIntelTestCase):
         }
         buf, positions = write_files(self, manifest=manifest, name="globals")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "resolve"),
-             ("variable", "cache"),
-            ])
+                                       [("function", "resolve"),
+                                      ("variable", "cache"),
+                                       ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("variable", "stdout"),
-             ("variable", "stderr"),
-             ("variable", "stdin"),
-             ("function", "exit"),
-             # the rest are tested in test_nodejs_process
-            ])
+                                       [("variable", "stdout"),
+                                      ("variable", "stderr"),
+                                           ("variable", "stdin"),
+                                           ("function", "exit"),
+                                           # the rest are tested in
+                                           # test_nodejs_process
+                                       ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "log"),
-             ("function", "info"),
-             ("function", "warn"),
-             # the rest are tested in test_nodejs_console
-            ])
+                                       [("function", "log"),
+                                      ("function", "info"),
+                                           ("function", "warn"),
+                                           # the rest are tested in
+                                           # test_nodejs_console
+                                       ])
         self.assertCompletionsInclude2(buf, positions[4],
-            [("function", "isBuffer"),
-             ("function", "byteLength"),
-             # the rest are tested in test_nodejs_buffer
-            ])
+                                       [("function", "isBuffer"),
+                                      ("function", "byteLength"),
+                                           # the rest are tested in
+                                           # test_nodejs_buffer
+                                       ])
         self.assertCompletionsInclude2(buf, positions[5],
-            [("namespace", "exports"),
-            ])
+                                       [("namespace", "exports"),
+                                        ])
 
     def test_global_accessor(self):
         """
@@ -439,9 +453,10 @@ class CplnTestCase(CodeIntelTestCase):
                 foo.<1>;
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="global_accessor")
+        buf, positions = write_files(
+            self, manifest=manifest, name="global_accessor")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "concat"),
+                                      [("function", "concat"),
             ])
 
     def test_globals_no_pollute(self):
@@ -453,7 +468,8 @@ class CplnTestCase(CodeIntelTestCase):
                 tim<1>;
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="globals_no_pollute")
+        buf, positions = write_files(
+            self, manifest=manifest, name="globals_no_pollute")
         self.assertCompletionsDoNotInclude2(buf, positions[1],
             [("variable", "timers"),
             ])
@@ -472,7 +488,8 @@ class CplnTestCase(CodeIntelTestCase):
                 })
                 """,
         }
-        buf, positions = write_files(self, manifest=manifest, name="callback_types")
+        buf, positions = write_files(
+            self, manifest=manifest, name="callback_types")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "pause"),
             ])
@@ -483,6 +500,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "writeContinue"),
              ("function", "writeHead"),
             ])
+
 
 class StdLibTestCase(CodeIntelTestCase):
     """ Code Completion test cases for the Node.js standard library"""
@@ -525,7 +543,7 @@ class StdLibTestCase(CodeIntelTestCase):
                             if not comp.get(tokens[i])(self.version, tokens[i + 1]):
                                 match = False
                                 break
-                            i += 1 # skip the version
+                            i += 1  # skip the version
                             continue
                         assert tokens[i] == "and", \
                             "Can't parse condition %s" % (condition,)
@@ -622,14 +640,14 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("variable", "isRaw", ">= 0.8"),        # tty.ReadStream
              ("function", "setRawMode", ">= 0.8"),   # tty.ReadStream
-             ("function", "setKeepAlive", ">= 0.8"), # net.Socket
+             ("function", "setKeepAlive", ">= 0.8"),  # net.Socket
              ("function", "pipe"),                   # stream.ReadStream
              ("function", "on"),                     # EventEmitter
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("variable", "columns", ">= 0.8"),      # tty.WriteStream
              ("variable", "rows", ">= 0.8"),         # tty.WriteStream
-             ("function", "setKeepAlive", ">= 0.8"), # net.Socket
+             ("function", "setKeepAlive", ">= 0.8"),  # net.Socket
              ("function", "write"),                  # stream.WriteStream
              ("function", "on"),                     # EventEmitter
             ])
@@ -759,7 +777,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("class", "WritableStream"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # from EventEmitter
+            [("function", "on"),  # from EventEmitter
              ("variable", "readable"),
              ("function", "setEncoding"),
              ("function", "pause"),
@@ -769,7 +787,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "pipe"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "on"), # from EventEmitter
+            [("function", "on"),  # from EventEmitter
              ("variable", "writable"),
              ("function", "write"),
              ("function", "end"),
@@ -782,7 +800,8 @@ class StdLibTestCase(CodeIntelTestCase):
         Test the Node.js string_decoder module
         """
         if self.version < "0.8":
-            raise TestSkipped("Node.js %s is not at least 0.8" % (self.version,))
+            raise TestSkipped(
+                "Node.js %s is not at least 0.8" % (self.version,))
         manifest = {"test.js": """
             var string_decoder = require('string_decoder');
             string_decoder.<1>;
@@ -887,7 +906,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "addContext"),
              ("variable", "maxConnections"),
              ("variable", "connections"),
-             ("function", "on"), # from EventEmitter
+             ("function", "on"),  # from EventEmitter
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("variable", "authorized"),
@@ -897,12 +916,12 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "address"),
              ("variable", "remoteAddress"),
              ("variable", "remotePort"),
-             ("function", "on"), # from EventEmitter
-             ("function", "resume"), # from ReadableStream
-             ("function", "write"), # from WritableStream
+             ("function", "on"),  # from EventEmitter
+             ("function", "resume"),  # from ReadableStream
+             ("function", "write"),  # from WritableStream
             ])
         self.assertCompletionsInclude2(buf, positions[4],
-            [("function", "on"), # from EventEmitter
+            [("function", "on"),  # from EventEmitter
             ])
 
     def test_fs(self):
@@ -995,7 +1014,7 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             # this is actually from the 'streams' module, which is untestable
-            [("function", "addListener"), # from EventEmitter
+            [("function", "addListener"),  # from EventEmitter
              ("function", "on"),          # from EventEmitter
              ("variable", "readable"),
              ("function", "setEncoding"),
@@ -1007,7 +1026,7 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         self.assertCompletionsInclude2(buf, positions[4],
             # this is actually from the 'streams' module, which is untestable
-            [("function", "addListener"), # from EventEmitter
+            [("function", "addListener"),  # from EventEmitter
              ("function", "on"),          # from EventEmitter
              ("variable", "writable"),
              ("function", "write"),
@@ -1017,7 +1036,7 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         self.assertCompletionsInclude2(buf, positions[5],
             [("function", "close"),
-             ("function", "on"), # EventEmitter
+             ("function", "on"),  # EventEmitter
             ])
 
     def test_path(self):
@@ -1064,7 +1083,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "isIPv6"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # from EventEmitter
+            [("function", "on"),  # from EventEmitter
              ("function", "listen"),
              ("function", "close"),
              ("function", "address"),
@@ -1073,9 +1092,9 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         for pos in 3, 4:
             self.assertCompletionsInclude2(buf, positions[pos],
-                [("function", "on"), # from EventEmitter
-                 ("variable", "readable"), # from ReadableStream
-                 ("variable", "writable"), # from WritableStream
+                [("function", "on"),  # from EventEmitter
+                 ("variable", "readable"),  # from ReadableStream
+                 ("variable", "writable"),  # from WritableStream
                  ("function", "connect"),
                  ("variable", "bufferSize"),
                  ("function", "setEncoding"),
@@ -1110,7 +1129,7 @@ class StdLibTestCase(CodeIntelTestCase):
             [("function", "createSocket"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # EventEmitter
+            [("function", "on"),  # EventEmitter
              ("function", "send"),
              ("function", "bind"),
              ("function", "close"),
@@ -1128,7 +1147,8 @@ class StdLibTestCase(CodeIntelTestCase):
         Test the Node.js domain module
         """
         if not self.version >= "0.8":
-            raise TestSkipped("Node.js version %s not at least 0.8" % (self.version,))
+            raise TestSkipped(
+                "Node.js version %s not at least 0.8" % (self.version,))
         manifest = {"test.js": """
             domain = require('domain');
             domain.<1>;
@@ -1196,13 +1216,13 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "globalAgent"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # inherited from EventEmitter
+            [("function", "on"),  # inherited from EventEmitter
              ("function", "listen"),
              ("function", "close"),
              ("variable", "maxHeadersCount", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "on"), # inherited from EventEmitter
+            [("function", "on"),  # inherited from EventEmitter
              ("variable", "method"),
              ("variable", "url"),
              ("variable", "headers"),
@@ -1214,8 +1234,8 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "connection"),
             ])
         self.assertCompletionsInclude2(buf, positions[4],
-            [("function", "on"), # inherited from EventEmitter
-             ("variable", "writable"), # inherited from WritableStream
+            [("function", "on"),  # inherited from EventEmitter
+             ("variable", "writable"),  # inherited from WritableStream
              ("function", "writeContinue"),
              ("function", "writeHead"),
              ("variable", "statusCode"),
@@ -1233,8 +1253,8 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "requests"),
             ])
         self.assertCompletionsInclude2(buf, positions[6],
-            [("function", "on"), # inherited from EventEmitter
-             ("variable", "writable"), # inherited from WritableStream
+            [("function", "on"),  # inherited from EventEmitter
+             ("variable", "writable"),  # inherited from WritableStream
              ("function", "write"),
              ("function", "end"),
              ("function", "abort"),
@@ -1243,8 +1263,8 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "setSocketKeepAlive"),
             ])
         self.assertCompletionsInclude2(buf, positions[7],
-            [("function", "on"), # inherited from EventEmitter
-             ("variable", "readable"), # inherited from ReadableStream
+            [("function", "on"),  # inherited from EventEmitter
+             ("variable", "readable"),  # inherited from ReadableStream
              ("variable", "statusCode"),
              ("variable", "httpVersion"),
              ("variable", "headers"),
@@ -1274,18 +1294,18 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "globalAgent"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # inherited from EventEmitter
-             ("function", "listen"), # inherited from tls.Server
+            [("function", "on"),  # inherited from EventEmitter
+             ("function", "listen"),  # inherited from tls.Server
             ])
         for pos in 3, 4:
             self.assertCompletionsInclude2(buf, positions[pos],
-                [("function", "on"), # inherited from EventEmitter
+                [("function", "on"),  # inherited from EventEmitter
                  ("function", "write"),
                  ("function", "end"),
                  ("function", "abort"),
                 ])
         self.assertCompletionsInclude2(buf, positions[5],
-            [("variable", "maxSockets"), # inherited from http.Agent
+            [("variable", "maxSockets"),  # inherited from http.Agent
             ])
 
     def test_url(self):
@@ -1326,7 +1346,8 @@ class StdLibTestCase(CodeIntelTestCase):
             querystring = require('querystring');
             querystring.<1>;
             """}
-        buf, positions = write_files(self, manifest=manifest, name="querystring")
+        buf, positions = write_files(
+            self, manifest=manifest, name="querystring")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "stringify"),
              ("function", "parse"),
@@ -1342,12 +1363,13 @@ class StdLibTestCase(CodeIntelTestCase):
             require('readline').<1>;
             require('readline').createInterface().<2>;
             """}
-        buf, positions = write_files(self, manifest=manifest, name="querystring")
+        buf, positions = write_files(
+            self, manifest=manifest, name="querystring")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createInterface"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # inherited from events.EventEmitter
+            [("function", "on"),  # inherited from events.EventEmitter
              ("function", "setPrompt"),
              ("function", "prompt"),
              ("function", "question"),
@@ -1406,7 +1428,8 @@ class StdLibTestCase(CodeIntelTestCase):
             child.stdout.<4>;
             child.stderr.<5>;
             """}
-        buf, positions = write_files(self, manifest=manifest, name="child_process")
+        buf, positions = write_files(
+            self, manifest=manifest, name="child_process")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "spawn"),
              ("function", "exec"),
@@ -1414,7 +1437,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "fork"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "on"), # EventEmitter
+            [("function", "on"),  # EventEmitter
              ("variable", "stdin"),
              ("variable", "stdout"),
              ("variable", "stderr"),
@@ -1424,16 +1447,16 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "disconnect", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "on"), # from EventEmitter
-             ("variable", "writable"), # from stream.WritableStream
+            [("function", "on"),  # from EventEmitter
+             ("variable", "writable"),  # from stream.WritableStream
             ])
         self.assertCompletionsInclude2(buf, positions[4],
-            [("function", "on"), # from EventEmitter
-             ("variable", "readable"), # from stream.ReadableStream
+            [("function", "on"),  # from EventEmitter
+             ("variable", "readable"),  # from stream.ReadableStream
             ])
         self.assertCompletionsInclude2(buf, positions[5],
-            [("function", "on"), # from EventEmitter
-             ("variable", "readable"), # from stream.ReadableStream
+            [("function", "on"),  # from EventEmitter
+             ("variable", "readable"),  # from stream.ReadableStream
             ])
 
     def test_assert(self):
@@ -1531,9 +1554,9 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         for pos in range(2, 9):
             self.assertCompletionsInclude2(buf, positions[pos],
-                [("function", "on"), # inherited from events.EventEmitter
-                 ("function", "pause"), # inherited from stream.ReadableStream
-                 ("function", "write"), # inherited from stream.WritableStream
+                [("function", "on"),  # inherited from events.EventEmitter
+                 ("function", "pause"),  # inherited from stream.ReadableStream
+                 ("function", "write"),  # inherited from stream.WritableStream
                 ])
 
     def test_os(self):
@@ -1589,8 +1612,9 @@ class StdLibTestCase(CodeIntelTestCase):
                  ("function", "send"),
                  ("function", "destroy"),
                  ("function", "disconnect"),
-                 ("function", "on"), # EventEmitter
+                 ("function", "on"),  # EventEmitter
                 ])
+
 
 class CallTipTestCase(CodeIntelTestCase):
     lang = "Node.js"

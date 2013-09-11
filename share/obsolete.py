@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,14 +31,14 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Some obsolete code that might prove useful again sometime soon."""
 
 #---- Python completion fallback handling
 #
-#_gPyFuncTypes = (
+# _gPyFuncTypes = (
 #    types.BuiltinFunctionType,
 #    types.BuiltinMethodType,
 #    types.FunctionType,
@@ -49,7 +49,7 @@
 #    types.ModuleType,
 #    types.ClassType,
 #)
-#def _getTypeNameForPyObj(obj):
+# def _getTypeNameForPyObj(obj):
 #    if isinstance(obj, _gPyFuncTypes):
 #        typeName = "function"
 #    elif isinstance(obj, types.ModuleType):
@@ -60,7 +60,7 @@
 #        typeName = "variable"
 #    return typeName
 #
-#def _getPyClassMembers(obj):
+# def _getPyClassMembers(obj):
 #    # Recurse into base classes looking for attributes
 #    typesAndMembers = []
 #    try:
@@ -73,7 +73,7 @@
 #        pass
 #    return members
 #
-#def _findPyClassConstructor(classObj):
+# def _findPyClassConstructor(classObj):
 #    # Given a class object, return a function object used for the
 #    # constructor (ie, __init__() ) or None if we can't find one.
 #    try:
@@ -85,7 +85,7 @@
 #                return rc
 #    return None
 #
-#def _getPyObjCallTip(obj):
+# def _getPyObjCallTip(obj):
 #    """Return a suitable call tip for the given Python object."""
 #    if obj is None:
 #        return ""
@@ -148,7 +148,7 @@
 #        """See if the symbol reference matches one of the modules in the
 #        current process run-time. ...to ensure being no worse that previous
 #        AutoComplete implementations in Komodo.
-#        
+#
 #        Returns None if nothing suitable was found.
 #        """
 #        try:
@@ -182,7 +182,7 @@
 #                # Get the automation attributes
 #                typesAndProps = [("function", p) for p in
 #                                 obj.__class__._prop_map_get_.keys()]
-#                # See if there is an write only property 
+#                # See if there is an write only property
 #                # could be optimized
 #                for p in obj.__class__._prop_map_put_.keys():
 #                    tp = ("function", p)
@@ -191,20 +191,20 @@
 #                typesAndMembers += typesAndProps
 #            except AttributeError:
 #                pass
-#            
+#
 #            if not typesAndMembers:
 #                typesAndMembers = None
 #        return typesAndMembers
 #
 #    def _getMembersFallback(self, expr, content, line, language):
 #        """A dumb fallback mechanism for finding members.
-#        
+#
 #            "expr" is the CITDL expression.
 #            "content" is the file content.
 #            "line" is the line in the content on which AutoComplete was
 #                triggered.
 #            "language" is the file's language.
-#        
+#
 #        Basic algorithms from PythonWin. Returns a list of 2-tuples:
 #            (<codeintel-type-name>, <member-name>)
 #        of found members; the empty list if none found.
@@ -285,7 +285,7 @@
 #        """See if the symbol reference matches one of the modules in the
 #        current process run-time. ...to ensure being no worse that previous
 #        AutoComplete implementations in Komodo.
-#        
+#
 #        Returns None if nothing suitable was found.
 #        """
 #        try:
@@ -305,13 +305,13 @@
 #
 #    def _getCallTipsFallback(self, expr, content, line, language):
 #        """A dumb fallback mechanism for finding calltips.
-#        
+#
 #            "expr" is the CITDL expression.
 #            "content" is the file content.
 #            "line" is the line in the content on which a CallTip was
 #                triggered.
 #            "language" is the file's language.
-#        
+#
 #        Basic algorithms from PythonWin. Returns a list of found CallTips
 #        (the empty list if none found).
 #        """

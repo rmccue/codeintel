@@ -19,6 +19,7 @@ from xpcom import xpt
 
 log = logging.getLogger("codeintel.xpcom-completer")
 
+
 class KoCodeIntelXPCOMSupport(threading.Thread):
     _com_interfaces_ = []
     _reg_clsid_ = "{8e774b2b-f3b3-4b5e-a0e6-bd32ffca9f30}"
@@ -46,7 +47,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
         """Background thread to handle code intelligence queries"""
         while True:
             if socket is None:
-                break # in the middle of shut down
+                break  # in the middle of shut down
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock.bind(("localhost", 0))
             self._sock.listen(0)
@@ -54,7 +55,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
 
             self._ready_to_connect.wait()
             mgr = UnwrapObject(Cc["@activestate.com/koCodeIntelService;1"]
-                                 .getService())
+                               .getService())
             host, port = self._sock.getsockname()
             log.debug("Requesting connection... (to %s %s)", host, port)
             mgr.send(command="xpcom-connect", host=host, port=port)
@@ -75,7 +76,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
                             except socket.error:
                                 log.debug("Connection closed")
                                 continue_reading = False
-                                break # connection closed
+                                break  # connection closed
                             else:
                                 if not self._read_buffer:
                                     # EOF
@@ -90,7 +91,8 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
                             break
                     if not continue_reading:
                         break
-                    log.debug("got size %r, remaining %s", size, self._read_buffer)
+                    log.debug(
+                        "got size %r, remaining %s", size, self._read_buffer)
                     size = int(size)
                     while len(self._read_buffer) < size:
                         try:
@@ -106,14 +108,15 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
                     log.debug("<< %s", data)
                     request = json.loads(data)
                     try:
-                        meth = getattr(self, "do_" + request.get("command").replace("-", "_"))
+                        meth = getattr(self, "do_" + request.get(
+                            "command").replace("-", "_"))
                         meth(**request)
                     except:
                         log.exception("Failed to call method")
                         break
             except Exception as ex:
                 if not log:
-                    break # log can be None on shutdown
+                    break  # log can be None on shutdown
                 log.exception(ex)
 
     def send(self, **kwargs):
@@ -134,32 +137,32 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
 
     _LANG_TYPE_FROM_XPT_TAG = {
         "JavaScript": {
-            xpt.T_I8                : "Number",
-            xpt.T_I16               : "Number",
-            xpt.T_I32               : "Number",
-            xpt.T_I64               : "Number",
-            xpt.T_U8                : "Number",
-            xpt.T_U16               : "Number",
-            xpt.T_U32               : "Number",
-            xpt.T_U64               : "Number",
-            xpt.T_FLOAT             : "Number",
-            xpt.T_DOUBLE            : "Number",
-            xpt.T_BOOL              : "Boolean",
-            xpt.T_CHAR              : "String",
-            xpt.T_WCHAR             : "String",
-            xpt.T_VOID              : "void",
-            xpt.T_IID               : None,
-            xpt.T_DOMSTRING         : "DOMString",
-            xpt.T_CHAR_STR          : "String",
-            xpt.T_WCHAR_STR         : "String",
-            xpt.T_INTERFACE         : None,
-            xpt.T_INTERFACE_IS      : None,
-            xpt.T_ARRAY             : "Array",
-            xpt.T_PSTRING_SIZE_IS   : None,
-            xpt.T_PWSTRING_SIZE_IS  : None,
-            xpt.T_UTF8STRING        : "String",
-            xpt.T_CSTRING           : "String",
-            xpt.T_ASTRING           : "String",
+            xpt.T_I8: "Number",
+            xpt.T_I16: "Number",
+            xpt.T_I32: "Number",
+            xpt.T_I64: "Number",
+            xpt.T_U8: "Number",
+            xpt.T_U16: "Number",
+            xpt.T_U32: "Number",
+            xpt.T_U64: "Number",
+            xpt.T_FLOAT: "Number",
+            xpt.T_DOUBLE: "Number",
+            xpt.T_BOOL: "Boolean",
+            xpt.T_CHAR: "String",
+            xpt.T_WCHAR: "String",
+            xpt.T_VOID: "void",
+            xpt.T_IID: None,
+            xpt.T_DOMSTRING: "DOMString",
+            xpt.T_CHAR_STR: "String",
+            xpt.T_WCHAR_STR: "String",
+            xpt.T_INTERFACE: None,
+            xpt.T_INTERFACE_IS: None,
+            xpt.T_ARRAY: "Array",
+            xpt.T_PSTRING_SIZE_IS: None,
+            xpt.T_PWSTRING_SIZE_IS: None,
+            xpt.T_UTF8STRING: "String",
+            xpt.T_CSTRING: "String",
+            xpt.T_ASTRING: "String",
         },
     }
 
@@ -216,15 +219,17 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
             for thing in iface.methods:
                 if thing.IsNotXPCOM():
                     continue
-                args, returntype = self._process_method_argument(thing, language)
+                args, returntype = self._process_method_argument(
+                    thing, language)
                 if thing.IsGetter() or thing.IsSetter():
                     if thing.name in attributes and not returntype:
-                        continue # don't override getters with setters
+                        continue  # don't override getters with setters
                     attributes[thing.name] = {"tag": "variable",
                                               "name": thing.name,
                                               "citdl": returntype}
                 else:
-                    # XPCOM things that are not getters or setters... it's a method
+                    # XPCOM things that are not getters or setters... it's a
+                    # method
                     result = {"tag": "scope",
                               "name": thing.name,
                               "ilk": "function"}
@@ -247,6 +252,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
         results = methods.values() + attributes.values() + constants.values()
         self.send(results=sorted(results, key=name_getter))
 
+
 class KoCodeIntelXPCOMSupportReigstrationHelper(object):
     """Helper class for codeintel command extension registration; See kd290 /
     KoCodeIntelManager._send_init_requests.initialization_completed"""
@@ -257,16 +263,19 @@ class KoCodeIntelXPCOMSupportReigstrationHelper(object):
     _reg_categories_ = [
         ("codeintel-command-extension", _reg_contractid_),
     ]
+
     def __init__(self):
         self.completer = \
             UnwrapObject(Cc[KoCodeIntelXPCOMSupport._reg_contractid_]
-                           .getService())
+            .getService())
         self.data = [
             (dirname(__file__), "xpcomJSElements"),
         ]
+
     def __iter__(self):
         """Iteration for codeintel command extension registration"""
         return self
+
     def next(self):
         try:
             return self.data.pop(0)

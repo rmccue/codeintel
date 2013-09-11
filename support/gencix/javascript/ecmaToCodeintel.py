@@ -2,26 +2,26 @@
 
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -33,7 +33,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 import os
@@ -43,13 +43,15 @@ import libxslt
 
 # Shared code for cix generation
 from codeintel2.gencix_utils import *
-#from cix_utils import *
+# from cix_utils import *
 
 xsl_file = os.path.join(os.path.dirname(__file__), "ECMAScript.xsl")
 xml_file = os.path.join(os.path.dirname(__file__), "ECMAScript.xml")
 out_file = os.path.join(os.path.dirname(__file__), "javascript.cix")
 
 # Main function
+
+
 def performXSLTransform():
     styledoc = libxml2.parseFile(xsl_file)
     style = libxslt.parseStylesheetDoc(styledoc)
@@ -66,7 +68,8 @@ def fixFunctionDocTag(funcnode):
     if doctext:
         if funcnode.attrib["name"] == "eval":
             # Update the doc for this function call, more user friendly.
-            funcnode.attrib["doc"] = doctext.replace("ECMAScript", "JavaScript")
+            funcnode.attrib["doc"] = doctext.replace(
+                "ECMAScript", "JavaScript")
         sp = doctext.rsplit("Return Type: ", 1)
         if len(sp) == 2:
             funcnode.attrib["doc"] = sp[0].rstrip()
@@ -75,8 +78,10 @@ def fixFunctionDocTag(funcnode):
             return returnType
     return None
 
+
 def addFunctionSignature(funcnode, returnType):
-    argnodes = [ x for x in funcnode.findall('variable') if x.get("ilk") == "argument" ]
+    argnodes = [x for x in funcnode.findall(
+        'variable') if x.get("ilk") == "argument"]
     argnames = []
     for argnode in argnodes:
         argname = argnode.get("name")
@@ -90,11 +95,12 @@ def addFunctionSignature(funcnode, returnType):
                 funcnode.remove(argnode)
     argnames = ", ".join(argnames)
     if returnType:
-        signatureText = "%s(%s) -> %s" % (funcnode.attrib["name"], argnames, returnType)
+        signatureText = "%s(%s) -> %s" % (
+            funcnode.attrib["name"], argnames, returnType)
     else:
         signatureText = "%s(%s)" % (funcnode.attrib["name"], argnames)
     setCixSignature(funcnode, signatureText)
-            
+
 
 def fixTags():
     tree = ElementTree()
@@ -134,7 +140,7 @@ def fixTags():
                            childnode.get("doc") == objChildNode.get("doc"):
                             # They match, remove the duplicate from scope
                             print "Removing duplicated Object item: %s, from %s" % (
-                                        name, scope.get("name"))
+                                name, scope.get("name"))
                             scope.remove(childnode)
                         else:
                             print "Duplicate %s differed in %s" % (name, scope.get("name"))
@@ -144,8 +150,10 @@ def fixTags():
 
     tree.write(out_file)
 
+
 def tidy():
     os.popen("tidy -xml -m -w 1000 -i %s" % (out_file))
+
 
 def main():
     performXSLTransform()

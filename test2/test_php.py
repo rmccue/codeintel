@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some PHP-specific codeintel handling."""
@@ -59,7 +59,6 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 log = logging.getLogger("test")
 HTML_DOCTYPE = '''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\n'''
 
@@ -67,6 +66,7 @@ HTML_DOCTYPE = '''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 def php_markup(s):
     return "<?php %s ?>" % (s)
 php_markup_offset = len("<?php ")
+
 
 def all_available_phps():
     yielded = {}
@@ -90,7 +90,6 @@ def all_available_phps():
                     yield php
 
 
-
 class LibsTestCase(CodeIntelTestCase):
     def test_with_all_phps(self):
         # Test that the PHP libs processing works for all available
@@ -99,11 +98,11 @@ class LibsTestCase(CodeIntelTestCase):
 
         env = SimplePrefsEnvironment()
         buf = self.mgr.buf_from_content(
-                "<?php php_info(); ?>", "PHP", path="foo.php", env=env)
+            "<?php php_info(); ?>", "PHP", path="foo.php", env=env)
 
         for php in all_available_phps():
             env.set_pref("php", php)
-            #TODO: actually assert something about the libs?
+            # TODO: actually assert something about the libs?
             buf.libs
 
 
@@ -131,10 +130,12 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name=name, pos=17)
         self.assertTriggerMatches(php_markup("$foo->bar()-><|>foobar;"),
                                   name=name, pos=19)
-        self.assertTriggerMatches(php_markup("$foo->bar('sludge')-><|>foobar;"),
-                                  name=name, pos=27)
-        self.assertTriggerMatches(php_markup("$foo->bar('sludge', $x, 5)-><|>foobar;"),
-                                  name=name, pos=34)
+        self.assertTriggerMatches(
+            php_markup("$foo->bar('sludge')-><|>foobar;"),
+            name=name, pos=27)
+        self.assertTriggerMatches(
+            php_markup("$foo->bar('sludge', $x, 5)-><|>foobar;"),
+            name=name, pos=34)
         # Test using the scope resolution operator "::"
         name = "php-complete-static-members"
         self.assertTriggerMatches(php_markup("myclass::<|>myfunc();"),
@@ -144,7 +145,7 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(php_markup("parent::<|>myfunc();"),
                                   name=name, pos=14)
         # No trigger before or after the correct position
-        #self.assertNoTrigger(php_markup("$a->myfunc();"))
+        # self.assertNoTrigger(php_markup("$a->myfunc();"))
         self.assertNoTrigger(php_markup("$a-<|>>myfunc();"))
         self.assertNoTrigger(php_markup("$a->m<|>yfunc();"))
         # No trigger on python like syntax
@@ -202,12 +203,15 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Samples:
         #        "class MyException extends <|>Exception" -> ["ArrayObject", "Exception", ...]
         name = "php-complete-classes"
-        self.assertTriggerMatches(php_markup("class MyException extends <|>Exception {}"),
-                                  name=name, pos=32)
+        self.assertTriggerMatches(
+            php_markup("class MyException extends <|>Exception {}"),
+            name=name, pos=32)
         # No trigger before or after the correct position
-        self.assertTriggerDoesNotMatch(php_markup("class MyException extends<|> Exception {}"),
-                                       name=name)
-        self.assertNoTrigger(php_markup("class MyException extends E<|>xception {}"))
+        self.assertTriggerDoesNotMatch(
+            php_markup("class MyException extends<|> Exception {}"),
+            name=name)
+        self.assertNoTrigger(php_markup(
+            "class MyException extends E<|>xception {}"))
 
     def test_trigger_complete_interfaces(self):
         # Triggers after "implements "
@@ -215,12 +219,15 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Samples:
         #        "class MyException implements <|>IException" -> ["IArrayObject", "IException", ...]
         name = "php-complete-interfaces"
-        self.assertTriggerMatches(php_markup("class MyException implements <|>IException {}"),
-                                  name=name, pos=35)
+        self.assertTriggerMatches(
+            php_markup("class MyException implements <|>IException {}"),
+            name=name, pos=35)
         # No trigger before or after the correct position
-        self.assertTriggerDoesNotMatch(php_markup("class MyException implements<|> IException {}"),
-                                       name=name)
-        self.assertNoTrigger(php_markup("class MyException implements I<|>Exception {}"))
+        self.assertTriggerDoesNotMatch(
+            php_markup("class MyException implements<|> IException {}"),
+            name=name)
+        self.assertNoTrigger(php_markup(
+            "class MyException implements I<|>Exception {}"))
 
     def test_trigger_complete_classes_from_multiple_extends(self):
         # Triggers after "extends Class1, "
@@ -228,11 +235,15 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Samples:
         #        "class MyException extends <|>Exception" -> ["ArrayObject", "Exception", ...]
         name = "php-complete-classes"
-        self.assertTriggerMatches(php_markup("class MyException extends ArrayObject, <|>Exception {}"),
-                                  name=name, pos=45)
+        self.assertTriggerMatches(
+            php_markup(
+                "class MyException extends ArrayObject, <|>Exception {}"),
+            name=name, pos=45)
         # No trigger before or after the correct position
-        self.assertNoTrigger(php_markup("class MyException extends ArrayObject,<|> Exception {}"))
-        self.assertNoTrigger(php_markup("class MyException extends ArrayObject, E<|>xception {}"))
+        self.assertNoTrigger(php_markup(
+            "class MyException extends ArrayObject,<|> Exception {}"))
+        self.assertNoTrigger(php_markup(
+            "class MyException extends ArrayObject, E<|>xception {}"))
 
     def test_trigger_complete_classes_from_multiple_implements(self):
         # Triggers after "implements Class1, "
@@ -240,11 +251,15 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Samples:
         #        "class MyException implements IException, <|>" -> ["IArrayObject", "IExceptionHelper", ...]
         name = "php-complete-interfaces"
-        self.assertTriggerMatches(php_markup("class MyException implements IArrayObject, <|>IException {}"),
-                                  name=name, pos=49)
+        self.assertTriggerMatches(
+            php_markup(
+                "class MyException implements IArrayObject, <|>IException {}"),
+            name=name, pos=49)
         # No trigger before or after the correct position
-        self.assertNoTrigger(php_markup("class MyException implements IArrayObject,<|> IException {}"))
-        self.assertNoTrigger(php_markup("class MyException implements IArrayObject, IE<|>xception {}"))
+        self.assertNoTrigger(php_markup(
+            "class MyException implements IArrayObject,<|> IException {}"))
+        self.assertNoTrigger(php_markup(
+            "class MyException implements IArrayObject, IE<|>xception {}"))
 
     def test_trigger_complete_magic_methods(self):
         # Triggers after $ and one character
@@ -299,7 +314,7 @@ class TriggerTestCase(CodeIntelTestCase):
         # assert no trigger 3-char trigger when accessing a namespace
         self.assertNoTrigger(r'<?php \foo<|> ?>')
         # PHP strangely allows the following to work as the current namespace.
-        #self.assertTriggerMatches(php_markup(r"namespace\foo\<|>"),
+        # self.assertTriggerMatches(php_markup(r"namespace\foo\<|>"),
         #                          name=name, pos=22)
 
     def test_trigger_calltip_call_signature(self):
@@ -316,7 +331,7 @@ class TriggerTestCase(CodeIntelTestCase):
         #        parent::parentMethod();
         #        $mom->getChild()->getName();
         #
-        name="php-calltip-call-signature"
+        name = "php-calltip-call-signature"
         self.assertTriggerMatches(php_markup("$a = new A(<|>);"),
                                   name=name, form=TRG_FORM_CALLTIP)
         self.assertTriggerMatches(php_markup("$a->foo(<|>);"),
@@ -325,24 +340,27 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name=name, form=TRG_FORM_CALLTIP)
         self.assertTriggerMatches(php_markup("self::myStaticMethod(<|>);"),
                                   name=name, form=TRG_FORM_CALLTIP)
-        self.assertTriggerMatches(php_markup("$mom->getChild(<|>)->getName();"),
-                                  name=name, form=TRG_FORM_CALLTIP)
-        self.assertTriggerMatches(php_markup("$mom->getChild()->getName(<|>);"),
-                                  name=name, form=TRG_FORM_CALLTIP)
+        self.assertTriggerMatches(
+            php_markup("$mom->getChild(<|>)->getName();"),
+            name=name, form=TRG_FORM_CALLTIP)
+        self.assertTriggerMatches(
+            php_markup("$mom->getChild()->getName(<|>);"),
+            name=name, form=TRG_FORM_CALLTIP)
         self.assertTriggerMatches(php_markup("if (isset(<|>$this)) {"),
                                   name=name, form=TRG_FORM_CALLTIP)
         # Ensure we still get calltips when whitespace is between the
         # paren and the function
         self.assertTriggerMatches(php_markup("require (<|>$my_req);"),
                                   name=name, form=TRG_FORM_CALLTIP)
-        self.assertTriggerMatches(php_markup("$mom->getChild (<|>)->getName();"),
-                                  name=name, form=TRG_FORM_CALLTIP)
+        self.assertTriggerMatches(
+            php_markup("$mom->getChild (<|>)->getName();"),
+            name=name, form=TRG_FORM_CALLTIP)
         # This calltip still triggers, though it will return None, see test
         # test_ignore_specific_calltip_keywords, for details
         self.assertTriggerMatches(php_markup('if (<|>isset($this)) {'),
                                   name=name, form=TRG_FORM_CALLTIP)
         # assert no trig for when definining a function??
-        #self.assertNoTrigger('<?php final function bar(<|>) { ?>')
+        # self.assertNoTrigger('<?php final function bar(<|>) { ?>')
         # assert no trig in strings
         self.assertNoTrigger(php_markup('$s = "alert(<|>def);";'))
         self.assertNoTrigger(php_markup("$s = 'alert(<|>def);';r"))
@@ -367,8 +385,10 @@ class TriggerTestCase(CodeIntelTestCase):
         MyClass::foo(<2>3, 4);
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "foo($x, $y)")
-        self.assertCalltipIs(markup_text(content, pos=positions[2]), "foo($x, $y)")
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[1]), "foo($x, $y)")
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[2]), "foo($x, $y)")
 
     def test_citdl_expr_from_trg_simple(self):
         self.assertCITDLExprIs(php_markup("foo-><|>"), "foo")
@@ -384,8 +404,10 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs(php_markup("$a = foo(bar-><|>, blam)"), "bar")
         self.assertCITDLExprIs(php_markup("blam()\nfoo-><|>"), "foo")
         self.assertCITDLExprIs(php_markup("blam()->\nfoo-><|>"), "blam().foo")
-        self.assertCITDLExprIs(php_markup("blam()->\nfoo->bar-><|>"), "blam().foo.bar")
-        self.assertCITDLExprIs(php_markup("if(!<|>is_array"), "is_", trigger_name="functions")
+        self.assertCITDLExprIs(php_markup(
+            "blam()->\nfoo->bar-><|>"), "blam().foo.bar")
+        self.assertCITDLExprIs(php_markup(
+            "if(!<|>is_array"), "is_", trigger_name="functions")
 
     @tag("bug83192")
     def test_citdl_expr_from_namespace(self):
@@ -402,8 +424,10 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs(php_markup(r"\foo\bar\<|>"), r"\foo\bar",
                                trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup(r"Foo\bar::<|>"), r"Foo\bar")
-        self.assertCITDLExprIs(php_markup(r"Foo\bar::bam-><|>"), r"Foo\bar.bam")
-        self.assertCITDLExprIs(php_markup(r"Foo\bar()->bam-><|>"), r"Foo\bar().bam")
+        self.assertCITDLExprIs(php_markup(
+            r"Foo\bar::bam-><|>"), r"Foo\bar.bam")
+        self.assertCITDLExprIs(php_markup(
+            r"Foo\bar()->bam-><|>"), r"Foo\bar().bam")
         self.assertCITDLExprIs(php_markup(r"Foo\bar\bam::<|>"), r"Foo\bar\bam")
         self.assertCITDLExprIs(php_markup("# MyComment\nfoo\\<|>"), r"foo",
                                trigger_name="namespace-members")
@@ -426,9 +450,9 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoPrecedingTrigger(php_markup("$foo->bar<$>(<|>"))
 
         self.assertPrecedingTriggerMatches(php_markup("$foo->bar(<$> <|>"),
-            name=calltip_trigger, pos=16)
+                                           name=calltip_trigger, pos=16)
         self.assertPrecedingTriggerMatches(php_markup("$foo->bar(<$><|>"),
-            name=calltip_trigger, pos=16)
+                                           name=calltip_trigger, pos=16)
 
         self.assertPrecedingTriggerMatches(
             php_markup("$os->path->join(os->path->dirname('foo<$><|>"),
@@ -444,13 +468,13 @@ class TriggerTestCase(CodeIntelTestCase):
             name=completion_trigger, pos=17)
         self.assertNoPrecedingTrigger(php_markup("os->path<$>->join<|>"))
 
-        #self.assertPrecedingTriggerMatches(
+        # self.assertPrecedingTriggerMatches(
         #    dedent(php_markup("""\
         #        $os->path->join(  # try to (screw ' {] ) this up
         #            $os->path->dirname('foo<$><|>
         #    """)),
         #    name=calltip_trigger, pos=66)
-        #self.assertPrecedingTriggerMatches(
+        # self.assertPrecedingTriggerMatches(
         #    dedent(php_markup("""\
         #        $os->path->join(  # try to (screw ' {] ) this up
         #            $os->path->dirname<$>('foo<|>
@@ -484,73 +508,96 @@ class TriggerTestCase(CodeIntelTestCase):
         # Some extended examples, specific to PHP triggers
 
         # Test explicit "new " trigger
-        self.assertPrecedingTriggerMatches(php_markup("$e = new Exce<$><|>('Error', 1);"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("$e = new Exce<$><|>('Error', 1);"),
             name="php-complete-classes", pos=15)
         self.assertPrecedingTriggerMatches(php_markup("$e = new     <$><|>;"),
-            name="php-complete-classes", pos=19)
+                                           name="php-complete-classes", pos=19)
         # Test explicit variables trigger
-        self.assertPrecedingTriggerMatches(php_markup("$message = 'message'; $x = $mess<$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("$message = 'message'; $x = $mess<$><|>;"),
             name="php-complete-variables", pos=34)
         # Test explicit functions trigger
         self.assertPrecedingTriggerMatches(php_markup("get_e<$><|>;"),
-            name="php-complete-functions", pos=6)
+                                           name="php-complete-functions", pos=6)
         # Test explicit functions trigger, ensuring does not go beyond where
         # we want it to
         self.assertNoPrecedingTrigger(php_markup("get_env<$>(get_e<|>;"))
         # Test explicit classes trigger
-        self.assertPrecedingTriggerMatches(php_markup("class A extends Excep<$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("class A extends Excep<$><|>;"),
             name="php-complete-classes", pos=22)
-        self.assertPrecedingTriggerMatches(php_markup("class A extends    <$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("class A extends    <$><|>;"),
             name="php-complete-classes", pos=25)
-        self.assertPrecedingTriggerMatches(php_markup("class A extends Exception,   <$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("class A extends Exception,   <$><|>;"),
             name="php-complete-classes", pos=35)
         # Test explicit interfaces trigger
-        self.assertPrecedingTriggerMatches(php_markup("class A implements IExcep<$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("class A implements IExcep<$><|>;"),
             name="php-complete-interfaces", pos=25)
-        self.assertPrecedingTriggerMatches(php_markup("class A implements    <$><|>;"),
+        self.assertPrecedingTriggerMatches(
+            php_markup("class A implements    <$><|>;"),
             name="php-complete-interfaces", pos=28)
-
 
     def test_curr_calltip_arg_range(self):
         # Assert can deal with calltip with no args.
-        self.assertCurrCalltipArgRange(php_markup("foo(<+><|>"), "foo()", (0,0))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>blah<|>"), "foo()", (0,0))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>one, two<|>"), "foo()", (0,0))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>blah)<|>"), "foo()", (-1,-1))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+><|>"), "foo()", (0, 0))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>blah<|>"), "foo()", (0, 0))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>one, two<|>"), "foo()", (0, 0))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>blah)<|>"), "foo()", (-1, -1))
 
         # Should still be able to terminate properly if no signature to
         # work with.
-        self.assertCurrCalltipArgRange(php_markup("foo(<+><|>"), "not a signature", (0,0))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>blah<|>"), "not a signature", (0,0))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>blah)<|>"), "not a signature", (-1,-1))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+><|>"), "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>blah<|>"), "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>blah)<|>"), "not a signature", (-1, -1))
 
-        self.assertCurrCalltipArgRange(php_markup("foo(<+><|>"), "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>art<|>"), "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>art,<|>"), "foo(a, b, c)", (7,8))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>art,bla,<|>"), "foo(a, b, c)", (10,11))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+><|>"), "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>art<|>"), "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>art,<|>"), "foo(a, b, c)", (7, 8))
+        self.assertCurrCalltipArgRange(php_markup(
+            "foo(<+>art,bla,<|>"), "foo(a, b, c)", (10, 11))
 
-        self.assertCurrCalltipArgRange(php_markup("$os->path->join(<+>'hi', 'there<|>"),
-                                       "join(a, *p)\nJoin two or...",
-                                       (8, 10))
-        self.assertCurrCalltipArgRange(php_markup("main(<+>$sys->argv, 'myopts', 4<|>);"),
-                                       "main(args, opts, indent)",
-                                       (17, 23))
-        self.assertCurrCalltipArgRange(php_markup("Foo::foo(<+>(hi, there), asdf<|>)"),
-                                       "foo(a,b,c)",
-                                       (6, 7))
+        self.assertCurrCalltipArgRange(
+            php_markup("$os->path->join(<+>'hi', 'there<|>"),
+            "join(a, *p)\nJoin two or...",
+            (8, 10))
+        self.assertCurrCalltipArgRange(
+            php_markup("main(<+>$sys->argv, 'myopts', 4<|>);"),
+            "main(args, opts, indent)",
+            (17, 23))
+        self.assertCurrCalltipArgRange(
+            php_markup("Foo::foo(<+>(hi, there), asdf<|>)"),
+            "foo(a,b,c)",
+            (6, 7))
 
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>)<|>"), "foo(a, b, c)",
+        self.assertCurrCalltipArgRange(
+            php_markup("foo(<+>)<|>"), "foo(a, b, c)",
                                        (-1, -1))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>a=(hi, 'there()'))<|>"),
-                                       "foo(a, b, c)", (-1, -1))
-        self.assertCurrCalltipArgRange(php_markup("foo(<+>a=(hi, 'there()'), <|>)"),
-                                       "foo(a, b, c)", (7, 8))
+        self.assertCurrCalltipArgRange(
+            php_markup("foo(<+>a=(hi, 'there()'))<|>"),
+            "foo(a, b, c)", (-1, -1))
+        self.assertCurrCalltipArgRange(
+            php_markup("foo(<+>a=(hi, 'there()'), <|>)"),
+            "foo(a, b, c)", (7, 8))
 
         for content in [php_markup("foo(<+>a=(hi, 'there()'), <|>)"),
                         php_markup("foo(<+>{'hi()', bob[1]}, blah<|>")]:
             self.assertCurrCalltipArgRange(content, "foo(a, b, c)", (7, 8))
 
-        #XXX Add test cases for keyword and ellipsis args when have added
+        # XXX Add test cases for keyword and ellipsis args when have added
         #    support for that in BasicCalltipBufferMixin.
 
     def test_doctags(self):
@@ -564,9 +611,10 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(php_markup("/** @param <|>"),
                                   name=calltip_trigger_name,
                                   pos=9+php_markup_offset)
-        self.assertPrecedingTriggerMatches(php_markup("/** @param foo bar <$><|>"),
-                                           name=calltip_trigger_name,
-                                           pos=9+php_markup_offset)
+        self.assertPrecedingTriggerMatches(
+            php_markup("/** @param foo bar <$><|>"),
+            name=calltip_trigger_name,
+            pos=9+php_markup_offset)
         # Don't trigger in normal code or inside strings
         self.assertNoTrigger(php_markup("@<|>something"))
         self.assertNoTrigger(php_markup("$s = '@<|>something';"))
@@ -582,10 +630,10 @@ class TriggerTestCase(CodeIntelTestCase):
 
     @tag("bug55737", "knownfailure")
     def test_bug55737_preceeding_trigger_inside_function_for_if(self):
-        #self.assertNoPrecedingTrigger(php_markup("$foo->bar<$>(<|>"))
+        # self.assertNoPrecedingTrigger(php_markup("$foo->bar<$>(<|>"))
         content, trg_pos = self._unmark_text(php_markup("if(<+>array_<$><|>"))
         self.assertPrecedingTriggerMatches(markup_text(content),
-                                  name="php-complete-functions", pos=trg_pos)
+                                           name="php-complete-functions", pos=trg_pos)
 
     @tag("bug54667")
     def test_trigger_heredoc_strings(self):
@@ -612,7 +660,8 @@ class TriggerTestCase(CodeIntelTestCase):
         func_foo($myarg, <1>);
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "func_foo($x, $y)")
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[1]), "func_foo($x, $y)")
 
     @tag("bug67367")
     def test_complete_array_members(self):
@@ -669,11 +718,11 @@ class CplnTestCase(CodeIntelTestCase):
     @tag("bug75490")
     def test_html_markup_completion(self):
         self.assertTriggerMatches("<<|>",
-            name="html-complete-tags-and-namespaces")
+                                  name="html-complete-tags-and-namespaces")
         self.assertCompletionsInclude(HTML_DOCTYPE+"<<|>",
-            [("element", "html")])
+                                      [("element", "html")])
         self.assertCompletionsInclude("<<|>",
-            [("element", "html")])
+                                      [("element", "html")])
 
     def test_class_inheritance(self):
         content, positions = unmark_text(dedent(php_markup("""\
@@ -703,7 +752,7 @@ class CplnTestCase(CodeIntelTestCase):
             class Bar extends Foo {
                 function func_in_bar($b) { }
             }
-            
+
             class Blah extends Bar {
                 function func_in_blah($bl) {
                     $this-><5>func_in_bar(<6>);
@@ -713,51 +762,51 @@ class CplnTestCase(CodeIntelTestCase):
                     parent::<10>func_in_foobase1(<11>);
                 }
             }
-            
+
             $blah = new Blah();
             $blah-><12>func_in_foobase4(<13>);
        """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-                [("function", "func_in_foobase1")])
+                                      [("function", "func_in_foobase1")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4"),
-                 ("function", "func_in_foo")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4"),
+                                          ("function", "func_in_foo")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4"),
-                 ("function", "func_in_foo"),
-                 ("function", "func_in_bar"),
-                 ("function", "func_in_blah")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4"),
+                                          ("function", "func_in_foo"),
+                                          ("function", "func_in_bar"),
+                                          ("function", "func_in_blah")])
         self.assertCalltipIs(markup_text(content, pos=positions[6]),
-                "func_in_bar($b)")
+                             "func_in_bar($b)")
         self.assertCalltipIs(markup_text(content, pos=positions[7]),
-                "func_in_foo($f)")
+                             "func_in_foo($f)")
         self.assertCalltipIs(markup_text(content, pos=positions[8]),
-                "func_in_foobase4()")
+                             "func_in_foobase4()")
         self.assertCalltipIs(markup_text(content, pos=positions[9]),
-                "func_in_foobase1($p)")
+                             "func_in_foobase1($p)")
         self.assertCompletionsInclude(markup_text(content, pos=positions[10]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4"),
-                 ("function", "func_in_foo"),
-                 ("function", "func_in_bar")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4"),
+                                          ("function", "func_in_foo"),
+                                          ("function", "func_in_bar")])
         self.assertCalltipIs(markup_text(content, pos=positions[11]),
-                "func_in_foobase1($p)")
+                             "func_in_foobase1($p)")
         self.assertCompletionsInclude(markup_text(content, pos=positions[12]),
-                [("function", "func_in_foobase1"),
-                 ("function", "func_in_foobase4"),
-                 ("function", "func_in_foo"),
-                 ("function", "func_in_bar"),
-                 ("function", "func_in_blah")])
+                                      [("function", "func_in_foobase1"),
+                                     ("function", "func_in_foobase4"),
+                                          ("function", "func_in_foo"),
+                                          ("function", "func_in_bar"),
+                                          ("function", "func_in_blah")])
         self.assertCalltipIs(markup_text(content, pos=positions[13]),
-                "func_in_foobase4()")
+                             "func_in_foobase4()")
 
     def test_php_complete_object_members_for_local_file(self):
         content, positions = unmark_text(dedent("""\
@@ -791,7 +840,7 @@ class CplnTestCase(CodeIntelTestCase):
             $m = new <|>MyClass();
        """))
         self.assertCompletionsInclude(markedup_content,
-            [("class", "MyClass")])
+                                      [("class", "MyClass")])
 
     @tag("bug98831")
     def test_complete_global_interfaces(self):
@@ -799,8 +848,8 @@ class CplnTestCase(CodeIntelTestCase):
             class MyClass implements <|> {}
        """))
         self.assertCompletionsInclude(markedup_content,
-            [("interface", "ArrayAccess"),
-             ("interface", "Serializable"),])
+                                      [("interface", "ArrayAccess"),
+                                     ("interface", "Serializable"), ])
 
     def test_complete_interfaces_for_local_file(self):
         markedup_content = dedent(php_markup("""\
@@ -808,7 +857,7 @@ class CplnTestCase(CodeIntelTestCase):
             class MyClass implements <|>IMyClass {}
        """))
         self.assertCompletionsInclude(markedup_content,
-            [("interface", "IMyClass")])
+                                      [("interface", "IMyClass")])
 
     def test_complete_class_special_members(self):
         content, positions = unmark_text(php_markup(dedent("""\
@@ -829,15 +878,15 @@ class CplnTestCase(CodeIntelTestCase):
             }
        """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "x"), ("function", "foo")])
+                                      [("variable", "x"), ("function", "foo")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "foo")])
+                                      [("function", "foo")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("variable", "y"), ("function", "foo"), ("function", "bar")])
+                                      [("variable", "y"), ("function", "foo"), ("function", "bar")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-            [("function", "foo"), ("function", "bar")])
+                                      [("function", "foo"), ("function", "bar")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
-            [("function", "foo")])
+                                      [("function", "foo")])
 
     def test_calltip_call_signature_for_builtins(self):
         markedup_content = php_markup(dedent("""\
@@ -855,7 +904,7 @@ class CplnTestCase(CodeIntelTestCase):
             $e-><|>     # should have getMessage in completion list
        """))
         self.assertCompletionsInclude(markedup_content,
-            [("function", "getMessage"), ("function", "getLine")])
+                                      [("function", "getMessage"), ("function", "getLine")])
 
     def test_complete_functions_for_builtins(self):
         markedup_content = php_markup(dedent("""\
@@ -863,7 +912,7 @@ class CplnTestCase(CodeIntelTestCase):
        """))
         for i in range(20):
             self.assertCompletionsInclude(markedup_content,
-                [("function", "apache_getenv"), ("function", "apache_setenv")])
+                                         [("function", "apache_getenv"), ("function", "apache_setenv")])
 
     def test_complete_variables_for_builtins(self):
         markedup_content = php_markup(dedent("""\
@@ -880,7 +929,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markedup_content,
             [("class", "ArrayObject"), ("class", "Exception")])
 
-    #def test_ptfp_complete_classes_for_builtins_using_new(self):
+    # def test_ptfp_complete_classes_for_builtins_using_new(self):
     #    markedup_content = php_markup(dedent("""\
     #        $e = new Exce<$><|>("Error", 1);
     #   """))
@@ -942,14 +991,14 @@ Exception constructor"""
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "SimpleFunction")])
         self.assertCompletionsInclude2(buf, test_positions[2],
             [("class", "SimpleClass")])
         self.assertCompletionsInclude2(buf, test_positions[3],
             [("function", "foo"), ("variable", "simple_var")])
-
 
     def test_php_local_import_2(self):
         test_dir = join(self.test_dir, "test_php_local_import_2")
@@ -988,7 +1037,8 @@ Exception constructor"""
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "SimpleFunction1"),
              ("function", "SimpleFunction2")])
@@ -1005,14 +1055,15 @@ Exception constructor"""
             /** @<1>param <2>citdl $name Some comment
         """)))
         from codeintel2.phpdoc import phpdoc_tags
-        cplns = [ ("variable", x) for x in sorted(phpdoc_tags.keys()) ]
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]), cplns)
+        cplns = [("variable", x) for x in sorted(phpdoc_tags.keys())]
+        self.assertCompletionsAre(markup_text(
+            content, pos=positions[1]), cplns)
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              phpdoc_tags["param"])
 
     def test_variable_completions_in_doctags(self):
         content, positions = unmark_text(php_markup(dedent("""\
-            
+
             /**
              * Testing variable. $n<1>xxx
              */
@@ -1031,27 +1082,31 @@ Exception constructor"""
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "named_test_var1"),
              ("variable", "named_test_var2")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("variable", "name"),
              ("variable", "name"),
              ("variable", "fields")])
 
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "name"),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+            [("variable", "name"), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
             [("variable", "named_test_var1"),
              ("variable", "named_test_var2")])
 
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("variable", "fields"),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+            [("variable", "fields"), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[3]),
             [("variable", "named_test_var1"),
              ("variable", "named_test_var2")])
 
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
             [("variable", "named_test_var1"),
              ("variable", "named_test_var2")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[4]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[4]),
             [("variable", "name"),
              ("variable", "fields")])
 
@@ -1078,8 +1133,10 @@ Exception constructor"""
         $out = array(<1>'name'=>getField(<2>"1"));
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "array(<list>)\nCreate a PHP array.")
-        self.assertCalltipIs(markup_text(content, pos=positions[2]), "getField($arg1)")
+        self.assertCalltipIs(markup_text(content, pos=positions[
+                             1]), "array(<list>)\nCreate a PHP array.")
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[2]), "getField($arg1)")
 
     @tag("bug55897")
     def test_bug55897_preceding_trg_from_pos_with_array(self):
@@ -1090,7 +1147,8 @@ Exception constructor"""
                 foo<|>_bar();
             }
        """))
-        self.assertCompletionsInclude(markedup_content, [("function", "foo_bar")])
+        self.assertCompletionsInclude(
+            markedup_content, [("function", "foo_bar")])
 
         markedup_content = php_markup(dedent("""
             class fooclass { }
@@ -1099,7 +1157,8 @@ Exception constructor"""
                 $foo = new <|>fooclass();
             }
        """))
-        self.assertCompletionsInclude(markedup_content, [("class", "fooclass")])
+        self.assertCompletionsInclude(
+            markedup_content, [("class", "fooclass")])
 
         markedup_content = php_markup(dedent("""
             class fooclass { }
@@ -1181,13 +1240,14 @@ function inside_two() {
 }
 EOD;
             }
-            
+
             $x = out<1>side_one();
             $y = ins<2>ide_one();
 """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("function", "outside_one"), ])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
                 [("function", "inside_one"), ("function", "inside_two"), ])
 
     @tag("bug57647")
@@ -1198,19 +1258,18 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("function", "is_array"), ("function", "is_a")])
 
-
     @tag("bug59867")
     def test_calltip_after_string_append(self):
         content, positions = unmark_text(php_markup(dedent("""\
             function testfunc() { }
             $constants = get_defined_constants();
-    
+
             foreach($constants as $con=>$val) {
                 echo $con." is of type ". testfunc(<1>);
             }
         """)))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "testfunc()")
-
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[1]), "testfunc()")
 
     @tag("bug57637")
     def test_completions_on_this(self):
@@ -1231,7 +1290,6 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("variable", "ch"), ("variable", "err"), ("function", "call_me")])
 
-
     # Inheritance test content, will be used in a few test so defining it here
     import1_content = php_markup(dedent("""\
         class one {
@@ -1241,7 +1299,7 @@ EOD;
             }
             function mine($x,$y) {
                 return func_get_args();
-            } 
+            }
         }
         function _this_is_from_import_1($foo) {
             return 1;
@@ -1257,7 +1315,7 @@ EOD;
             }
             function yours($x,$y) {
                 return func_get_args();
-            } 
+            }
         }
         function _this_is_from_import_2($foo) {
             return 1;
@@ -1267,7 +1325,8 @@ EOD;
 
     @tag("bug57887")
     def test_completion_with_multiple_imports(self):
-        test_dir = join(self.test_dir, "test_bug57887_completion_with_multiple_imports")
+        test_dir = join(
+            self.test_dir, "test_bug57887_completion_with_multiple_imports")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             require_once("import_1.php");
             require_once("import_2.php");
@@ -1297,7 +1356,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "one"), ("class", "two")])
         self.assertCompletionsInclude2(buf, test_positions[2],
@@ -1316,7 +1376,8 @@ EOD;
             [("function", "yours"), ("function", "__construct")])
 
     def test_completion_with_import_inside_import(self):
-        test_dir = join(self.test_dir, "test_completion_with_import_inside_import")
+        test_dir = join(
+            self.test_dir, "test_completion_with_import_inside_import")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             require_once("import_3.php");
 
@@ -1355,7 +1416,7 @@ EOD;
                     function func_in_three() {
                     }
                 }
-    
+
                 class ext_four extends two {
                     function func_in_four() {
                     }
@@ -1366,7 +1427,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"), ])
@@ -1442,7 +1504,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "foo"), ("class", "bar"), ("class", "baz"), ])
         self.assertCompletionsInclude2(buf, test_positions[2],
@@ -1552,7 +1615,7 @@ EOD;
             require_once("import_2.php");
 
             $v<1>ar_in_global = "local_1";
-            
+
             function func_inside_func() {
                 print "var_in_function: " . $v<2>ar_in_function . "\\n";
             }
@@ -1567,7 +1630,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("variable", "var_in_one"), ("variable", "var_in_two"), ])
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
@@ -1601,7 +1665,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "SimpleFunction")])
         self.assertCompletionsInclude2(buf, test_positions[2],
@@ -1812,15 +1877,17 @@ EOD;
         """)))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [ ("function", name) for name in class_magic_methods ])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
-                [ ("function", name) for name in global_magic_methods ])
+            [("function", name) for name in class_magic_methods])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
+                [("function", name) for name in global_magic_methods])
 
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
-            [ ("function", name) for name in global_magic_methods ])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-                [ ("function", name) for name in class_magic_methods ])
+            [("function", name) for name in global_magic_methods])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
+                [("function", name) for name in class_magic_methods])
 
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
                              php_magic_class_method_data.get("__construct"))
@@ -1852,34 +1919,36 @@ EOD;
         """)))
 
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-            [ ("variable", "an_instance_var"),
+            [("variable", "an_instance_var"),
               ("variable", "base_instance_var"),
-              ("function", "somefunc") ])
+              ("function", "somefunc")])
 
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
-            [ ("constant", "a_constant"),
+            [("constant", "a_constant"),
               ("constant", "base_constant"),
-              ("function", "somefunc") ])
+              ("function", "somefunc")])
 
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [ ("constant", "MAXSIZE") ])
+            [("constant", "MAXSIZE")])
 
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),
-            [ ("constant", "a_constant"),
+            [("constant", "a_constant"),
               ("constant", "base_constant"),
-              ("function", "somefunc") ])
+              ("function", "somefunc")])
 
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
-            [ ("constant", "MAXSIZE") ])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[5]),
-            [ ("constant", "myvar") ])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[5]),
-            [ ("variable", "myvar") ])
+            [("constant", "MAXSIZE")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[5]),
+            [("constant", "myvar")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[5]),
+            [("variable", "myvar")])
 
         self.assertCompletionsAre(markup_text(content, pos=positions[6]),
-            [ ("variable", "an_instance_var"),
+            [("variable", "an_instance_var"),
               ("variable", "base_instance_var"),
-              ("function", "somefunc") ])
+              ("function", "somefunc")])
 
     # Now try using constants through imports.
     @tag("bug41700")
@@ -1909,7 +1978,8 @@ EOD;
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("constant", "SIMPLE_DEFINE")])
         self.assertCompletionsAre2(buf, test_positions[2],
@@ -1985,12 +2055,12 @@ EOD;
                 public function test(bug79003OtherClass $otherclass) {
                     echo $otherclass-><3>var;
                 }
-            
+
                 public function test_array(array $input_array) {
                     print_r($input_array);
                 }
             }
-            
+
             class bug79003OtherClass {
                 public $var = 'Hello World';
                 public function test_func() {}
@@ -2007,7 +2077,7 @@ EOD;
                              "test_array(array $input_array)")
         self.assertCompletionsAre(markup_text(content, pos=positions[3]),
                 [("function", 'test_func'),
-                 ("variable", 'var'),])
+                 ("variable", 'var'), ])
 
     @tag("bug77532")
     def test_keyword_completions(self):
@@ -2029,12 +2099,12 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
                 [('function', 'function_bug77532'),
                  ('function', 'function_exists')])
-        #self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+        # self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
         #        [('keyword', 'function'), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
                 [('function', 'function_bug77532'),
                  ('function', 'function_exists')])
-        #self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+        # self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
         #        [('keyword', 'function'), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
                 [('keyword',  'function'),
@@ -2057,11 +2127,13 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("variable", 'this'),
-                 ("variable", 'thisVar'),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-                [("variable", 'this'),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
-                [("variable", 'this'),])
+                 ("variable", 'thisVar'), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
+                [("variable", 'this'), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[3]),
+                [("variable", 'this'), ])
 
     @tag("bug82721")
     def test_php4_class_constructor_calltip(self):
@@ -2286,7 +2358,7 @@ EOD;
             }
 
             class HelloWorld implements HelloInterface, WorldInterface {
-            
+
                 public function printHello() {
                     print "Hello ";
                 }
@@ -2343,37 +2415,44 @@ EOD;
         """)))
         for i in (1, 4, 9, 12, 18, 21, 26, 33):
             # under the sub2 namespace
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i]),
                     [("class", 'sub2_class'),
                      ("function", 'sub2_func'),
                      ])
         for i in (3, 8, 11, 17, 20, 25, 32):
             # under the sub1 namespace
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i]),
                     [("namespace", 'sub2'),
                      ("function", 'sub1_func'),
                      ("class", 'sub1_class'),
                      ])
         for i in (6, 14, 23, 30):
             # global namespaces - fqn
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i]),
                     [("namespace", 'bug83192_nsp'), ])
-            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[i]),
                     [("namespace", 'bug83192_nsp\sub1'),
                      ("namespace", 'bug83192_nsp\sub1\sub2'),
                      ])
         for i in (7, 15, 24, 31):
             # under the bug83192_nsp namespace
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i]),
                     [("namespace", 'sub1'),
                      ("function", 'afunc'),
                      ("class", 'aclass'),
                      ])
-            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[i]),
                     [("namespace", 'sub1\sub2'), ])
         for i in (2, 5, 10, 13, 19, 22, 27, 34):
             # sub2::sub2_class completions
-            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[i]),
                     [("function", 'sub2_classfunc')])
 
     @tag("bug83192", "php53")
@@ -2388,7 +2467,7 @@ EOD;
             }
         """)))
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-                [("constant", 'MYCONST'),])
+                [("constant", 'MYCONST'), ])
 
     @tag("bug83192", "php53")
     def test_php_namespace_classes(self):
@@ -2411,26 +2490,28 @@ EOD;
             }
         """)))
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-                [("class", 'theclass'),])
+                [("class", 'theclass'), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
                 [("variable", '$statvar'),
                  ("function", 'statfunc'),
-                 ("function", 'func'),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+                 ("function", 'func'), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
                 [("variable", 'privar'),
                  ("variable", 'provar'),
-                 ("variable", 'pubvar'),])
+                 ("variable", 'pubvar'), ])
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
                 "theclass()")
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
                 [("variable", 'pubvar'),
                  ("function", 'func'),
-                 ("function", 'statfunc'),])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[4]),
+                 ("function", 'statfunc'), ])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[4]),
                 [("variable", 'privar'),
                  ("variable", 'provar'),
                  ("variable", 'statvar'),
-                 ("variable", '$statvar'),])
+                 ("variable", '$statvar'), ])
 
     @tag("bug83192", "php53")
     def test_php_global_namespace(self):
@@ -2441,7 +2522,7 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("class", 'ArrayObject'),
                  ("function", 'phpversion'),
-                 ("constant", 'TRUE'),])
+                 ("constant", 'TRUE'), ])
 
     @tag("bug83192", "php53")
     def test_php_namespace_aliasing(self):
@@ -2456,7 +2537,7 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("function", 'count'),
-                 ("function", 'append'),])
+                 ("function", 'append'), ])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
                 [("function", 'foo')])
 
@@ -2484,7 +2565,8 @@ EOD;
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "file2.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("constant", r"FOO_CONST")])
 
@@ -2502,7 +2584,7 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("function", 'test'),
-                 ("function", 'who'),])
+                 ("function", 'who'), ])
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "who()")
 
@@ -2550,8 +2632,10 @@ EOD;
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        buf1 = self.mgr.buf_from_path(join(test_dir, "file1.php"), lang=self.lang)
-        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        buf1 = self.mgr.buf_from_path(join(
+            test_dir, "file1.php"), lang=self.lang)
+        buf2 = self.mgr.buf_from_path(join(
+            test_dir, "file2.php"), lang=self.lang)
 
         self.assertCompletionsInclude2(buf1, test_positions_1[1],
             [("class", r"cls1"),
@@ -2573,7 +2657,8 @@ EOD;
             }
             $look-><1>  // pops up 'see', but it's an undefined var!
         """)))
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
                 [("variable", 'see')])
 
     @tag("bug85389")
@@ -2584,7 +2669,8 @@ EOD;
                 $e-><1>
             }
         """)))
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("function", "getMessage"), ("function", "getLine")])
 
     @tag("bug89356", "knownfailure")
@@ -2597,7 +2683,6 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "beginTransaction"), ("function", "commit")])
 
-
     @tag("bug89755")
     def test_function_closure_2(self):
         content, positions = unmark_text(php_markup(dedent(r"""
@@ -2608,7 +2693,7 @@ EOD;
                             //method code
                     }
             }
-            
+
             namespace APP\THREE;
             use APP\ONE\parentClass as parentClass;
             class childClass extends parentClass {
@@ -2616,7 +2701,7 @@ EOD;
                             parent::<1>parent_function();
                     }
             }
-            
+
             ?>
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
@@ -2650,8 +2735,10 @@ EOD;
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        buf1 = self.mgr.buf_from_path(join(test_dir, "file1.php"), lang=self.lang)
-        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        buf1 = self.mgr.buf_from_path(join(
+            test_dir, "file1.php"), lang=self.lang)
+        buf2 = self.mgr.buf_from_path(join(
+            test_dir, "file2.php"), lang=self.lang)
 
         self.assertCompletionsInclude2(buf2, test_positions_2[1],
             [("interface", r"NSTestInterface")])
@@ -2672,9 +2759,9 @@ EOD;
                 */
                public function Foo($arg1) {}
             }
-            
+
             class Bar extends Foo {}
-            
+
             $foo = new Foo(<1>); // shows all tooltip info when in arg list
             $bar = new Bar(<2>); // should show Foo constructor calltip
         """)))
@@ -2730,7 +2817,8 @@ EOD;
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        buf3 = self.mgr.buf_from_path(join(test_dir, "file3.php"), lang=self.lang)
+        buf3 = self.mgr.buf_from_path(join(
+            test_dir, "file3.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf3, test_positions_3[1],
             [("function", r"A1"),
              ("function", r"A2"),
@@ -2758,14 +2846,15 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "getFilename"),
-             ("function", "getPath"),])
+             ("function", "getPath"), ])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("function", "getFilename"),
-             ("function", "getPath"),])
+             ("function", "getPath"), ])
 
     @tag("bug86784")
     def test_namespace_completions_from_argument(self):
-        test_dir = join(self.test_dir, "test_namespace_completions_from_argument")
+        test_dir = join(
+            self.test_dir, "test_namespace_completions_from_argument")
         test_content_1, test_positions_1 = unmark_text(php_markup(dedent(r"""
             namespace my\space;
             final class from_1 {
@@ -2789,7 +2878,8 @@ EOD;
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        buf2 = self.mgr.buf_from_path(join(
+            test_dir, "file2.php"), lang=self.lang)
         for pos in range(1, 4):
             self.assertCompletionsAre2(buf2, test_positions_2[pos],
                 [("function", r"trigger")])
@@ -2798,10 +2888,10 @@ EOD;
     def test_namespace_class_completions(self):
         content, positions = unmark_text(php_markup(dedent(r"""
             namespace foo; // declaring a namespace
-            
+
             use <1>AppendIterator; // importing default class
             use ArrayIterator as AAAIterator; // importing with alias
-            
+
             $x = new <2>;
             /*
              * Expected behavior:
@@ -2811,10 +2901,10 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("class", "ArrayIterator"),
-             ("class", "AppendIterator"),])
+             ("class", "AppendIterator"), ])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [("namespace", "AAAIterator"),
-             ("namespace", "AppendIterator"),])
+             ("namespace", "AppendIterator"), ])
 
     @tag("bug92813")
     def test_static_class_instance(self):
@@ -2835,7 +2925,7 @@ EOD;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "getInstance"),
-             ("function", "test_method"),])
+             ("function", "test_method"), ])
 
     @tag("bug93402", "php54")
     def test_traits(self):
@@ -2845,11 +2935,11 @@ EOD;
                     echo 'World!';
                 }
             }
-            
+
             class MyHelloWorld {
                 use SayWorld;
             }
-            
+
             $o = new MyHelloWorld();
             $o-><1>sayHello(<2>);
         """)))
@@ -2928,18 +3018,18 @@ EOD;
                     echo 'Hello ';
                 }
             }
-            
+
             trait SayWorld {
                 public function sayHello($sayworld) {
                     parent::<3>sayHello();
                     echo 'World!';
                 }
             }
-            
+
             class MyHelloWorld extends Base {
                 use SayWorld;
             }
-            
+
             $o = new MyHelloWorld();
             $o-><1>sayHello(<2>);
         """)))
@@ -2958,14 +3048,14 @@ EOD;
                     echo 'Hello World!';
                 }
             }
-            
+
             class TheWorldIsNotEnough {
                 use HelloWorld;
                 public function sayHello($universe) {
                     echo 'Hello Universe!';
                 }
             }
-            
+
             $o = new TheWorldIsNotEnough();
             $o-><1>sayHello(<2>);
         """)))
@@ -2982,20 +3072,20 @@ EOD;
                     echo 'Hello ';
                 }
             }
-            
+
             trait World {
                 public function sayWorld() {
                     echo 'World';
                 }
             }
-            
+
             class MyHelloWorld {
                 use Hello, World;
                 public function sayExclamationMark() {
                     echo '!';
                 }
             }
-            
+
             $o = new MyHelloWorld();
             $o-><1>sayHello();
             $o->sayWorld();
@@ -3023,7 +3113,7 @@ EOD;
             class MyHelloWorld {
                 use HelloWorld;
             }
-            
+
             $o = new MyHelloWorld();
             $o-><1>xxx();
         """)))
@@ -3126,19 +3216,22 @@ EOD;
             }
         """)))
         for pos in (1, 2):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     [
                         ("trait", "A"),
                         ("trait", "B"),
                         ("trait", "C"),
                     ])
-            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[pos]),
                     [
                         ("class", "SomeClass"),
                         ("class", "TraitCompletions"),
                         ("class", "ArrayIterator"),
                         ("class", "DOMDocument"),
                     ])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -3222,14 +3315,14 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "SimpleFunction")])
         self.assertCompletionsInclude2(buf, test_positions[2],
             [("class", "SimpleClass")])
         self.assertCompletionsInclude2(buf, test_positions[3],
             [("function", "foo"), ("variable", "simple_var")])
-
 
     def test_php_local_import_2(self):
         test_dir = join(self.test_dir, "test_php_local_import_2")
@@ -3270,10 +3363,12 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             if filepath != manifest[-1][0]:
                 extra_paths.append(dirname(filepath))
 
-        extra_paths = [ abspath(p) for p in extra_paths ]
-        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
+        extra_paths = [abspath(p) for p in extra_paths]
+        env = SimplePrefsEnvironment(
+            phpExtraPaths=os.pathsep.join(extra_paths))
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "SimpleFunction1"),
@@ -3293,7 +3388,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             }
             function mine($x,$y) {
                 return func_get_args();
-            } 
+            }
         }
         function _this_is_from_import_1($foo) {
             return 1;
@@ -3309,7 +3404,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             }
             function yours($x,$y) {
                 return func_get_args();
-            } 
+            }
         }
         function _this_is_from_import_2($foo) {
             return 1;
@@ -3319,7 +3414,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
 
     @tag("bug57887")
     def test_completion_with_multiple_imports(self):
-        test_dir = join(self.test_dir, "test_bug57887_completion_with_multiple_imports")
+        test_dir = join(
+            self.test_dir, "test_bug57887_completion_with_multiple_imports")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             // require_once("import_1.php");
             // require_once("import_2.php");
@@ -3349,7 +3445,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "one"), ("class", "two")])
         self.assertCompletionsInclude2(buf, test_positions[2],
@@ -3368,7 +3465,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("function", "yours"), ("function", "__construct")])
 
     def test_completion_with_import_inside_import(self):
-        test_dir = join(self.test_dir, "test_completion_with_import_inside_import")
+        test_dir = join(
+            self.test_dir, "test_completion_with_import_inside_import")
         test_content, test_positions = unmark_text(php_markup(dedent("""\
             // require_once("import_3.php");
 
@@ -3418,7 +3516,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "one"), ("class", "two"),
              ("class", "ext_three"), ("class", "ext_four"), ])
@@ -3494,7 +3593,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             path = join(test_dir, file)
             writefile(path, content)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang)
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test.php"), lang=self.lang)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "foo"), ("class", "bar"), ("class", "baz"), ])
         self.assertCompletionsInclude2(buf, test_positions[2],
@@ -3540,7 +3640,8 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             writefile(filepath, content)
 
         env = SimplePrefsEnvironment(phpExtraPaths=join(test_dir, "include"))
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("function", "mcMyClassOne"), ("function", "bcMethodOne"),
@@ -3562,7 +3663,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             $other_1-><3>xxx;
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "priv1"), ("variable", "priv2"), 
+            [("variable", "priv1"), ("variable", "priv2"),
              ("variable", "foo"), ("variable", "bar"), ("variable", "baz"),
              ("variable", "x1"), ("variable", "y1"), ("variable", "z1"),
              ("function", "mine"), ])
@@ -3621,8 +3722,10 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         extra_paths = [join(test_dir, "include_a"),
                        join(test_dir, "include_b"),
                        join(test_dir, "include_c")]
-        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        env = SimplePrefsEnvironment(
+            phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("class", "Reg_Data")])
@@ -3682,9 +3785,11 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        extra_paths = [join(test_dir, "subdir"),]
-        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        extra_paths = [join(test_dir, "subdir"), ]
+        env = SimplePrefsEnvironment(
+            phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("namespace", r"My")])
@@ -3777,9 +3882,11 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        extra_paths = [join(test_dir, "subdir"),]
-        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        extra_paths = [join(test_dir, "subdir"), ]
+        env = SimplePrefsEnvironment(
+            phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("namespace", r"NSname"),
@@ -3883,9 +3990,11 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         for filepath, content in manifest:
             writefile(filepath, content)
 
-        extra_paths = [join(test_dir, "subdir"),]
-        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
-        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+        extra_paths = [join(test_dir, "subdir"), ]
+        env = SimplePrefsEnvironment(
+            phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(
+            join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("namespace", r"NSname"),
@@ -3987,13 +4096,17 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("foo->b<|>ar->baz", "foo.bar")
         self.assertCITDLExprUnderPosIs("fo<|>o->bar->baz", "foo")
         self.assertCITDLExprUnderPosIs("foo()->b<|>ar()->baz", "foo().bar")
+
     def test_citdl_expr_under_pos_simple2(self):
         self.assertCITDLExprUnderPosIs("$a = foo(bar<|>, blam)", "bar")
         self.assertCITDLExprUnderPosIs("blam()\nfoo-><|>", "foo")
         self.assertCITDLExprUnderPosIs("blam()->\nf<|>oo->", "blam().foo")
-        self.assertCITDLExprUnderPosIs("blam()->\nfoo->b<|>ar", "blam().foo.bar")
-        self.assertCITDLExprUnderPosIs("if(!<|>is_array", "is_array", trigger_name="functions")
-        self.assertCITDLExprUnderPosIs("require('myfile.php');\nfo<|>o->bar", "foo")
+        self.assertCITDLExprUnderPosIs(
+            "blam()->\nfoo->b<|>ar", "blam().foo.bar")
+        self.assertCITDLExprUnderPosIs(
+            "if(!<|>is_array", "is_array", trigger_name="functions")
+        self.assertCITDLExprUnderPosIs(
+            "require('myfile.php');\nfo<|>o->bar", "foo")
 
     def test_simple(self):
         test_dir = join(self.test_dir, "test_defn_simple")
@@ -4004,7 +4117,7 @@ class DefnTestCase(CodeIntelTestCase):
                     $b = $i;
                 }
             }
-            
+
             $t = test<1>1(0);
         """)))
 
@@ -4046,7 +4159,7 @@ class DefnTestCase(CodeIntelTestCase):
             path=join(test_dir, "bar.php"), )
 
     #@tag("knownfailure")
-    #def test_simple_import(self):
+    # def test_simple_import(self):
     #    test_dir = join(self.test_dir, "test_simple_import")
     #    foo_content, foo_positions = unmark_text(php_markup(dedent("""\
     #        require('bar.php');
@@ -4067,7 +4180,6 @@ class DefnTestCase(CodeIntelTestCase):
     #    self.assertDefnMatches2(buf, foo_positions[1],
     #        ilk="variable", name="bar", line=2, citdl="int",
     #        path=join(test_dir, "bar.php"), )
-
 
     @tag("bug68793")
     def test_imported_class_instance(self):
@@ -4164,11 +4276,11 @@ class DefnTestCase(CodeIntelTestCase):
                 var $foo;
                 function bar() {}
             }
-            
+
             function bug_76676_makeInstance($class) {
               return new $class;
             }
-            
+
             $bug_76676_instance = bug_76676_makeInstance('bug_76676_phpdoc_override');
             /* @var bug_76676_phpdoc_override */
             $bug_76676_instance-><1>xxx;
@@ -4193,7 +4305,7 @@ class DefnTestCase(CodeIntelTestCase):
        """)))
         # Single base class
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [ ("function", "bug76676_func"), ])
+            [("function", "bug76676_func"), ])
 
     @tag("bug72960")
     def test_phpdoc_class_property(self):
@@ -4213,7 +4325,7 @@ class DefnTestCase(CodeIntelTestCase):
             {
                 private $_thingy;
                 private $_bar;
-             
+
                 function __get($var)
                 {
                     switch ($var) {
@@ -4223,7 +4335,7 @@ class DefnTestCase(CodeIntelTestCase):
                             return $this->_thingy;
                     }
                 }
-                
+
                 function __set($var, $val)
                 {
                     switch ($var) {
@@ -4261,7 +4373,7 @@ class DefnTestCase(CodeIntelTestCase):
              * @method mixed showRabbit() showRabbit($arg1, $arg2)  Bunnies!!
              */
             class Magician2 { }
-             
+
             $magical = new Magician2();
             $magical-><1>xxx;
         """)))
@@ -4363,5 +4475,3 @@ class EscapingTestCase(CodeIntelTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

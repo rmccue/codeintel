@@ -17,13 +17,13 @@ import ciElementTree as ET
 
 logging.basicConfig()
 log = logging.getLogger("test_mochikit")
-#log.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 
 
 def get_tree_from_cix(version):
     cix_file = glob("%s%smochikit_v%s.cix" % (join(dirname(abspath(__file__)),
-                                             "apicatalogs"),
-                                         os.sep, version))[0]
+                                                   "apicatalogs"),
+                                              os.sep, version))[0]
     try:
         return ET.parse(cix_file).getroot()
     except:
@@ -69,8 +69,8 @@ class MochiKitBaseTests(object):
             name_split = module_name.split(".")
             for scope in self._get_mochikit_scopes():
                 for name in name_split:
-                    #print "Name: %r, module_name: %r" % (name, module_name, )
-                    #pprint(scope.names, depth=1)
+                    # print "Name: %r, module_name: %r" % (name, module_name, )
+                    # pprint(scope.names, depth=1)
                     scope = scope.names.get(name)
                     if scope is None:
                         break
@@ -83,7 +83,7 @@ class MochiKitBaseTests(object):
 
     def test_module_base(self):
         module_list = [
-                # base classes
+            # base classes
             "MochiKit",
             "MochiKit.Async",
             "MochiKit.Base",

@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 import re
@@ -48,12 +48,14 @@ LINE_WIDTH = 60     # wrap doc summaries to this width
 #    foo(args) -- description
 #    retval = foo(args)
 #    retval = foo(args) -- description
-_gPySigLinePat = re.compile(r"^((?P<retval>[^=]+?)\s*=|class)?\s*(?P<head>[\w\.]+\s?\(.*?\))\s*(?P<sep>[:<>=-]*)\s*(?P<tail>.*)$")
-_gSentenceSepPat = re.compile(r"(?<=\.)\s+", re.M) # split on sentence bndry
+_gPySigLinePat = re.compile(
+    r"^((?P<retval>[^=]+?)\s*=|class)?\s*(?P<head>[\w\.]+\s?\(.*?\))\s*(?P<sep>[:<>=-]*)\s*(?P<tail>.*)$")
+_gSentenceSepPat = re.compile(r"(?<=\.)\s+", re.M)  # split on sentence bndry
+
 
 def parseDocSummary(doclines, limit=LINE_LIMIT, width=LINE_WIDTH):
     """Parse out a short summary from the given doclines.
-    
+
         "doclines" is a list of lines (without trailing newlines) to parse.
         "limit" is the number of lines to which to limit the summary.
 
@@ -77,7 +79,7 @@ def parseDocSummary(doclines, limit=LINE_LIMIT, width=LINE_WIDTH):
             break
         sentences = _gSentenceSepPat.split(stripped)
         if sentences and not sentences[-1].endswith('.'):
-            del sentences[-1] # last bit might not be a complete sentence
+            del sentences[-1]  # last bit might not be a complete sentence
         if not sentences:
             desclines.append(stripped + ' ')
             continue
@@ -98,7 +100,7 @@ def parseDocSummary(doclines, limit=LINE_LIMIT, width=LINE_WIDTH):
 def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
     """Parse the given Python function/method doc-string into call-signature
     and description bits.
-    
+
         "doc" is the function doc string.
         "fallbackCallSig" (optional) is a list of call signature lines to
             fallback to if one cannot be determined from the doc string.
@@ -106,7 +108,7 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
             is just used for better error/log reporting.
         "funcname" (optional) is the function name. This is just used for
             better error/log reporting.
-    
+
     Examples of doc strings with call-signature info:
         close(): explicitly release resources held.
         x.__repr__() <==> repr(x)
@@ -119,7 +121,7 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
     """
     if doc is None or not doc.strip():
         return ([], [])
-    
+
     limit = LINE_LIMIT
     doclines = doc.splitlines(0)
     index = 0
@@ -159,8 +161,9 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
             #   other separtor: leave as part of call sig for now
             descSeps = ("-", "--", ":")
             groupd = match.groupdict()
-            retval, head, sep, tail = (groupd.get("retval"), groupd.get("head"),
-                                       groupd.get("sep"), groupd.get("tail"))
+            retval, head, sep, tail = (
+                groupd.get("retval"), groupd.get("head"),
+                groupd.get("sep"), groupd.get("tail"))
             if retval:
                 siglines.append(head + " -> " + retval)
                 if tail and sep in descSeps:
@@ -174,7 +177,7 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
             index = len(doclines)
     if not siglines and fallbackCallSig:
         siglines = fallbackCallSig
-    
+
     # Parse out the description block.
     if desclines:
         # Use what we have already. Just need to wrap it.
@@ -184,12 +187,12 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
         desclines = parseDocSummary(doclines[index:], limit=limit)
 
     ## debug logging
-    #f = open("parsePyFuncDoc.log", "a")
-    #if 0:
+    # f = open("parsePyFuncDoc.log", "a")
+    # if 0:
     #    f.write("\n---- %s:\n" % funcname)
     #    f.write(pformat(siglines)+"\n")
     #    f.write(pformat(desclines)+"\n")
-    #else:
+    # else:
     #    f.write("\n")
     #    if siglines:
     #        f.write("\n".join(siglines)+"\n")
@@ -197,7 +200,6 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
     #        f.write("<no signature for '%s.%s'>\n" % (scope, funcname))
     #    for descline in desclines:
     #        f.write("\t%s\n" % descline)
-    #f.close()
+    # f.close()
 
     return (siglines, desclines)
-

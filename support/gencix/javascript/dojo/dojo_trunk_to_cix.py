@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributers (aka Blame):
@@ -44,11 +44,11 @@
     Command line tool that parses up dojo's own XML documentation to
     produce a Komodo CIX file. Works by grabbing latest copy of dojo from
     subversion and then parsing the "api.xml" file to produce "dojo.cix".
-    
+
     Requirements:
       * cElementTree    (http://effbot.org/downloads/#cElementTree)
       * svn command line client on the users path
-    
+
     Tested with dojo versions:
       * 0.9.0           (trunk)
 """
@@ -74,6 +74,7 @@ library_name = "Dojo"
 library_version = "0.9.0"
 library_info = library_alternatives[library_version]
 
+
 def verifyType(name, typename, DEBUG=False):
     """Ensure the type is a known JS type or a dojo member"""
     typename = typename.lower()
@@ -93,16 +94,19 @@ def verifyType(name, typename, DEBUG=False):
             print "    %s: Unknown type: %r" % (name, typename)
     return t
 
+
 def findOrCreateCixNamespace(cixmodule, namespace_items):
     scope = cixmodule
     for name in namespace_items:
         if name not in scope.names:
             # Create it then
-            #print "Creating scope: %r, namespace: %r" % (name, namespace_items)
+            # print "Creating scope: %r, namespace: %r" % (name,
+            # namespace_items)
             scope = createCixVariable(scope, name, "Object")
         else:
             scope = scope.names[name]
     return scope
+
 
 def sortElement(elem1, elem2):
     name1_split = elem1.get("name").split(".")
@@ -112,6 +116,7 @@ def sortElement(elem1, elem2):
         return len(name1_split) - len(name2_split)
     # Now compare against the names.
     return cmp(elem1.get("name"), elem2.get("name"))
+
 
 def processVars(cixmodule, varsElement):
     for elem in sorted(varsElement.getchildren(), sortElement):
@@ -149,7 +154,7 @@ def processVars(cixmodule, varsElement):
                 citdl = "Boolean"
             if citdl is None:
                 print "Unknown type %r for %r, marking as variable" % (elemType,
-                                                           namespace)
+                                                                       namespace)
             elemType = "Variable"
 
         scope = findOrCreateCixNamespace(cixmodule, namespace[:-1])
@@ -172,24 +177,26 @@ def processVars(cixmodule, varsElement):
                                                                     namespace))
         if summary:
             setCixDoc(cixItem, summary, parse=True)
-        #print "%-10s %s" % (elemType, name)
+        # print "%-10s %s" % (elemType, name)
+
 
 def generateCIXFromXML(root):
     # Find all main doc namespaces
     cix = createCixRoot(name="%s_v%s" % (library_name,
                                          library_version.replace(".", "")),
                         description="%s JavaScript library - version %s" % (
-                                         library_name, library_version))
+                        library_name, library_version))
     cixfile = createCixFile(cix, "", lang="JavaScript")
 
     # Add the module namespaces.
     for element in root.getchildren():
-    #for group in root.findall('./method'):
+    # for group in root.findall('./method'):
         if element.tag != "resource":
             print "Ignoring xml element: %r" % (element, )
             continue
         module_name = element.get("project")
-        cixmodule = createOrFindCixModule(cixfile, module_name, lang="JavaScript")
+        cixmodule = createOrFindCixModule(
+            cixfile, module_name, lang="JavaScript")
         for child in element.getchildren():
             if child.tag == "requires":
                 # Ignore the require elements.
@@ -197,6 +204,7 @@ def generateCIXFromXML(root):
             assert(child.tag == "vars")
             processVars(cixmodule, child)
     return cix
+
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
@@ -208,8 +216,10 @@ def updateCix(filename, content, updatePerforce=False):
             print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
 
 # Main function
+
+
 def main(cix_filename, updatePerforce=False):
-    # 
+    #
     # svn checkout of dojo trunk
     co_dir = os.path.abspath("dojo_svn")
     remove_directory(co_dir)
@@ -225,7 +235,7 @@ def main(cix_filename, updatePerforce=False):
     finally:
         # Finally, remove the temporary svn directory
         remove_directory(co_dir)
-        #pass
+        # pass
 
     updateCix(cix_filename, get_cix_string(cixroot), updatePerforce)
 
@@ -247,5 +257,6 @@ if __name__ == '__main__':
         # Get main codeintel directory
         for i in range(4):
             cix_directory = os.path.dirname(cix_directory)
-        cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
+        cix_filename = os.path.join(
+            cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
     main(cix_filename, opts.update_perforce)

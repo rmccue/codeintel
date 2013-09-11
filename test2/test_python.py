@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test some Python-specific codeintel handling."""
@@ -54,7 +54,6 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 log = logging.getLogger("test")
 
 
@@ -72,17 +71,18 @@ class CatalogTestCase(CodeIntelTestCase):
             if not exists(d):
                 os.makedirs(d)
 
-        #XXX Have to decide how to handle catalog collisions before
+        # XXX Have to decide how to handle catalog collisions before
         #    including this.
         ## Put this decoy in the second catalog dir.
-        #decoy = dedent("""
+        # decoy = dedent("""
         #    class Blam:
         #        def decoy(self, duck):
         #            "mwuhahaha!"
         #            pass
         #""")
-        #buf = self.mgr.buf_from_content(decoy, lang=lang, path="blam.py")
-        #open(join(self.test_catalog_dirs[1], "decoy.cix"), 'w').write(buf.cix)
+        # buf = self.mgr.buf_from_content(decoy, lang=lang, path="blam.py")
+        # open(join(self.test_catalog_dirs[1], "decoy.cix"),
+        # 'w').write(buf.cix)
 
         # Put this guy in the first catalog dir.
         blam = dedent("""\
@@ -116,8 +116,10 @@ class CatalogTestCase(CodeIntelTestCase):
         """)
         for foo_py in (foo_py_a, foo_py_b, foo_py_c):
             self.assertCompletionsInclude(foo_py,
-                [("function", "pif"), ("function", "pow")],
-                env=env)
+                                          [("function", "pif"), (
+                                           "function", "pow")],
+                                          env=env)
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "Python"
@@ -139,20 +141,32 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCITDLExprUnderPosIs("blam()\nfoo.bar.b<|>az", "foo.bar.baz")
         self.assertCITDLExprUnderPosIs("blam()\nfoo.b<|>ar.baz", "foo.bar")
         self.assertCITDLExprUnderPosIs("blam()\nfo<|>o.bar.baz", "foo")
+
     def test_citdl_expr_under_pos_simple2(self):
-        self.assertCITDLExprUnderPosIs("from blah import *\nfoo.bar.<|>", "foo.bar")
+        self.assertCITDLExprUnderPosIs(
+            "from blah import *\nfoo.bar.<|>", "foo.bar")
+
     def test_citdl_expr_under_pos_simple3(self):
-        self.assertCITDLExprUnderPosIs("from blah import (a,b)\nfoo.bar.<|>", "foo.bar")
+        self.assertCITDLExprUnderPosIs(
+            "from blah import (a,b)\nfoo.bar.<|>", "foo.bar")
+
     def test_citdl_expr_under_pos_multiline(self):
         self.assertCITDLExprUnderPosIs("foo(bar,\nblam.<|>)", "blam")
-        self.assertCITDLExprUnderPosIs("foo(bar,\nblam).spam.<|>", "foo().spam")
+        self.assertCITDLExprUnderPosIs(
+            "foo(bar,\nblam).spam.<|>", "foo().spam")
         self.assertCITDLExprUnderPosIs("foo.\\\nbar.<|>", "foo.bar")
         self.assertCITDLExprUnderPosIs("foo(1, # one\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, # o)ne\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, # (o)ne\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo(1, # (one\n2).bar.<|>", "foo().bar")
-        self.assertCITDLExprUnderPosIs("foo( #this is a ) comment\nb,d).<|>", "foo()")
-        self.assertCITDLExprUnderPosIs("foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, # o)ne\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, # (o)ne\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo(1, # (one\n2).bar.<|>", "foo().bar")
+        self.assertCITDLExprUnderPosIs(
+            "foo( #this is a ) comment\nb,d).<|>", "foo()")
+        self.assertCITDLExprUnderPosIs(
+            "foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+
     def test_citdl_expr_under_pos_extra(self):
         self.assertCITDLExprUnderPosIs("if foo.<|>(", "foo")
         self.assertCITDLExprUnderPosIs("elif foo.<|>(", "foo")
@@ -182,12 +196,12 @@ class DefnTestCase(CodeIntelTestCase):
             writefile(path, content)
 
         buf = self.mgr.buf_from_path(join(test_dir, "foo.py"))
-        #self.assertDefnMatches2(buf, foo_py_positions[1],
+        # self.assertDefnMatches2(buf, foo_py_positions[1],
         #    path=join(test_dir, "bar.py"), line=1)
         self.assertDefnMatches2(buf, foo_py_positions[1],
-            ilk="variable", name="bar", line=2, citdl="int",
-            path=join(test_dir, "bar.py"), )
-        
+                                ilk="variable", name="bar", line=2, citdl="int",
+                                path=join(test_dir, "bar.py"), )
+
     @tag("bug99108")
     def test_scope_bounds(self):
         test_dir = join(self.test_dir, "scope_bounds")
@@ -209,12 +223,12 @@ class DefnTestCase(CodeIntelTestCase):
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="function", name="test1", line=3,
-            scopestart=1, scopeend=0, path=path, )
+                                ilk="function", name="test1", line=3,
+                                scopestart=1, scopeend=0, path=path, )
         self.assertDefnMatches2(buf, foo_positions[2],
-            ilk="function", name="cheeseboogie", line=7,
-            scopestart=3, scopeend=9, path=path, )
-        
+                                ilk="function", name="cheeseboogie", line=7,
+                                scopestart=3, scopeend=9, path=path, )
+
     @tag("bug99108")
     def test_lpath(self):
         test_dir = join(self.test_dir, "test_defn")
@@ -237,18 +251,18 @@ class DefnTestCase(CodeIntelTestCase):
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="function", name="inner", line=8,
-            lpath=["C", "foo"],
-            scopestart=5, scopeend=10, path=path, )
+                                ilk="function", name="inner", line=8,
+                                lpath=["C", "foo"],
+                                scopestart=5, scopeend=10, path=path, )
         self.assertDefnMatches2(buf, foo_positions[2],
-            ilk="class", name="C", line=3,
-            lpath=[],
-            scopestart=1, scopeend=0, path=path, )
+                                ilk="class", name="C", line=3,
+                                lpath=[],
+                                scopestart=1, scopeend=0, path=path, )
         self.assertDefnMatches2(buf, foo_positions[3],
-            ilk="function", name="foo", line=5,
-            lpath=["C"],
-            scopestart=3, scopeend=10, path=path, )
-        
+                                ilk="function", name="foo", line=5,
+                                lpath=["C"],
+                                scopestart=3, scopeend=10, path=path, )
+
     @tag("bug99177")
     def test_argument_defn_line(self):
         test_dir = join(self.test_dir, "argument_defn_line")
@@ -274,13 +288,13 @@ class DefnTestCase(CodeIntelTestCase):
         # we only get enough information to tie it to the function
         # defined at line 3
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="argument", name="llama", line=3,
-            path=path)
+                                ilk="argument", name="llama", line=3,
+                                path=path)
         self.assertDefnMatches2(buf, foo_positions[2],
-            ilk="argument", name="jammie", line=8,
-            path=path)
+                                ilk="argument", name="jammie", line=8,
+                                path=path)
         self.assertDefnMatches2(buf, foo_positions[3],
-            ilk="argument", name="ibix", line=3, path=path, )
+                                ilk="argument", name="ibix", line=3, path=path, )
 
     @tag("bug99178")
     def test_argument_defn_for_loop(self):
@@ -304,11 +318,11 @@ class DefnTestCase(CodeIntelTestCase):
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="variable", name="hit", line=5,
-            path=path)
+                                ilk="variable", name="hit", line=5,
+                                path=path)
         self.assertDefnMatches2(buf, foo_positions[2],
-            ilk="variable", name="child", line=7,
-            path=path)
+                                ilk="variable", name="child", line=7,
+                                path=path)
 
     @tag("bug99205")
     def test_argument_in_with(self):
@@ -328,14 +342,14 @@ class DefnTestCase(CodeIntelTestCase):
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="variable", name="cu", line=5,
-            path=path)
+                                ilk="variable", name="cu", line=5,
+                                path=path)
         self.assertDefnMatches2(buf, foo_positions[2],
-            ilk="variable", name="a", line=6,
-            path=path)
+                                ilk="variable", name="a", line=6,
+                                path=path)
         self.assertDefnMatches2(buf, foo_positions[3],
-            ilk="variable", name="b", line=6,
-            path=path)
+                                ilk="variable", name="b", line=6,
+                                path=path)
 
     @tag("bug99205")
     def test_argument_in_except(self):
@@ -357,8 +371,8 @@ class DefnTestCase(CodeIntelTestCase):
         writefile(path, foo_content)
         buf = self.mgr.buf_from_path(path)
         self.assertDefnMatches2(buf, foo_positions[1],
-            ilk="variable", name="ex", line=7,
-            path=path)
+                                ilk="variable", name="ex", line=7,
+                                path=path)
 
     def test_defn_at_defn(self):
         """Test that finding the definition at the declaration will return a
@@ -383,6 +397,7 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, pos[4], line=lines[4],
                                 ilk="variable", name="local_var", path=path)
 
+
 class PythonDocTestCase(CodeIntelTestCase):
     lang = "Python"
     test_dir = join(os.getcwd(), "tmp")
@@ -400,11 +415,11 @@ class PythonDocTestCase(CodeIntelTestCase):
 
     def test_pythondoc_tags(self):
         cplns = [
-          ('variable', 'def'), ('variable', 'defreturn'),
-          ('variable', 'exception'), ('variable', 'keyparam'),
-          ('variable', 'link'), ('variable', 'linkplain'),
-          ('variable', 'param'), ('variable', 'return'),
-          ('variable', 'see')
+            ('variable', 'def'), ('variable', 'defreturn'),
+            ('variable', 'exception'), ('variable', 'keyparam'),
+            ('variable', 'link'), ('variable', 'linkplain'),
+            ('variable', 'param'), ('variable', 'return'),
+            ('variable', 'see')
         ]
         self.assertCompletionsAre("# @", cplns)
 
@@ -418,9 +433,9 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoPrecedingTrigger("os.path.join<$>(<|>")
 
         self.assertPrecedingTriggerMatches("f.bar(<$> <|>",
-            name="python-calltip-call-signature", pos=6)
+                                           name="python-calltip-call-signature", pos=6)
         self.assertPrecedingTriggerMatches("f.bar(<$><|>",
-            name="python-calltip-call-signature", pos=6)
+                                           name="python-calltip-call-signature", pos=6)
 
         self.assertPrecedingTriggerMatches(
             "os.path.join(os.path.dirname('foo<$><|>",
@@ -430,13 +445,13 @@ class TrgTestCase(CodeIntelTestCase):
             name="python-calltip-call-signature", pos=13)
         self.assertNoPrecedingTrigger(
             "os.path.join<$>(os.path.dirname('foo<|>")
-        
+
         self.assertPrecedingTriggerMatches(
             "os.path.join<|><$>",
             name="python-complete-object-members", pos=8)
         self.assertNoPrecedingTrigger(
             "os.path<$>.join<|>")
-        
+
         self.assertPrecedingTriggerMatches(
             dedent("""\
                 os.path.join(  # try to (screw ' {] ) this up
@@ -491,16 +506,16 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertPrecedingTriggerMatches(
             "c.command2k<$><|>",
             name="python-calltip-call-signature", pos=2)
- 
+
     def test_import_triggers(self):
         self.assertNoPrecedingTrigger("import<|><$>")
 
         self.assertPrecedingTriggerMatches("import <|><$>",
-            name="python-complete-available-imports", pos=7)
+                                           name="python-complete-available-imports", pos=7)
         self.assertPrecedingTriggerMatches("from xml import <|><$>",
-            name="python-complete-module-members", pos=16)
+                                           name="python-complete-module-members", pos=16)
         self.assertPrecedingTriggerMatches("from xml import (dom, <|><$>",
-            name="python-complete-module-members", pos=22)
+                                           name="python-complete-module-members", pos=22)
 
     def test_complete_available_imports(self):
         name = "python-complete-available-imports"
@@ -511,7 +526,7 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerDoesNotMatch(r"from FOO\\n   import <|>", name=name)
 
         self.assertTriggerDoesNotMatch(r"import FOO.<|>",
-                name="python-complete-object-members")
+                                       name="python-complete-object-members")
         self.assertTriggerMatches(r"import FOO.<|>", name=name)
 
         # Python import-line trigger should add the 'imp_prefix' extra
@@ -556,13 +571,18 @@ class TrgTestCase(CodeIntelTestCase):
                                   imp_prefix=('FOO', 'BAR',))
 
     def test_calltip_call_signature(self):
-        self.assertTriggerMatches("FOO(<|>", name="python-calltip-call-signature")
-        self.assertTriggerMatches("FOO.BAR(<|>", name="python-calltip-call-signature")
-        self.assertTriggerMatches("FOO().BAR(<|>", name="python-calltip-call-signature")
-        self.assertTriggerMatches("FOO('blah').BAR(<|>", name="python-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO(<|>", name="python-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO.BAR(<|>", name="python-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO().BAR(<|>", name="python-calltip-call-signature")
+        self.assertTriggerMatches(
+            "FOO('blah').BAR(<|>", name="python-calltip-call-signature")
         self.assertNoTrigger("def foo(<|>")
         self.assertNoTrigger("class Foo(<|>")
-        self.assertTriggerMatches("class Foo(bar(<|>", name="python-calltip-call-signature")
+        self.assertTriggerMatches(
+            "class Foo(bar(<|>", name="python-calltip-call-signature")
 
     @tag("knownfailure", "bug63697")
     def test_non_calltip_trgs(self):
@@ -580,14 +600,14 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("from (<|>")
         self.assertNoTrigger("from(<|>")
 
-    @tag("knownfailure") # this trigger isn't yet implemented
+    @tag("knownfailure")  # this trigger isn't yet implemented
     def test_complete_available_classes(self):
         self.assertTriggerMatches("class Base: pass\nclass FOO(<|>",
-            name="python-complete-available-classes", consumed=())
+                                  name="python-complete-available-classes", consumed=())
         self.assertTriggerMatches("class Base: pass\nclass FOO(BAR, <|>",
-            name="python-complete-available-classes", consumed=('BAR',))
+                                  name="python-complete-available-classes", consumed=('BAR',))
         self.assertTriggerMatches("class Base: pass\nclass FOO(BAR, BAZ, <|>",
-            name="python-complete-available-classes", consumed=('BAR','BAZ'))
+                                  name="python-complete-available-classes", consumed=('BAR', 'BAZ'))
 
     @tag("bug62277")
     def test_decorators(self):
@@ -610,7 +630,7 @@ class TrgTestCase(CodeIntelTestCase):
                                   name=name)
         self.assertTriggerMatches("\texcept <|>",
                                   name=name)
-        #self.assertTriggerMatches("\texcept Ex<|>",
+        # self.assertTriggerMatches("\texcept Ex<|>",
         #                          name=name, implicit=False)
 
     def test_complete_magic_symbols(self):
@@ -640,17 +660,21 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("def fo<|>")
         self.assertNoTrigger("except fo<|>")
 
+
 class CodeintelPythonTestCase(CodeIntelTestCase):
     lang = "Python"
     _pyversion = None
+
     @property
     def python_version(self):
         if self._pyversion is None:
             langintel = self.mgr.langintel_from_lang(self.lang)
             ver, _, _, _, _ = langintel.python_info_from_env(self.mgr.env)
-            # ver is a string like "2.7", but versions should be stored as tuples
+            # ver is a string like "2.7", but versions should be stored as
+            # tuples
             self._pyversion = tuple([int(x) for x in ver.split('.')])
         return self._pyversion
+
 
 class CplnTestCase(CodeintelPythonTestCase):
     test_dir = join(os.getcwd(), "tmp")
@@ -662,19 +686,19 @@ class CplnTestCase(CodeintelPythonTestCase):
                         def __init__ (self):
                             self.age = 0
                             self.<1>height = 0
-                
+
                     bar = foo()
                     bar.<2>age = 12
-                    
+
                     print bar.age
-                    
+
                 if __name__ == "__main__":
                     main()
             """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
-            [("variable", "age")])
+                                      [("variable", "age")])
         self.assertCompletionsInclude(markup_text(content, positions[2]),
-            [("variable", "age")])
+                                      [("variable", "age")])
 
     def test_assign_with_diff_scopes(self):
         content, positions = unmark_text(dedent("""
@@ -682,25 +706,25 @@ class CplnTestCase(CodeintelPythonTestCase):
                     class Inner:
                         inner_var = 0
                     outer_var = 0
-                
+
                 def main():
                     class foo:
                         def __init__ (self):
                             self.age = 0
                             self.<1>height = 0
-                
+
                     bar = foo()
                     bar.<2>age = 12
                     inner = Outer.Inner()
                     inner.<3>inner_var
-                    
+
                     print bar.age
-                    
+
                 if __name__ == "__main__":
                     main()
             """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
-            [("variable", "age")])
+                                      [("variable", "age")])
         self.assertCompletionsInclude(markup_text(content, positions[2]),
             [("variable", "age")])
         self.assertCompletionsInclude(markup_text(content, positions[3]),
@@ -708,43 +732,51 @@ class CplnTestCase(CodeintelPythonTestCase):
 
     def test_curr_calltip_arg_range_explicit(self):
         # Test calltip range handling in comments...
-        self.assertCurrCalltipArgRange("# foo(<+><|>", "foo()", (0,0),
+        self.assertCurrCalltipArgRange("# foo(<+><|>", "foo()", (0, 0),
                                        implicit=False)
-        self.assertCurrCalltipArgRange("# foo(<+><|>", "foo(a, b, c)", (4,5),
+        self.assertCurrCalltipArgRange("# foo(<+><|>", "foo(a, b, c)", (4, 5),
                                        implicit=False)
-        self.assertCurrCalltipArgRange("# foo(<+>art,<|>", "foo(a, b, c)", (7,8),
+        self.assertCurrCalltipArgRange(
+            "# foo(<+>art,<|>", "foo(a, b, c)", (7, 8),
                                        implicit=False)
 
         # ...and in strings.
-        self.assertCurrCalltipArgRange("' foo(<+><|> '", "foo()", (0,0),
+        self.assertCurrCalltipArgRange("' foo(<+><|> '", "foo()", (0, 0),
                                        implicit=False)
-        self.assertCurrCalltipArgRange("' foo(<+><|> '", "foo(a, b, c)", (4,5),
+        self.assertCurrCalltipArgRange(
+            "' foo(<+><|> '", "foo(a, b, c)", (4, 5),
                                        implicit=False)
-        self.assertCurrCalltipArgRange("' foo(<+>art,<|> '", "foo(a, b, c)", (7,8),
+        self.assertCurrCalltipArgRange(
+            "' foo(<+>art,<|> '", "foo(a, b, c)", (7, 8),
                                        implicit=False)
 
     def test_curr_calltip_arg_range(self):
         # Assert can deal with calltip with no args.
-        self.assertCurrCalltipArgRange("foo(<+><|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>one, two<|>", "foo()", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "foo()", (-1,-1))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>one, two<|>", "foo()", (0, 0))
+        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "foo()", (-1, -1))
 
         # Should still be able to terminate properly if no signature to
         # work with.
-        self.assertCurrCalltipArgRange("foo(<+><|>", "not a signature", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah<|>", "not a signature", (0,0))
-        self.assertCurrCalltipArgRange("foo(<+>blah)<|>", "not a signature", (-1,-1))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>blah<|>", "not a signature", (0, 0))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>blah)<|>", "not a signature", (-1, -1))
 
-        self.assertCurrCalltipArgRange("foo(<+><|>", "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange("foo(<+>art<|>", "foo(a, b, c)", (4,5))
-        self.assertCurrCalltipArgRange("foo(<+>art,<|>", "foo(a, b, c)", (7,8))
-        self.assertCurrCalltipArgRange("foo(<+>art,bla,<|>", "foo(a, b, c)", (10,11))
+        self.assertCurrCalltipArgRange("foo(<+><|>", "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange("foo(<+>art<|>", "foo(a, b, c)", (4, 5))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>art,<|>", "foo(a, b, c)", (7, 8))
+        self.assertCurrCalltipArgRange(
+            "foo(<+>art,bla,<|>", "foo(a, b, c)", (10, 11))
 
         self.assertCurrCalltipArgRange("os.path.join(<+>'hi', 'there<|>",
                                        "join(a, *p)\nJoin two or...",
                                        (8, 10))
-        self.assertCurrCalltipArgRange("main(<+>sys.argv, opts={'a', 'b,c'}, indent=4<|>)",
+        self.assertCurrCalltipArgRange(
+            "main(<+>sys.argv, opts={'a', 'b,c'}, indent=4<|>)",
                                        "main(args, opts, indent, *more)",
                                        (17, 23))
         self.assertCurrCalltipArgRange("Foo.foo(<+>(hi, there), blah<|>)",
@@ -762,20 +794,27 @@ class CplnTestCase(CodeintelPythonTestCase):
                         "foo(<+>{'hi()', bob[1]}, blah<|>"]:
             self.assertCurrCalltipArgRange(content, "foo(a, b, c)", (7, 8))
 
-        #XXX Add test cases for keyword and ellipsis args when have added
+        # XXX Add test cases for keyword and ellipsis args when have added
         #    support for that in BasicCalltipBufferMixin.
 
     def test_complete_object_members(self):
         name = "python-complete-object-members"
         self.assertNoTrigger("'FOO.<|>'")
-        self.assertTriggerMatches("FOO.<|>", name="python-complete-object-members", pos=4)
-        self.assertTriggerMatches("blah()\nFOO.<|>", name="python-complete-object-members", pos=11)
-        self.assertTriggerMatches("blah()\r\nFOO.<|>", name="python-complete-object-members", pos=12)
-        self.assertTriggerMatches("FOO.BAR.<|>", name="python-complete-object-members", pos=8)
+        self.assertTriggerMatches(
+            "FOO.<|>", name="python-complete-object-members", pos=4)
+        self.assertTriggerMatches(
+            "blah()\nFOO.<|>", name="python-complete-object-members", pos=11)
+        self.assertTriggerMatches(
+            "blah()\r\nFOO.<|>", name="python-complete-object-members", pos=12)
+        self.assertTriggerMatches(
+            "FOO.BAR.<|>", name="python-complete-object-members", pos=8)
         self.assertNoTrigger(".<|>")
-        self.assertTriggerMatches(r"FOO\\n  .<|>", name="python-complete-object-members")
-        self.assertTriggerMatches("FOO().BAR.<|>", name="python-complete-object-members")
-        self.assertTriggerMatches("FOO('blah').BAR.<|>", name="python-complete-object-members")
+        self.assertTriggerMatches(
+            r"FOO\\n  .<|>", name="python-complete-object-members")
+        self.assertTriggerMatches(
+            "FOO().BAR.<|>", name="python-complete-object-members")
+        self.assertTriggerMatches(
+            "FOO('blah').BAR.<|>", name="python-complete-object-members")
 
         self.assertNoTrigger("# FOO.<|>")
         self.assertTriggerMatches("# FOO.<|>", name=name, implicit=False)
@@ -835,7 +874,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             from django.views.decorators.auth import login_required
             from django.core.extensions import render_to_response, get_object_or_404
             import datetime
-            
+
             @login_required
             def status(request):
                 u = request.user
@@ -891,7 +930,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude(
             "from pickle import <|>",
             [("class", "PickleError"), ("function", "dump")])
-        
+
     def test_import_alias(self):
         content, positions = unmark_text(dedent("""\
             import sys as mysys
@@ -1069,7 +1108,6 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude2(buf, foo_py_positions[1],
             [("variable", "Interface")])
 
-
     def test_class_calltip(self):
         content, positions = unmark_text(dedent("""\
             class Alice:
@@ -1131,7 +1169,6 @@ class CplnTestCase(CodeintelPythonTestCase):
                 "a value yielded by the iterable argument. enumerate is useful "
                 "for obtaining an indexed list: (0, seq[0]), (1, seq[1]), "
                 "(2, seq[2]), ...")
-
 
     def test_wacky_imports(self):
         test_dir = join(self.test_dir, "test_wacky_imports")
@@ -1211,23 +1248,21 @@ class CplnTestCase(CodeintelPythonTestCase):
             markup_text(oracle_content, pos=oracle_positions[1]),
             [("variable", "ULTIMATE")])
 
-
-    #TODO: add test case:
+    # TODO: add test case:
     #   mypath.py:
     #       from os.path import *
     #   foo.py:
     #       import mypath
     #       mypath.<|>join
-
     def test_error_cases(self):
         # At least while using the current Python CILE generating CIX for
         # the following isn't going to work (too many syntax errors).
         markedup_content = dedent("""\
             womba womba
-            
+
             @womba
             foobar
-            
+
             class Foo:
                 def bar(self): pass
             f = Foo()
@@ -1238,10 +1273,10 @@ class CplnTestCase(CodeintelPythonTestCase):
 
         markedup_content = dedent("""\
             womba womba
-            
+
             @womba
             foobar
-            
+
             class Foo:
                 def bar(self): pass
             f = Foo()
@@ -1294,7 +1329,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude("import <|>",
             [("module", "sys")])
         self.assertCompletionsDoNotInclude("import <|>",
-            [("module", "distutils.command"), # should only have one level
+            [("module", "distutils.command"),  # should only have one level
              ("module", "*")])  # built-in should be stripped out
 
     def test_nodupe_imports(self):
@@ -1323,23 +1358,27 @@ class CplnTestCase(CodeintelPythonTestCase):
         """)
         self.assertCalltipIs(markedup_content, "bar(a)\nhowdy")
 
-    @tag("knownfailure") # this trigger isn't yet implemented
+    @tag("knownfailure")  # this trigger isn't yet implemented
     def test_complete_available_classes(self):
         self.assertCompletionsInclude("class Base: pass\nclass FOO(<|>",
                                       [('class', 'Base')])
-        self.assertCompletionsInclude("class FOO: pass\nclass FXX: pass\nclass BAR(FXX, <|>",
+        self.assertCompletionsInclude(
+            "class FOO: pass\nclass FXX: pass\nclass BAR(FXX, <|>",
                                       [('class', 'FOO')])
-        self.assertCompletionsDoNotInclude("class FOO: pass\nclass FXX: pass\nclass BAR(FXX, <|>",
+        self.assertCompletionsDoNotInclude(
+            "class FOO: pass\nclass FXX: pass\nclass BAR(FXX, <|>",
                                       [('class', 'FXX')])
         # this doesn't work because the accessor doesn't go beyond the <|>??
-        self.assertCompletionsDoNotInclude("class Base: pass\nclass Baz: pass\nclass FOO(<|>, Baz)",
+        self.assertCompletionsDoNotInclude(
+            "class Base: pass\nclass Baz: pass\nclass FOO(<|>, Baz)",
                                       [('class', 'Baz')])
-        self.assertCompletionsDoNotInclude("class Base: pass\nclass Baz: pass\nclass FOO(Baz, Base, <|>",
+        self.assertCompletionsDoNotInclude(
+            "class Base: pass\nclass Baz: pass\nclass FOO(Baz, Base, <|>",
                                       [('class', 'Baz')])
 #    def test_calltip_base_signature(self):
 #        self.assertTriggerMatches("""
-#class FOO(BAR):
-#def BAZ(<|>
+# class FOO(BAR):
+# def BAZ(<|>
 #""", name="python-calltip-base-signature")
 
     def test_citdl_expr_from_trg_simple(self):
@@ -1354,17 +1393,23 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCITDLExprIs("a = foo(bar.<|>, blam)", "bar")
         self.assertCITDLExprIs("blam()\nfoo.<|>", "foo")
         self.assertCITDLExprIs("blam()\nfoo.bar.<|>", "foo.bar")
+
     def test_citdl_expr_from_trg_simple2(self):
         self.assertCITDLExprIs("from blah import *\nfoo.bar.<|>", "foo.bar")
+
     def test_citdl_expr_from_trg_simple3(self):
         self.assertCITDLExprIs("#FOO.<|>", "FOO", implicit=False)
         self.assertCITDLExprIs("# FOO.<|>", "FOO", implicit=False)
+
     def test_citdl_expr_from_trg_simple4(self):
-        self.assertCITDLExprIs("from blah import (a,b)\nfoo.bar.<|>", "foo.bar")
+        self.assertCITDLExprIs(
+            "from blah import (a,b)\nfoo.bar.<|>", "foo.bar")
+
     def test_citdl_expr_from_trg_complex(self):
         self.assertCITDLExprIs("foo(',', (1+2)).<|>", "foo()")
         self.assertCITDLExprIs("foo(',({[', {one:1,two:2}).<|>", "foo()")
         self.assertCITDLExprIs("(',({[', {one:1,two:2}).<|>", "()")
+
     def test_citdl_expr_from_trg_multiline(self):
         self.assertCITDLExprIs("foo(bar,\nblam.<|>)", "blam")
         self.assertCITDLExprIs("foo(bar,\nblam).spam.<|>", "foo().spam")
@@ -1375,6 +1420,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCITDLExprIs("foo(1, # (one\n2).bar.<|>", "foo().bar")
         self.assertCITDLExprIs("foo( #this is a ) comment\nb,d).<|>", "foo()")
         self.assertCITDLExprIs("foo\\\n(',({[', {one:1,two:2}).<|>", "foo()")
+
     def test_citdl_expr_from_trg_extra(self):
         self.assertCITDLExprIs("if foo.<|>(", "foo")
         self.assertCITDLExprIs("elif foo.<|>(", "foo")
@@ -1466,7 +1512,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             class AClass(object):
                 def a_method(self, a, b):
                     print "a_method(%r, %r)" % (a, b)
-                
+
                 @staticmethod
                 def a_staticmethod(c, d):
                     print "a_staticmethod(%r, %r)" % (c, d)
@@ -1533,7 +1579,7 @@ class CplnTestCase(CodeintelPythonTestCase):
              ('function', 'lower'),
              ('function', 'capitalize')])
         # This does not yet work in Python
-        #self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
+        # self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
         #    [('variable', 'arg1'), ])
 
     @tag("bug71789")
@@ -1542,7 +1588,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             class Fruit:
                 def isRipe(self): pass
                 def isRotten(self): pass
-            
+
             class Orange(Fruit):
                 def isFromFlorida(self): pass
 
@@ -1552,7 +1598,8 @@ class CplnTestCase(CodeintelPythonTestCase):
             myfruit = Tangerine()
             myfruit.isRipe(<1>)
         '''))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "isRipe()")
+        self.assertCalltipIs(markup_text(
+            content, pos=positions[1]), "isRipe()")
 
     @tag("bug83524")
     def test_top_level_imports(self):
@@ -1568,7 +1615,7 @@ class CplnTestCase(CodeintelPythonTestCase):
                 def fun(): pass
              """)),
             ("y.py", content1)]
-        
+
         for f, c in manifest:
             path = join(test_dir, f)
             writefile(path, c)
@@ -1627,21 +1674,21 @@ class CplnTestCase(CodeintelPythonTestCase):
         buf = self.mgr.buf_from_path(join(test_dir, "foo1.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions1[1],
             [("class", "Banana"),
-             ("class", "GrannySmith"),])
+             ("class", "GrannySmith"), ])
         self.assertCompletionsInclude2(buf, positions1[2],
             [("function", "isRipe"),
-             ("function", "isFromDole"),])
+             ("function", "isFromDole"), ])
         self.assertCompletionsInclude2(buf, positions1[3],
             [("function", "howGreen"),
-             ("function", "color"),])
+             ("function", "color"), ])
 
         buf = self.mgr.buf_from_path(join(test_dir, "foo2.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions2[2],
             [("function", "isRipe"),
-             ("function", "isFromDole"),])
+             ("function", "isFromDole"), ])
         self.assertCompletionsInclude2(buf, positions2[3],
             [("function", "howGreen"),
-             ("function", "color"),])
+             ("function", "color"), ])
 
     @tag("bug88971")
     def test_relative_imports_2(self):
@@ -1667,7 +1714,8 @@ class CplnTestCase(CodeintelPythonTestCase):
             path = join(test_dir, f)
             writefile(path, c)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "test_extlib.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "test_extlib.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions[1],
             [("class", "cZip")])
         self.assertCompletionsInclude2(buf, positions[2],
@@ -1725,7 +1773,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         content3, positions3 = unmark_text(dedent(r'''
             from .utils import <1>xxx
         '''))
-        
+
         test_dir = join(self.test_dir, "test_dotdot_imports")
         manifest = [
             ('__init__.py', ""),
@@ -1742,30 +1790,33 @@ class CplnTestCase(CodeintelPythonTestCase):
             path = join(test_dir, f)
             writefile(path, c)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar1.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar1.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions1[1],
             [("module", "bar1"),
              ("module", "bar2"),
-             ("module", "utils"),])
+             ("module", "utils"), ])
         self.assertCompletionsInclude2(buf, positions1[2],
             [("module", "bar1"),
              ("module", "bar2"),
-             ("module", "utils"),])
+             ("module", "utils"), ])
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar2.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar2.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions2[1],
             [("module", "foo"),
              ("module", "utils"),
-             ("module", "frank"),])
+             ("module", "frank"), ])
         self.assertCompletionsInclude2(buf, positions2[2],
             [("module", "foo"),
              ("module", "utils"),
-             ("module", "frank"),])
+             ("module", "frank"), ])
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar3.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar3.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions3[1],
-            [("function", "neumann"),])
-            
+            [("function", "neumann"), ])
+
     @tag("bug78165")
     def test_dotdot_imports(self):
         content1, positions1 = unmark_text(dedent(r'''
@@ -1799,19 +1850,22 @@ class CplnTestCase(CodeintelPythonTestCase):
             path = join(test_dir, f)
             writefile(path, c)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar1.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar1.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions1[1],
-            [("function", "neumann"),])
+            [("function", "neumann"), ])
         self.assertCompletionsInclude2(buf, positions1[2],
-            [("function", "hi_there"),])
+            [("function", "hi_there"), ])
 
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar2.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar2.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions2[1],
-            [("function", "neumann"),])
-        
-        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar3.py"), lang="Python")
+            [("function", "neumann"), ])
+
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "foo/bar3.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions3[1],
-            [("function", "morgenstern"),])
+            [("function", "morgenstern"), ])
 
     @tag("bug91393")
     def test_relative_imports_3(self):
@@ -1831,19 +1885,20 @@ class CplnTestCase(CodeintelPythonTestCase):
             path = join(test_dir, f)
             writefile(path, c)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "module_a.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "module_a.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "rename"),])
+            [("function", "rename"), ])
 
     @tag("bug86644", "knownfailure")
     def test_binary_imports(self):
         lang = "Python"
-        
+
         test_dir = join(self.test_dir, 'binary_import')
         if os.path.exists(test_dir):
             import shutil
             shutil.rmtree(test_dir, True)
-        
+
         bin_py = join(test_dir, "binary.py")
         writefile(bin_py, dedent("""
             between = 'Scylla and Charybdis'
@@ -1853,7 +1908,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         import compileall
         compileall.compile_dir(self.test_dir)
         os.remove(bin_py)
-        
+
         content1, positions1 = unmark_text(dedent(r'''
             import binary
             binary.<1>xxx
@@ -1870,8 +1925,8 @@ class CplnTestCase(CodeintelPythonTestCase):
         buf = self.mgr.buf_from_path(join(test_dir, "foo.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions1[1],
             [("function", "to_be_or_not_to_be"),
-             ("class", "Dilemma"),])
-    
+             ("class", "Dilemma"), ])
+
     @tag("bug94009")
     def test_multiple_package_imports(self):
         content, positions = unmark_text(dedent(r'''
@@ -1893,13 +1948,13 @@ class CplnTestCase(CodeintelPythonTestCase):
             path = join(test_dir, f)
             writefile(path, c)
 
-        buf = self.mgr.buf_from_path(join(test_dir, "testcode.py"), lang="Python")
+        buf = self.mgr.buf_from_path(join(
+            test_dir, "testcode.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "bar1_method"),])
+            [("function", "bar1_method"), ])
         self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "bar2_method"),])
+            [("function", "bar2_method"), ])
 
-    
     @tag("bug55687")
     def test_hit_from_function_call(self):
         content, positions = unmark_text(dedent("""\
@@ -1910,7 +1965,7 @@ class CplnTestCase(CodeintelPythonTestCase):
                 return "a string"
             def anotherfunction():
                 return myfunction()
-            
+
             f1 = myfunction()
             f1.<1>blah
             f2 = anotherfunction()
@@ -1976,7 +2031,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             [('function', 'append'),
              ('function', 'pop'),
              ('function', 'sort')])
-        
+
     @tag("bug71976", "knownfailure")
     def test_cascading_builtins_function_completion(self):
         # Test the boundary conditions only.
@@ -1986,11 +2041,14 @@ class CplnTestCase(CodeintelPythonTestCase):
         cplns = [('function', 'strip'),
                  ('function', 'lower'),
                  ('function', 'capitalize')]
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]), cplns)
-        self.assertCompletionsInclude(markup_text(content, pos=positions[2]), cplns)
+        self.assertCompletionsInclude(markup_text(
+            content, pos=positions[1]), cplns)
+        self.assertCompletionsInclude(markup_text(
+            content, pos=positions[2]), cplns)
         # At point 6 we get a trigger, but no completions are returned.
         # this passes due to the bug:
-        # self.assertCompletionsAre(markup_text(content, pos=positions[2]), None)
+        # self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+        # None)
 
     def test_complete_available_exceptions(self):
         content, positions = unmark_text(dedent("""\
@@ -2003,7 +2061,8 @@ class CplnTestCase(CodeintelPythonTestCase):
                  ('class', 'IOError'),
                  ('class', 'ValueError'),
                  ]
-        self.assertCompletionsInclude(markup_text(content, pos=positions[1]), cplns)
+        self.assertCompletionsInclude(markup_text(
+            content, pos=positions[1]), cplns)
 
     def test_complete_magic_symbols(self):
         content, positions = unmark_text(dedent("""\
@@ -2052,10 +2111,12 @@ class CplnTestCase(CodeintelPythonTestCase):
                     pass
         """))
         for pos in range(1, 4):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     [('function', '__init__'),
                      ('function', '__call__')])
-            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[pos]),
                     [('function', '__init__(self'),
                      ('function', '__call__(self')])
 
@@ -2074,19 +2135,19 @@ class CplnTestCase(CodeintelPythonTestCase):
           [('function', 'difference'),
            ('function', 'intersection'),
            ('function', 'update'),
-           ('function', 'issuperset'),])
+           ('function', 'issuperset'), ])
         self.assertTriggerMatches(markup_text(content, pos=positions[2]))
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
           [('function', 'difference'),
            ('function', 'intersection'),
            ('function', 'update'),
-           ('function', 'issuperset'),])
+           ('function', 'issuperset'), ])
         self.assertTriggerMatches(markup_text(content, pos=positions[3]))
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
           [('function', 'keys'),
           ('function', 'items'),
           ('function', 'update'),
-          ('function', 'values'),])
+          ('function', 'values'), ])
 
     @tag("bug82014")
     def test_re_module(self):
@@ -2110,26 +2171,30 @@ class CplnTestCase(CodeintelPythonTestCase):
             re.compile().subn().<15>x
         """))
         for pos in (1, 9):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     # re pattern object completions
                     [('function', 'findall'),
                      #('variable', 'flags'),   # Some interpreters don't expose flags.
                      ('function', 'match'),
                      ('function', 'search')])
         for pos in (2, 7, 8, 14, 15):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     # string completions
                     [('function', 'strip'),
                      ('function', 'lower'),
                      ('function', 'capitalize')])
         for pos in (3, 6, 10, 13):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     # list completions
                     [('function', 'append'),
                      ('function', 'index'),
                      ('function', 'remove')])
         for pos in (4, 5, 11, 12):
-            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[pos]),
                     # re match object completions
                     [('function', 'end'),
                      ('function', 'group'),
@@ -2182,7 +2247,8 @@ class CplnTestCase(CodeintelPythonTestCase):
                  ('function', 'foofun'),
                  ('class', 'fools'),
                  ('class', 'fools2')])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[3]),
                 [('variable', 'fooother')])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
                 [('module', 'football'),
@@ -2193,7 +2259,8 @@ class CplnTestCase(CodeintelPythonTestCase):
                  ('class', 'fools2')])
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
                 [('keyword', 'class')])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[6]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[6]),
                 [('keyword', 'class')])
         self.assertCompletionsInclude(markup_text(content, pos=positions[7]),
                 [('keyword', 'None')])
@@ -2260,21 +2327,21 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                     for item in self.items:
                         item.cook()
                 def serve(self): pass
-            
+
             def takeOrder(tableNumber):
                 """takeOrder(<the table number>) -> None
-                
+
                 take an order
                 """
                 print "Welcome to Sunshine Diner! Can I take your order?"
                 brekyClass = Breakfast
-            
+
             takeOrder(<3>)
             Breakfast.Eggs.<4>crack
             takeOrder.<5>nada
             Breakfast.__init__.<6>nada
             takeOrder.brekyClass.<7>serve
-               
+
             b = Breakfast()
             b.<8>cook
         '''))
@@ -2290,11 +2357,11 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[4]),
             [("function", "cook"), ("function", "crack")])
-        #TODO: these two currently returns internal function vars
-        #self.assertCompletionsAre(
+        # TODO: these two currently returns internal function vars
+        # self.assertCompletionsAre(
         #    markup_text(content, pos=positions[5]),
         #    None)
-        #self.assertCompletionsAre(
+        # self.assertCompletionsAre(
         #    markup_text(content, pos=positions[6]),
         #    None)
         self.assertCompletionsAre(
@@ -2322,7 +2389,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             maxvar = max
             max(<6>)
         '''))
-        #TODO: codeintel2 calltip processing has gotten worse
+        # TODO: codeintel2 calltip processing has gotten worse
         self.assertCalltipIs(markup_text(content, pos=positions[0]),
             "int(x[, base]) -> integer\n"
             "Convert a string or number to an integer, if possible.")
@@ -2334,7 +2401,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             [("function", "__add__")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
             [("function", "update")])
-        #TODO: special type attributes should be included
+        # TODO: special type attributes should be included
         self.assertCompletionsInclude(markup_text(content, pos=positions[5]),
             [("function", "__class__")])
         self.assertCalltipIs(markup_text(content, pos=positions[6]),
@@ -2345,7 +2412,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         content, positions = unmark_text(dedent('''\
             import _socket
             _socket.socket(<1>)
-            
+
             # There should NOT be a calltip on module objects (c.f. change
             # 121484).
             import socket
@@ -2377,7 +2444,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 def close(self): pass
                 def wait(self, timeout=None): pass
                 def kill(self, exitCode=0, gracePeriod=1.0, sig=None): pass
-            
+
             if sys.platform.startswith("linux"):
                 # Note that because the Python CILE does no flow analysis it cannot
                 # know that this block is for Linux-only. Even so, the problem still
@@ -2386,11 +2453,11 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                     def wait(self, timeout=None):
                         "special thread-fixing wait"
                         pass
-                
+
                 _ThreadBrokenProcessOpen = ProcessOpen
                 class ProcessOpen(_ThreadFixer, _ThreadBrokenProcessOpen):
                     _pclass = _ThreadBrokenProcessOpen
-            
+
             p = ProcessOpen()
             p.<1>wait(<2>)
         '''))
@@ -2409,15 +2476,15 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
     def test_infinity2(self):
         content, positions = unmark_text(dedent(r'''
             PREFORMATTER_ID = 'summary'
-            
+
             __version__ = '1.0'
             __author__ = 'David Ascher'
-            
+
             def verify_installation(request):
                 return 1
-            
+
             from Pyblosxom import tools
-            
+
             def cb_postformat(args):
                 data = args['entry_data']
                 lines = data["body"].split('\n');
@@ -2426,7 +2493,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 target = entry
                 s = "NOT"
                 data['summary'] = repr(lines)
-                #data['body'] 
+                #data['body']
                 for line in lines:
                     line = line.rstrip()
                     if line.strip().startswith("Summary:"):
@@ -2437,7 +2504,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                         target = entry
                         continue
                     target.append(line)
-            
+
                 line.<1>rstrip
                 summary = '\n'.join(summary)
                 if summary:
@@ -2468,15 +2535,15 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                     FOO = self.foo
                     FOO(<5>)
                     pass
-            
+
             class BaseDummy(ContrivedDummy):
                 pass
-            
+
             ContrivedDummy(<6>)
             BaseDummy(<7>)
             bd = BaseDummy()
             bd.<8>foo(<9>)
-            
+
             class SortOrderClass:
                 _foo = 1
                 foo = 1
@@ -2490,7 +2557,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 _BAR = 1
                 BAR = 1
             SortOrderClass.<10>blah
-            
+
             def hello(a,b, msg=ContrivedDummy):
                 """ say hello """
                 msg.<11>blah
@@ -2557,19 +2624,19 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             # import mod
             import bye
             bye.<0>goodbye()
-            
+
             # import mod as alias
             import bye as aurevoir
             aurevoir.<1>blah
-            
+
             # from pkg import mod
             from fruit import apple
             apple.<2>blah
-            
+
             # from pkg import mod as alias
             from fruit import apple as pomme
             pomme.<3>blah
-            
+
             # from mod import symbol
             from fruit import Fruit, Banana
             Fruit.<4>blah
@@ -2578,16 +2645,16 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             f.<6>blah
             b = Banana()
             b.<7>blah
-            
+
             from fruit.apple import GrannySmith
             GrannySmith.<8>blah
-            
+
             # from mod import symbol as alias
             from fruit import Banana as Banane
             Banane.<9>blah
             b2 = Banane()
             b2.<10>blah
-            
+
             # from mod import *
             from bye import *
             SettingSun.<11>blah
@@ -2603,7 +2670,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             ("bye.py", dedent("""
                 def goodbye():
                     print "goodbye from bye.py"
-                
+
                 class SettingSun:
                     def rideIntoThe(self): pass
              """)),
@@ -2611,11 +2678,11 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 class Fruit:
                     def isRipe(self): pass
                     def isRotten(self): pass
-                
+
                 class Banana(Fruit):
                     def isRipe(self): pass # override this one, ensure it doesn't come up double
                     def isFromDole(self): pass
-                
+
                 class Orange(Fruit):
                     def isFromFlorida(self): pass
              """)),
@@ -2680,7 +2747,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                     def doYouLikeFruit(self): pass
                 FruitSubClass.<2>blah
                 pass
-            
+
             NonModuleScope.SubClass.<3>blah
             NonModuleScope.FruitSubClass.<4>blah
         '''))
@@ -2692,11 +2759,11 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 class Fruit:
                     def isRipe(self): pass
                     def isRotten(self): pass
-                
+
                 class Banana(Fruit):
                     def isRipe(self): pass # override this one, ensure it doesn't come up double
                     def isFromDole(self): pass
-                
+
                 class Orange(Fruit):
                     def isFromFlorida(self): pass
              """)),
@@ -2720,7 +2787,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                               [("function", "basemethod1"),
                                ("function", "basemethod2"),
                                ("function", "submethod1")])
-        #TODO: this one isn't picking up on fruit.Fruit methods. It is a
+        # TODO: this one isn't picking up on fruit.Fruit methods. It is a
         #      scoperef issue.
         self.assertCompletionsInclude2(buf, positions[4],
                               [("function", "basemethod1"),
@@ -2739,7 +2806,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             harder(<2>)
             def ctfromdoc(a, b=None, *c):
                 """ctfromdoc(blah) -> womba
-            
+
                 Twiddle dee dee"""
                 pass
             ctfromdoc(<3>)
@@ -2761,7 +2828,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         content, positions = unmark_text(dedent(r'''
             class Animal:
                 """an animal object
-                
+
                 blah blah blah
                 """
                 def __init__(self, genus):
@@ -2771,13 +2838,13 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 def __init__(self, genus, species=None):
                     """Mammal(genus) -> a mammal
                     Mammal(genus, species) -> a more specific mammal
-                    
+
                     Live birth!
                     """
                     pass
             class Fish(Animal):
                 """Fish(GENUS) -> scaly thing
-                
+
                 Good eatin'
                 """
                 pass
@@ -2794,7 +2861,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             "Live birth!")
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
             "Fish(GENUS) -> scaly thing\nGood eatin'")
-        
+
     @tag("bug76056")
     def test_logging_module(self):
         # Ensure we get completeions on "logging" module classes, as this is
@@ -2813,7 +2880,6 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
              ("function", "debug"),
              ("function", "getEffectiveLevel"),
             ])
-
 
 
 class PyWin32TestCase(CodeIntelTestCase):
@@ -2836,12 +2902,7 @@ class PyWin32TestCase(CodeIntelTestCase):
         py_catalog_lib = self.mgr.db.get_catalog_lib("Python", ["pywin32"])
         self.failUnless(py_catalog_lib.has_blob("win32api"))
 
-    
-
 
 #---- mainline
-
 if __name__ == "__main__":
     unittest.main()
-
-

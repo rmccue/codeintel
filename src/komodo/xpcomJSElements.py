@@ -28,6 +28,8 @@ from xml.etree import ElementTree as ET
 from zope.cachedescriptors.property import Lazy as LazyProperty
 
 log = logging.getLogger("codeintel.xpcom-completer")
+
+
 class Element(ET.Element):
     """ciElementTree-lookalike version of ElementTree.Element
     This is necessary because we want to use Python-faked elements for XPCOM
@@ -52,8 +54,8 @@ class Element(ET.Element):
     # See ciElementTree-1-repr.patch
     def __repr__(self):
         if self.tag == "import":
-            symbol = self.get("symbol") # from ... import <symbol>
-            alias = self.get("alias") # import ... as <alias>
+            symbol = self.get("symbol")  # from ... import <symbol>
+            alias = self.get("alias")  # import ... as <alias>
             import_as = " as %s" % (alias,) if alias is not None else ""
             if symbol is None:
                 return "<import %s%s>" % (self.get("module"), import_as)
@@ -64,16 +66,19 @@ class Element(ET.Element):
             return "<%s %s (%s)>" % (tag, name, self.__class__.__name__)
         return "<%s>" % (tag,)
 
+
 def SubElement(parent, tag, attrib={}, **extra):
     elem = Element(tag, attrib=attrib, **extra)
     parent.append(elem)
     return elem
+
 
 class XPCOMInterfaceElement(Element):
     """ET.Element object that dynamically loads interface details as needed"""
 
     __inited = False
     __children = []
+
     def __init__(self, name=None, send_fn=None):
         """Create a new XPCOMInterfaceElement
         @param name {str} The name of the interface; e.g. "nsISupports"
@@ -95,7 +100,7 @@ class XPCOMInterfaceElement(Element):
     def _ensure_interface(self):
         """Fetch the XPCOM interface definition for this interface"""
         if self.__inited:
-            return # Already have the data
+            return  # Already have the data
 
         results = self.__send(command="describe-interface",
                               name=self.__iface_name,
@@ -116,26 +121,29 @@ class XPCOMInterfaceElement(Element):
     def _children(self):
         self._ensure_interface()
         return self.__children
+
     @_children.setter
     def _children(self, val):
         self.__children = val
         self.__inited = False
 
+
 class CreateInstanceElement(Element):
     def resolve(self, evlr, action, scoperef, param):
         evlr.log("Resolve! creating %r (scoperef %r)", param, scoperef)
         if not isinstance(param, basestring):
-            return None # Unexpected arguments
+            return None  # Unexpected arguments
         try:
             hits = evlr._hits_from_citdl(param, scoperef)
         except CodeIntelError:
-            return None # no valid hits
+            return None  # no valid hits
         accepted_hits = []
         for elem, scoperef in hits:
             if isinstance(elem, XPCOMInterfaceElement):
                 accepted_hits.append((elem, scoperef))
         if accepted_hits:
             return accepted_hits
+
 
 class XPCOMSupport(CommandHandler, threading.Thread):
     # Caches for the XPCOM CIX information.  The base XPCOM structure is
@@ -180,7 +188,8 @@ class XPCOMSupport(CommandHandler, threading.Thread):
         if self.xpcom_components_elem is None:
             try:
                 # Create the blob to hold XPCOM data
-                components = Element("variable", citdl="Object", name="Components")
+                components = Element(
+                    "variable", citdl="Object", name="Components")
                 xpcComponents = self._iid_to_cix("nsIXPCComponents")
 
                 elem_classes = None
@@ -197,7 +206,8 @@ class XPCOMSupport(CommandHandler, threading.Thread):
 
                 # Add Components.interfaces data
                 for interface in self.send(command="list-interface-names")["names"]:
-                    elem = XPCOMInterfaceElement(name=interface, send_fn=self.send)
+                    elem = XPCOMInterfaceElement(
+                        name=interface, send_fn=self.send)
                     self.xpcom_interfaces_elem.append(elem)
 
                 # Add Components.classes data
@@ -235,6 +245,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
             return elem
 
     _read_buffer = ""
+
     def send(self, **kwargs):
         self._queue.put(kwargs)
         # immediately attempt to read the results back
@@ -243,7 +254,8 @@ class XPCOMSupport(CommandHandler, threading.Thread):
             log.debug("... reading frame size...")
             while True:
                 self._read_buffer += self._socket.recv(4096)
-                log.debug("Got buffer %s (%s bytes)", self._read_buffer[:10], len(self._read_buffer))
+                log.debug("Got buffer %s (%s bytes)", self._read_buffer[
+                          :10], len(self._read_buffer))
                 for i, ch in enumerate(self._read_buffer):
                     if ch not in "0123456789":
                         break
@@ -296,6 +308,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
         blob = Element("scope", ilkd="blob", lang="JavaScript", name="xpcom")
         self.add_components_elem(blob)
         return blob
+
 
 def registerExtension():
     """JavaScript XPCOM component hooks"""

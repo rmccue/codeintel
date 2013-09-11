@@ -25,7 +25,7 @@ class _PriorityQueue:
         import thread
         self._init()
         self.mutex = thread.allocate_lock()
-        self.esema = thread.allocate_lock() # if acquired, then queue is empty
+        self.esema = thread.allocate_lock()  # if acquired, then queue is empty
         self.esema.acquire()
 
     def put(self, priority, item):
@@ -79,7 +79,7 @@ class _PriorityQueue:
         Does not return anything.
         """
         log.debug("in _PriorityQueue.remove_id, acquiring esema")
-        if not self.esema.acquire(0): # do not block to acquire lock
+        if not self.esema.acquire(0):  # do not block to acquire lock
             # return if could not acquire: means queue is empty and
             # therefore do not have any items to remove
             log.debug("in _PriorityQueue.remove_id, did not acquire esema")

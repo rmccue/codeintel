@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """New citree-based codeintel evaluation engine.
@@ -99,21 +99,21 @@ def tree_2_0_from_tree_0_1(tree):
 
     # - move <doc> and <signature> optional sub tags into parent
     #   attribute
-    #PERF: This could be done better.
+    # PERF: This could be done better.
     for tag in ("variable", "function", "class", "module", "interface",
                 "argument", "classref", "interfaceref"):
         for node in tree.getiterator(tag):
             for child in reversed(node):
                 # reversed() so can modify while iterating over
                 if child.tag == "signature":
-                    if child.text: # be tolerant of <signature />
+                    if child.text:  # be tolerant of <signature />
                         node.set("signature", child.text)
                     node.remove(child)
                 elif child.tag == "doc":
-                    if child.text: # be tolerant of <doc />
+                    if child.text:  # be tolerant of <doc />
                         node.set("doc", child.text)
                     node.remove(child)
-            if not node: # no children now
+            if not node:  # no children now
                 node.text = None
 
     # - move non-variable tags to attributes
@@ -124,7 +124,7 @@ def tree_2_0_from_tree_0_1(tree):
                 if child.tag == "type":
                     node.set("citdl", child.get("type"))
                     node.remove(child)
-            if not node: # no remaining children
+            if not node:  # no remaining children
                 node.text = None
             if tag == "argument":
                 node.tag = "variable"
@@ -132,7 +132,7 @@ def tree_2_0_from_tree_0_1(tree):
 
     # - move <returns> to a <function> attribute
     for node in tree.getiterator("function"):
-        for child in reversed(node): #PERF: could just check last child
+        for child in reversed(node):  # PERF: could just check last child
             if child.tag == "returns":
                 assert child[0].tag == "type"
                 node.set("returns", child[0].get("type"))
@@ -194,6 +194,7 @@ def tree_2_0_from_tree_0_1(tree):
     tree.set("version", "2.0")
     return tree
 
+
 def tree_from_cix_path(cix_path):
     """Return a (ci)tree for the CIX content in the given path.
 
@@ -236,7 +237,7 @@ def pretty_tree_from_tree(tree, indent_width=2):
     INDENT = ' '*indent_width
 
     def _prettify(elem, indent_level=0):
-        if elem: # i.e. has children
+        if elem:  # i.e. has children
             elem.text = '\n' + INDENT*(indent_level+1)
             for child in elem:
                 _prettify(child, indent_level+1)
@@ -261,7 +262,7 @@ def check_tree(tree):
     assert tree.get("version") == CIX_VERSION, \
         "can only check CIX v%s trees" % CIX_VERSION
 
-    # - file 'lang' is set, not 'language' 
+    # - file 'lang' is set, not 'language'
     file = tree[0]
     if not file.get("lang"):
         yield ("error", "no 'lang' attr on <file> element")
@@ -278,9 +279,11 @@ def check_tree(tree):
 
         # - classrefs are space separated, not with commas (warn)
         for class_elem in blob.getiterator("scope"):
-            if class_elem.get("ilk") != "class": continue
+            if class_elem.get("ilk") != "class":
+                continue
             classrefs = class_elem.get("classrefs")
-            if not classrefs: continue
+            if not classrefs:
+                continue
             if ',' in classrefs:
                 yield ("warning", "multiple class references in 'classrefs' "
                                   "attr on class scopes must be "
@@ -291,7 +294,7 @@ def check_tree(tree):
 
 class TreeEvaluator(CitadelEvaluator):
     def get_start_scoperef(self):
-        linenum = self.line + 1 # convert to 1-based
+        linenum = self.line + 1  # convert to 1-based
         try:
             blob = self.buf.blob_from_lang[self.trg.lang]
         except KeyError:
@@ -334,7 +337,7 @@ class TreeEvaluator(CitadelEvaluator):
                     self.ctlr.set_defns(defns)
             self.ctlr.done("success")
         except CodeIntelError, ex:
-            #XXX Should we have an error handling hook here?
+            # XXX Should we have an error handling hook here?
             self.ctlr.error("evaluating %s: %s", self, ex)
             self.ctlr.done("eval error")
         except Exception:
@@ -347,12 +350,12 @@ class TreeEvaluator(CitadelEvaluator):
 
             "linenum" appears to be 0-based, however all CIX line data
                 is 1-based so we'll convert here.
-    
+
         Dev Notes:
         - XXX Add built-in scope.
         """
-        linenum += 1 # convert to 1-based
-        #XXX This is presuming that the tree has only one blob.
+        linenum += 1  # convert to 1-based
+        # XXX This is presuming that the tree has only one blob.
         scope_stack = [tree.find("file/scope")]
         while True:
             next_scope_could_be = None
@@ -371,11 +374,12 @@ class TreeEvaluator(CitadelEvaluator):
             else:
                 break
         return scope_stack
-    
-    #TODO: split out '()' as a separate token.
+
+    # TODO: split out '()' as a separate token.
     def _tokenize_citdl_expr(self, citdl):
         for token in citdl.split('.'):
             yield token
+
     def _join_citdl_expr(self, tokens):
         return '.'.join(tokens)
 
@@ -384,6 +388,7 @@ class TreeEvaluator(CitadelEvaluator):
             return "%s %s" % (elem.get("ilk"), elem.get("name"))
         else:
             return "%s %s" % (elem.tag, elem.get("name"))
+
     def str_elem_and_children(self, elem):
         s = [self.str_elem(elem)]
         for child in elem:
@@ -409,6 +414,7 @@ class TreeEvaluator(CitadelEvaluator):
     # logging funcs (perhaps best on controller)
     def log_start(self):
         self._log = []
+
     def log(self, msg, *args, **kwargs):
         """
             kwargs:
@@ -428,11 +434,11 @@ class TreeEvaluator(CitadelEvaluator):
 
     def pre_eval(self):
         self.curr_tree = self.buf.tree
-        #ET.dump(self.curr_tree)
+        # ET.dump(self.curr_tree)
 
     def _eval_citdl_expr(self, expr, scope_stack):
         """Return the citree node for the given CITDL expression.
-        
+
             os.environ.get() -> <class 'str' on stdlib blob 'built-in'>
         """
         tokens = list(self._tokenize_citdl_expr(expr))
@@ -448,12 +454,12 @@ class TreeEvaluator(CitadelEvaluator):
 
             if obj.tag == "import":
                 obj = self._eval_import_getattr(obj, token,
-                        self._join_citdl_expr(tokens[:i+2]))
+                                                self._join_citdl_expr(tokens[:i+2]))
             else:
                 # XXX marky: this code does not appear to be used!
                 # (nobody seems to define _eval_getattr)
                 obj = self._eval_getattr(obj, token,
-                        self._join_citdl_expr(tokens[:i+2]))
+                                         self._join_citdl_expr(tokens[:i+2]))
 
             if call:
                 raise CodeIntelError("_eval_citdl_expr(%r): not handling "
@@ -473,23 +479,23 @@ class TreeEvaluator(CitadelEvaluator):
             "symbol_name" (if given) is the attribute on that module to
                 return.
         """
-        #TODO: get logging right
-        #XXX All the logging stuff should go on the controller and that
+        # TODO: get logging right
+        # XXX All the logging stuff should go on the controller and that
         #    should get passed in here for appropriate logging of this
         #    eval.
-        #XXX Will this screw up for, e.g. in Python:
+        # XXX Will this screw up for, e.g. in Python:
         #    'import codeintel.utils'?
         import_handler = self.citadel.import_handler_from_lang(self.lang)
         module = import_handler.import_blob_name(
-                    module_name, self.buf.libs, self.ctlr)
+            module_name, self.buf.libs, self.ctlr)
         self.log("module '%s' imports <%s>", module_name,
                  self.str_elem(module))
 
         if symbol_name:
-            #XXX logging won't be right here
+            # XXX logging won't be right here
             return self._eval_getattr(module, symbol_name,
-                    "%s.%s" % (module_name, symbol_name))
-            #XXX Here is the _eval_getattr code to duplicate.
+                                      "%s.%s" % (module_name, symbol_name))
+            # XXX Here is the _eval_getattr code to duplicate.
             # self.log("lookup '%s' on <%s>:", name, self.str_elem(obj))
             # for child in obj:
             #     if child.get("name") == name:
@@ -518,8 +524,8 @@ class TreeEvaluator(CitadelEvaluator):
         #       'os' is <blob os>
         #   'os' is from <import os>: <blob os> (cached)
         #
-        #Python
-        #if non-* import and matches:
+        # Python
+        # if non-* import and matches:
         # 'os' is from <import os>
         # is <import os> from <project foo>? no
         # ...
@@ -529,16 +535,17 @@ class TreeEvaluator(CitadelEvaluator):
         # 'dirname' may be from <from os.path import *>:
         #     is <from os.path import *> from <project foo>? no
         #     ...
-        #     is <from os.path import *> from <python-2.4-stdlib>? yes: <blob os.path>
+        # is <from os.path import *> from <python-2.4-stdlib>? yes: <blob
+        # os.path>
 
         # TOTEST:
         # - 'from xml import dom', does that get it right? I doubt it.
-        
+
         module_name = imp.get("module")
         symbol_name = imp.get("symbol")
         alias = imp.get("alias")
         obj = None
-        if alias: 
+        if alias:
             if alias == name:   # <import foo as name> or <from foo import bar as name>
                 self.log("'%s' is from <%s>", name, self.str_import(imp))
                 return self._resolve_import(module_name, symbol_name)
@@ -546,15 +553,15 @@ class TreeEvaluator(CitadelEvaluator):
             assert symbol_name != "**", "only Perl should be using '**' for imports"
             if symbol_name == "*":   # <from foo import *>
                 self.log("'%s' may be from <%s>", name, imp)
-                #XXX some variation of _resolve_import to specify just
+                # XXX some variation of _resolve_import to specify just
                 #    importing the module.
                 try:
                     module = self._resolve_import(module_name)
-                except CodeIntelError, ex: # use equivalent of NoModuleEntry?
+                except CodeIntelError, ex:  # use equivalent of NoModuleEntry?
                     self.warn("could not resolve '%s' import to handle <%s>",
                               module_name, self.str_import(imp))
                     return None
-                #TODO:
+                # TODO:
                 # see if name in export list (__all__ for Python,
                 #   @EXPORT for Perl, default all top-level symbols)
                 # if so, eval getattr of name on module object
@@ -602,7 +609,7 @@ class TreeEvaluator(CitadelEvaluator):
                             self.log("'%s' is <%s> which is '%s'", token,
                                      self.str_elem(obj), citdl)
                             obj = self._eval_citdl_expr(
-                                    citdl, scope_stack+[scope])
+                                citdl, scope_stack+[scope])
                             self.log("'%s' is <%s>", token,
                                      self.str_elem(obj))
                     else:
@@ -616,14 +623,15 @@ class TreeEvaluator(CitadelEvaluator):
 
     def _defn_from_hit(self, hit):
         elem, (blob, lpath) = hit
-        #self.log("_defn_from_hit:: blob: %r", blob)
-        #for attr_name, attr_value in blob.attrib.items():
+        # self.log("_defn_from_hit:: blob: %r", blob)
+        # for attr_name, attr_value in blob.attrib.items():
         #    self.log("attr_name: %r, attr_value: %r", attr_name, attr_value)
-        #self.log("_defn_from_hit:: elem: %r", elem)
+        # self.log("_defn_from_hit:: elem: %r", elem)
 
         path = blob.get("src", None)
         name = elem.get("name", None)
-        line = elem.get("line", 1) # e.g. for an import, just use the first line
+        line = elem.get(
+            "line", 1)  # e.g. for an import, just use the first line
         if line is not None:
             try:
                 line = int(line)
@@ -652,7 +660,7 @@ class TreeEvaluator(CitadelEvaluator):
         # Only fixup paths that do not look like URIs.
         if path and not re.match(r"^\w+:\/\/", path):
             if sys.platform == "win32":
-                path = path.replace('/', '\\') # unnormalize path
+                path = path.replace('/', '\\')  # unnormalize path
             path = normpath(path)  # remove possible '.' and '..' elements
         defn = Definition(blob.get("lang"), path, blob.get("name"), lpath,
                           name, line, ilk, citdl, doc,
@@ -662,10 +670,12 @@ class TreeEvaluator(CitadelEvaluator):
     class _infinite_recursion_checker(object):
         def __init__(self, evalr):
             self.evalr = evalr
+
         def __enter__(self):
             self.evalr._eval_count_all += 1
             if self.evalr._eval_count_all >= self.evalr._SENTINEL_MAX_ALL_COUNT:
                 raise EvalError("Too much recursion")
+
         def __exit__(self, exc_type, exc_value, traceback):
             self.evalr._eval_count_all -= 1
 
@@ -680,6 +690,7 @@ class TreeEvaluator(CitadelEvaluator):
     _SENTINEL_MAX_ALL_COUNT = 100
     _eval_count_from_expr = None
     _eval_count_all = 0
+
     def _check_infinite_recursion(self, expr):
         if self._eval_count_from_expr is None:
             # Move this init into eval() when on TreeEvalutor.
@@ -706,8 +717,3 @@ def _dump_element(elem, indent=''):
     print s
     for child in elem:
         _dump_element(child, indent+'  ')
-
-
-
-
-

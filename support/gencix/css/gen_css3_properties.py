@@ -20,14 +20,16 @@ from hashlib import md5
 
 from BeautifulSoup import BeautifulSoup, NavigableString
 
+
 def unescape(text):
-    """Removes HTML or XML character references 
+    """Removes HTML or XML character references
        and entities from a text string.
     from Fredrik Lundh
     http://effbot.org/zone/re-sub.htm#unescape-html
     """
     text = text.replace("\r\n", "\n")
     text = text.replace("&nbsp;", " ")
+
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -47,7 +49,7 @@ def unescape(text):
             except KeyError:
                 print "keyerror"
                 pass
-        return text # leave as is
+        return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
     # Reduce multiple spaces.
     text = re.sub(r"\s(\s)+", " ", text)
@@ -55,22 +57,23 @@ def unescape(text):
     # Remove some other non ascii characters.
     text = text.replace("\xa0".decode("iso_8859-1"), " ")
     text = text.replace("\xab".decode("iso_8859-1"), "<")
-    text = text.replace("\xac".decode("iso_8859-1"), "!") # not sign
-    text = text.replace("\xad".decode("iso_8859-1"), "") # soft hyphen
-    text = text.replace("\xb0".decode("iso_8859-1"), "") # degree symbol
+    text = text.replace("\xac".decode("iso_8859-1"), "!")  # not sign
+    text = text.replace("\xad".decode("iso_8859-1"), "")  # soft hyphen
+    text = text.replace("\xb0".decode("iso_8859-1"), "")  # degree symbol
     text = text.replace("\xbb".decode("iso_8859-1"), ">")
-    text = text.replace(u'\u2014', "-") # mdash
+    text = text.replace(u'\u2014', "-")  # mdash
     text = text.replace(u'\u2018', "'")
     text = text.replace(u'\u2019', "'")
-    text = text.replace(u'\u201c', "\"") # left double quotation mark
-    text = text.replace(u'\u201d', "\"") # right double quotation mark
-    text = text.replace(u'\u2026', "...") # horizontal ellipsis
+    text = text.replace(u'\u201c', "\"")  # left double quotation mark
+    text = text.replace(u'\u201d', "\"")  # right double quotation mark
+    text = text.replace(u'\u2026', "...")  # horizontal ellipsis
     text = text.replace(u'\u2208', "?")
     text = text.replace(u'\u2260', "!=")
     text = text.replace(u'\u2264', "<=")
     text = text.replace(u'\u2265', ">=")
     text = text.encode('ascii', 'replace')
     return text
+
 
 def getNextTagWithName(tag, name):
     tag = tag.nextSibling
@@ -80,16 +83,18 @@ def getNextTagWithName(tag, name):
                 return tag
         tag = tag.nextSibling
 
+
 def getText(elem):
     l = []
     for element in elem:
-        #if isinstance(element, NavigableString):
+        # if isinstance(element, NavigableString):
         #    continue
         if element.string:
             l.append(element.string)
         else:
             l.append(getText(element))
     return unescape(" ".join(l))
+
 
 def getTextStoppingAtTag(tag, name):
     l = []
@@ -102,11 +107,13 @@ def getTextStoppingAtTag(tag, name):
             l.append(getTextStoppingAtTag(element, name))
     return unescape(" ".join(l))
 
+
 def getNextSibling(tag):
     sibling = tag.nextSibling
     while sibling and isinstance(sibling, NavigableString):
         sibling = sibling.nextSibling
     return sibling
+
 
 def parseExtraValuesFromDl(dl_tag, values):
     value = None
@@ -129,6 +136,7 @@ def parseExtraValuesFromDl(dl_tag, values):
             values[value] = description
             value = None
 
+
 def parseExtraData(property_name, properties, page_info):
     print "%r" % (property_name, )
     data = getHtmlForUrl(page_info[0])
@@ -137,7 +145,7 @@ def parseExtraData(property_name, properties, page_info):
     except:
         print "Unable to pass HTML for property: %r" % (property_name, )
         return
-        
+
     property_details = {}
     properties[property_name] = property_details
 
@@ -167,7 +175,7 @@ def parseExtraData(property_name, properties, page_info):
 
 def getHtmlForUrl(url):
     urlhash = md5(url).hexdigest()
-    #print 'urlhash: %r' % (urlhash, )
+    # print 'urlhash: %r' % (urlhash, )
     cache_filename = join(".cache", urlhash)
     if exists(cache_filename):
         return file(cache_filename).read()
@@ -615,6 +623,7 @@ css3_property_details = {
     },
 }
 
+
 def parseCSS3Properties():
     properties = {}
     for property_name in sorted(css3_property_details):
@@ -629,14 +638,14 @@ def main(filename):
     properties = parseCSS3Properties()
 
     # Write out the properties.
-    
+
     f = file(filename, "w")
 
     f.write("CSS3_DATA = {\n")
     for property_name in sorted(properties):
         data = properties.get(property_name)
-        #values = sorted(data.get("values", {}).keys())
-        #values = [x for x in values if not x.startswith("<")]
+        # values = sorted(data.get("values", {}).keys())
+        # values = [x for x in values if not x.startswith("<")]
         f.write("""
     %r:\n%s,
 """ % (str(property_name), pformat(data, indent=8)))

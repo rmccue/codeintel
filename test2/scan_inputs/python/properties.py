@@ -12,6 +12,7 @@ class C(object):
     def x(self):
         del self._x
 
+
 class D(C):
     @C.x.getter
     def x(self):

@@ -18,11 +18,14 @@ import threading
 
 log = None
 
+
 class DummyStream(object):
     def write(self, message):
         pass
+
     def flush(self):
         pass
+
 
 def main(argv=[]):
     global log
@@ -32,16 +35,18 @@ def main(argv=[]):
 
     parser = argparse.ArgumentParser()
     parser.description = "Komodo out-of-process codeintel driver"
-    parser.add_argument("--database-dir", default=os.path.expanduser("~/.codeintel"),
-                        help="The base directory for the codeintel database.")
+    parser.add_argument(
+        "--database-dir", default=os.path.expanduser("~/.codeintel"),
+        help="The base directory for the codeintel database.")
     parser.add_argument("--log-level", action="append", default=[],
                         help="<log name>:<level> Set log level")
     parser.add_argument("--log-file", default=None,
                         help="The name of the file to log to")
     parser.add_argument("--connect", default=None,
                         help="Connect over TCP instead of using stdin/stdout")
-    parser.add_argument("--import-path", action="append", default=["", "../lib"],
-                        help="Paths to add to the Python import path")
+    parser.add_argument(
+        "--import-path", action="append", default=["", "../lib"],
+        help="Paths to add to the Python import path")
     args = parser.parse_args()
 
     if args.log_file:
@@ -105,17 +110,18 @@ def main(argv=[]):
                     fd_in=fd_in, fd_out=fd_out)
     driver.start()
 
+
 def set_idle_priority():
     """Attempt to set the process priority to idle"""
     try:
         os.nice(20)
     except AttributeError:
-        pass # No os.nice on Windows
+        pass  # No os.nice on Windows
     if sys.platform.startswith("linux"):
         import ctypes.util
         import platform
         # Try using a syscall to set io priority...
-        __NR_ioprio_set = { # see Linux sources, Documentation/block/ioprio.txt
+        __NR_ioprio_set = {  # see Linux sources, Documentation/block/ioprio.txt
             "i386": 289,
             "x86_64": 251,
         }.get(platform.machine())
@@ -139,6 +145,7 @@ def set_idle_priority():
         PROCESS_MODE_BACKGROUND_BEGIN = 0x00100000
         SetPriorityClass(HANDLE_CURRENT_PROCESS, PROCESS_MODE_BACKGROUND_BEGIN)
 
+
 def set_process_limits():
     if sys.platform.startswith("win"):
         """Pre-allocate (but don't commit) a 1GB chunk of memory to prevent it
@@ -150,14 +157,16 @@ def set_process_limits():
         from ctypes import wintypes
         kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
         VirtualAlloc = kernel32.VirtualAlloc
-        VirtualAlloc.argtypes = [wintypes.LPVOID, wintypes.ULONG, wintypes.DWORD, wintypes.DWORD]
+        VirtualAlloc.argtypes = [
+            wintypes.LPVOID, wintypes.ULONG, wintypes.DWORD, wintypes.DWORD]
         VirtualAlloc.restype = wintypes.LPVOID
         MEM_RESERVE = 0x00002000
         MEM_TOP_DOWN = 0x00100000
         PAGE_NOACCESS = 0x01
         # we can only eat about 1GB; trying for 2GB causes the allocation to
         # (harmlessly) fail, which doesn't accomplish our goals
-        waste = VirtualAlloc(None, 1<<30, MEM_RESERVE|MEM_TOP_DOWN, PAGE_NOACCESS)
+        waste = VirtualAlloc(
+            None, 1 << 30, MEM_RESERVE | MEM_TOP_DOWN, PAGE_NOACCESS)
         if waste:
             log.debug("Successfullly allocated: %r", waste)
         else:

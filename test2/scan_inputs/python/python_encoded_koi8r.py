@@ -1,5 +1,6 @@
 # -*- coding: koi8-r -*-
 
+
 def russian_function():
     """локализации"""
     pass

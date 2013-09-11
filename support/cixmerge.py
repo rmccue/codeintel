@@ -20,6 +20,7 @@ from ciElementTree import ElementTree as ET
 from ciElementTree import tostring as cixtostring
 from ciElementTree import parse
 
+
 def merge_missing(elem, names, lpath, mergedElem):
     for name in sorted(names):
         childElem = elem.names[name]
@@ -37,6 +38,7 @@ def merge_missing(elem, names, lpath, mergedElem):
             elem.remove(childElem)
             mergedElem.append(childElem)
 
+
 def report_additional(elem, names):
     for name in sorted(names):
         childElem = elem.names[name]
@@ -45,17 +47,21 @@ def report_additional(elem, names):
             elem_type = "namespace"
         print "  additional %-10s %r" % (elem_type, name)
 
+
 def report_missing_attributes(elem, names):
     for name in sorted(names):
         print "  missing attr %-10r => %r" % (name, elem.get(name))
+
 
 def report_additional_attributes(elem, names):
     for name in sorted(names):
         print "  additional attr %-10r => %r" % (name, elem.get(name))
 
+
 def report_attribute_differences(elem1, elem2, names):
     for name in sorted(names):
         print "  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name))
+
 
 def diffElements(opts, lpath, e1, e2):
     e1_names = set(e1.names.keys())
@@ -81,15 +87,16 @@ def diffElements(opts, lpath, e1, e2):
             answer = raw_input("%r differs, merge? [Yn]" % (lpath, ))
             if answer.lower() not in ("n", "no"):
                 merge_missing(e1, names_in_e1_only, lpath, e2)
-        #if attrs_in_e1_only:
+        # if attrs_in_e1_only:
         #    report_missing_attributes(e1, attrs_in_e1_only)
-        #if attrs_in_e2_only:
+        # if attrs_in_e2_only:
         #    report_additional_attributes(e2, attrs_in_e2_only)
-        #if attrs_that_differ:
+        # if attrs_that_differ:
         #    report_attribute_differences(e1, e2, attrs_that_differ)
     if opts.max_depth is not None and len(lpath) < (opts.max_depth - 1):
         for name in names_shared:
             diffElements(opts, lpath + [name], e1.names[name], e2.names[name])
+
 
 def mergeCixFiles(opts, filename1, filename2, outputfilename):
     e1 = parse(filename1).getroot().getchildren()[0]
@@ -110,11 +117,12 @@ def mergeCixFiles(opts, filename1, filename2, outputfilename):
                     print "lpath not found in either cix file: %r (skipping it)" % (lpath, )
                     break
                 elif new_elem2 is None:
-                    answer = raw_input("lpath %r only found in first cix file, copy over? [Yn]" % (lpath, ))
+                    answer = raw_input(
+                        "lpath %r only found in first cix file, copy over? [Yn]" % (lpath, ))
                     if answer.lower() not in ("n", "no"):
                         merge_missing(elem1, [name], lpath_split[:i-1], e2)
                     break
-                #elif new_elem1 is None:
+                # elif new_elem1 is None:
                 #    print "lpath not found in either cix files: %r" % (lpath, )
                 #    break
                 elem1 = new_elem1
@@ -132,6 +140,7 @@ def mergeCixFiles(opts, filename1, filename2, outputfilename):
     pretty_tree_from_tree(mergedcixroot)
     file(outputfilename, "w").write(cixtostring(mergedcixroot))
 
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -142,7 +151,7 @@ def main(argv=None):
                       help="Include the attribute changes of elements.")
     parser.add_option("-d", "--max-depth", dest="max_depth",
                       type="int", help="Maximum recursion depth into the tree")
-    #parser.add_option("-i", "--ignore-case", dest="ignore_case",
+    # parser.add_option("-i", "--ignore-case", dest="ignore_case",
     #                  action="store_true", help="Case insensitve searching")
     parser.add_option("-l", "--lpath", dest="lpath",
                       action="append",
@@ -151,8 +160,8 @@ def main(argv=None):
     if len(args) != 3:
         parser.print_usage()
         return 0
-    #print "opts:", opts
-    #print "args:", args
+    # print "opts:", opts
+    # print "args:", args
     mergeCixFiles(opts, *args)
     return 1
 

@@ -8,6 +8,7 @@ from simplejson.scanner import Scanner, pattern
 
 FLAGS = re.VERBOSE | re.MULTILINE | re.DOTALL
 
+
 def _floatconstants():
     import struct
     import sys
@@ -19,6 +20,7 @@ def _floatconstants():
 
 NaN, PosInf, NegInf = _floatconstants()
 
+
 def linecol(doc, pos):
     lineno = doc.count('\n', 0, pos) + 1
     if lineno == 1:
@@ -26,6 +28,7 @@ def linecol(doc, pos):
     else:
         colno = pos - doc.rindex('\n', 0, pos)
     return lineno, colno
+
 
 def errmsg(msg, doc, pos, end=None):
     lineno, colno = linecol(doc, pos)
@@ -44,9 +47,11 @@ _CONSTANTS = {
     'null': None,
 }
 
+
 def JSONConstant(match, context, c=_CONSTANTS):
     return c[match.group(0)], None
 pattern('(-?Infinity|NaN|true|false|null)')(JSONConstant)
+
 
 def JSONNumber(match, context):
     match = JSONNumber.regex.match(match.string, *match.span())
@@ -65,6 +70,7 @@ BACKSLASH = {
 }
 
 DEFAULT_ENCODING = "utf-8"
+
 
 def scanstring(s, end, encoding=None, _b=BACKSLASH, _m=STRINGCHUNK.match):
     if encoding is None:
@@ -109,12 +115,14 @@ def scanstring(s, end, encoding=None, _b=BACKSLASH, _m=STRINGCHUNK.match):
         _append(m)
     return u''.join(chunks), end
 
+
 def JSONString(match, context):
     encoding = getattr(context, 'encoding', None)
     return scanstring(match.string, match.end(), encoding)
 pattern(r'"')(JSONString)
 
 WHITESPACE = re.compile(r'\s*', FLAGS)
+
 
 def JSONObject(match, context, _w=WHITESPACE.match):
     pairs = OrderedDict()
@@ -156,7 +164,8 @@ def JSONObject(match, context, _w=WHITESPACE.match):
         pairs = object_hook(pairs)
     return pairs, end
 pattern(r'{')(JSONObject)
-            
+
+
 def JSONArray(match, context, _w=WHITESPACE.match):
     values = []
     s = match.string
@@ -181,7 +190,7 @@ def JSONArray(match, context, _w=WHITESPACE.match):
         end = _w(s, end).end()
     return values, end
 pattern(r'\[')(JSONArray)
- 
+
 ANYTHING = [
     JSONObject,
     JSONArray,
@@ -192,12 +201,13 @@ ANYTHING = [
 
 JSONScanner = Scanner(ANYTHING)
 
+
 class JSONDecoder(object):
     """
     Simple JSON <http://json.org> decoder
 
     Performs the following translations in decoding:
-    
+
     +---------------+-------------------+
     | JSON          | Python            |
     +===============+===================+
@@ -230,7 +240,7 @@ class JSONDecoder(object):
         ``encoding`` determines the encoding used to interpret any ``str``
         objects decoded by this instance (utf-8 by default).  It has no
         effect when decoding ``unicode`` objects.
-        
+
         Note that currently only encodings that are a superset of ASCII work,
         strings of other encodings should be passed in as ``unicode``.
 

@@ -2,6 +2,7 @@
 
 import os
 
+
 class Person(Mammal):
     def __init__(self, name):
         self.name = name
@@ -12,4 +13,3 @@ if __name__ == "__main__":
     trentm.        # current line is here, cursor is meant to be at the '.'
 
     print "done"
-

@@ -1,25 +1,25 @@
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributors:
@@ -66,20 +66,21 @@ from shared_lexer import EOF_STYLE
 
 pod_markings = re.compile('^=(?:head|item|cut)', re.M)
 
+
 class PerlLexerClassifier:
     """ This classifier is similar to the parser-level classifier, but
     it works on the SilverCity "raw" tokens as opposed to the
     tokens that get created by the lexer layer.  There should be some
-    folding though."""    
+    folding though."""
 
     def is_comment(self, ttype):
         return ttype in (ScintillaConstants.SCE_PL_COMMENTLINE,
                          ScintillaConstants.SCE_PL_POD)
-        
+
     @property
     def style_comment(self):
         return ScintillaConstants.SCE_PL_COMMENTLINE
-        
+
     @property
     def style_default(self):
         return ScintillaConstants.SCE_PL_DEFAULT
@@ -93,7 +94,9 @@ class _CommonLexer(shared_lexer.Lexer):
     def __init__(self):
         shared_lexer.Lexer.__init__(self)
         self.q = []
-        self.multi_char_ops = self.build_dict('-> ++ -- ** =~ !~ << >> <= >= == != <=> && || ... .. => <<= >>= &&= ||= ~*= /= %= += -= .= &= |= ^= ::')
+        self.multi_char_ops = self.build_dict(
+            '-> ++ -- ** =~ !~ << >> <= >= == != <=> && || ... .. => <<= >>= &&= ||= ~*= /= %= += -= .= &= |= ^= ::')
+
 
 class PerlLexer(_CommonLexer):
     def __init__(self, code, provide_full_docs=True):
@@ -104,23 +107,23 @@ class PerlLexer(_CommonLexer):
         Perl.PerlLexer().tokenize_by_style(code, self._fix_token_list)
         self.prepare_token_list_for_use()
         self.string_types = [ScintillaConstants.SCE_PL_STRING,
-                         ScintillaConstants.SCE_PL_CHARACTER,
-                         ScintillaConstants.SCE_PL_HERE_Q,
-                         ScintillaConstants.SCE_PL_HERE_QQ,
-                         ScintillaConstants.SCE_PL_STRING_QW,
-                         ScintillaConstants.SCE_PL_STRING_Q,
-                         ScintillaConstants.SCE_PL_STRING_QQ,
-                         ScintillaConstants.SCE_PL_STRING_QX
-                         ]
-        
+                             ScintillaConstants.SCE_PL_CHARACTER,
+                             ScintillaConstants.SCE_PL_HERE_Q,
+                             ScintillaConstants.SCE_PL_HERE_QQ,
+                             ScintillaConstants.SCE_PL_STRING_QW,
+                             ScintillaConstants.SCE_PL_STRING_Q,
+                             ScintillaConstants.SCE_PL_STRING_QQ,
+                             ScintillaConstants.SCE_PL_STRING_QX
+                             ]
+
     def _fix_token_list(self, **tok):
         """ SilverCity doesn't know much about Perl, and breaks in two ways:
         1. It doesn't know how to separate sequences of characters into
         separate tokens.
         2. It doesn't know how to map DATASECTIONs into POD sequences.
-        
+
         It's easier to do this once before processing tokens individually.
-        
+
         This should all be done in silvercity.  Doing this has leaked the
         whole silvercity abstraction into this module, and it doesn't
         belong here.  This routine works with SilverCity tokens, not
@@ -149,7 +152,8 @@ class PerlLexer(_CommonLexer):
                 # putback (KWD package), (ID main), (OP ;), (POD this)
                 col = tok['start_column']
                 for new_vals in ((ScintillaConstants.SCE_PL_WORD, "package"),
-                                 (ScintillaConstants.SCE_PL_IDENTIFIER, "main"),
+                                 (ScintillaConstants.SCE_PL_IDENTIFIER,
+                                  "main"),
                                  (ScintillaConstants.SCE_PL_OPERATOR, ";")):
                     new_type, new_text = new_vals
                     new_tok = copy.copy(tok)
@@ -160,10 +164,11 @@ class PerlLexer(_CommonLexer):
                     col = new_tok['end_column'] + 1
                     self.complete_token_push(new_tok)
                 tok['style'] = ScintillaConstants.SCE_PL_POD
-                tok['text'] = tval;
+                tok['text'] = tval
                 tok['start_column'] = col
                 if tok['start_line'] == tok['end_line']:
-                    tok['end_column'] = tok['start_line'] + len(tok['text']) - 1
+                    tok['end_column'] = tok[
+                        'start_line'] + len(tok['text']) - 1
                 self.complete_token_push(tok)
             else:
                 # End of the queue => EOF
@@ -171,14 +176,16 @@ class PerlLexer(_CommonLexer):
         else:
             self.complete_token_push(tok)
 
+
 class PerlMultiLangLexer(_CommonLexer):
     def __init__(self, token_source):
         _CommonLexer.__init__(self)
         self.csl_tokens = []
         # http://www.mozilla.org/js/language/grammar14.html
-        self.js_multi_char_ops = self.build_dict('++ -- << >> >>> <= >= == != === !== && || *= /= %= += -= <<= >>= >>>= &= ^= |=')
+        self.js_multi_char_ops = self.build_dict(
+            '++ -- << >> >>> <= >= == != === !== && || *= /= %= += -= <<= >>= >>>= &= ^= |=')
         self.string_types = [ScintillaConstants.SCE_UDL_SSL_STRING
-                ]
+                             ]
         self.classifier = shared_lexer.UDLLexerClassifier()
         self._contains_ssl = False
         self._build_tokens(token_source)
@@ -191,12 +198,12 @@ class PerlMultiLangLexer(_CommonLexer):
                 self._fix_token_list(tok)
             except StopIteration:
                 break
-    
+
     def _fix_token_list(self, tok):
         """See perl_lexer.py for details on what this routine does."""
         ttype = tok['style']
         tval = tok['text']
-        
+
         if self.is_udl_csl_family(ttype):
             # Don't adjust the line numbers of CSL tokens this time,
             # have it done later.
@@ -216,7 +223,7 @@ class PerlMultiLangLexer(_CommonLexer):
             self._contains_ssl = True
         # See comment in RubyMultiLangLexer._fix_token_list
         # on why we probably don't need this code.
-        #elif self.is_udl_tpl_family(ttype):
+        # elif self.is_udl_tpl_family(ttype):
         #    self._contains_ssl = True
 
     def get_csl_tokens(self):
@@ -224,6 +231,7 @@ class PerlMultiLangLexer(_CommonLexer):
 
     def has_perl_code(self):
         return self._contains_ssl
+
 
 def provide_sample_code():
     return r"""use LWP::UserAgent;

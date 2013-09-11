@@ -19,6 +19,7 @@ ESCAPE_DCT = {
 for i in range(20):
     ESCAPE_DCT.setdefault(chr(i), '\\u%04x' % (i,))
 
+
 def floatstr(o, allow_nan=True):
     s = str(o)
     # If the first non-sign is a digit then it's not a special value
@@ -26,7 +27,7 @@ def floatstr(o, allow_nan=True):
         return s
     elif not allow_nan:
         raise ValueError("Out of range float values are not JSON compliant: %r"
-            % (o,))
+                         % (o,))
     # These are the string representations on the platforms I've tried
     if s == 'nan':
         return 'NaN'
@@ -42,6 +43,7 @@ def floatstr(o, allow_nan=True):
         return '-Infinity'
     return 'Infinity'
 
+
 def encode_basestring(s):
     """
     Return a JSON representation of a Python string
@@ -49,6 +51,7 @@ def encode_basestring(s):
     def replace(match):
         return ESCAPE_DCT[match.group(0)]
     return '"' + ESCAPE.sub(replace, s) + '"'
+
 
 def encode_basestring_ascii(s):
     def replace(match):
@@ -58,14 +61,14 @@ def encode_basestring_ascii(s):
         except KeyError:
             return '\\u%04x' % (ord(s),)
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
-        
+
 
 class JSONEncoder(object):
     """
     Extensible JSON <http://json.org> encoder for Python data structures.
 
     Supports the following objects and types by default:
-    
+
     +-------------------+---------------+
     | Python            | JSON          |
     +===================+===============+
@@ -90,8 +93,9 @@ class JSONEncoder(object):
     implementation (to raise ``TypeError``).
     """
     __all__ = ['__init__', 'default', 'encode', 'iterencode']
+
     def __init__(self, skipkeys=False, ensure_ascii=True,
-            check_circular=True, allow_nan=True, sort_keys=False):
+                 check_circular=True, allow_nan=True, sort_keys=False):
         """
         Constructor for JSONEncoder, with sensible defaults.
 
@@ -165,7 +169,7 @@ class JSONEncoder(object):
         if self.sort_keys:
             keys = dct.keys()
             keys.sort()
-            items = [(k,dct[k]) for k in keys]
+            items = [(k, dct[k]) for k in keys]
         else:
             items = dct.iteritems()
         for key, value in items:
@@ -245,7 +249,7 @@ class JSONEncoder(object):
 
         For example, to support arbitrary iterators, you could
         implement default like this::
-            
+
             def default(self, o):
                 try:
                     iterable = iter(o)
@@ -274,9 +278,9 @@ class JSONEncoder(object):
         """
         Encode the given object and yield each string
         representation as available.
-        
+
         For example::
-            
+
             for chunk in JSONEncoder().iterencode(bigobject):
                 mysocket.write(chunk)
         """

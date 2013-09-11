@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 #
 # Contributors:
@@ -69,7 +69,7 @@
         python bin/stdcix.py -o lib/codeintel/perl.cix Perl
         p4 submit lib/codeintel/perl.cix
 """
-#TODO:
+# TODO:
 # - Should the <file> for modules defined in .pyd's be the .pyd file or
 #   the python.cix file. It is the latter, currently.
 # - Should specifying a particular language installation be allowed?
@@ -98,12 +98,10 @@ from elementtree.ElementTree import Element, SubElement, ElementTree
 import sys
 sys.path.append('../lib')
 from codeintel2.util import parsePyFuncDoc, parseDocSummary
-import which # should be in codeintel/support dir
-
+import which  # should be in codeintel/support dir
 
 
 #---- exceptions
-
 class Error(Exception):
     pass
 
@@ -114,9 +112,7 @@ _version_ = (0, 4, 0)
 log = logging.getLogger("stdcix")
 
 
-
 #---- internal routines and classes
-
 def _xml_unescape(s):
     from xml.sax.saxutils import unescape
     u = unescape(s, {"&quot;": '"'})
@@ -127,16 +123,19 @@ def _xml_unescape(s):
 # Add .text and .tail values to an Element tree to make the output
 # pretty. (Only have to avoid "doc" tags: they are the only ones with
 # text content.)
+
+
 def prettify(elem, level=0, indent='  ', youngestsibling=0):
     if elem and elem.tag != "doc":
         elem.text = '\n' + (indent*(level+1))
     for i in range(len(elem)):
-        prettify(elem[i], level+1, indent, i==len(elem)-1)
+        prettify(elem[i], level+1, indent, i == len(elem)-1)
     elem.tail = '\n' + (indent*(level-youngestsibling))
+
 
 def banner(text, ch='=', length=78):
     """Return a banner line centering the given text.
-    
+
         "text" is the text to show in the banner. None can be given to have
             no text.
         "ch" (optional, default '=') is the banner line character (can
@@ -164,8 +163,8 @@ def banner(text, ch='=', length=78):
             prefix = ch * prefix_len
             suffix = ch * suffix_len
         else:
-            prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len%len(ch)]
-            suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
+            prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len % len(ch)]
+            suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len % len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
 
@@ -183,9 +182,11 @@ def genPerlStdCIX(filename, stream):
     if 1:
         p4path = "//depot/main/Apps/Gecko/src/Core/pod/perlfunc.pod"
         cmd = "p4 print -q %s" % p4path
-        i,o,e = os.popen3(cmd)
+        i, o, e = os.popen3(cmd)
         lines = o.read().splitlines(0)
-        i.close(); o.close(); retval = e.close()
+        i.close()
+        o.close()
+        retval = e.close()
         if retval:
             raise Error("error running: %s" % cmd)
     else:
@@ -197,6 +198,7 @@ def genPerlStdCIX(filename, stream):
     blocks = []
     block = None
     level = 0
+
     def parseItem(line):
         sig = line.split(None, 1)[1]
         name = re.split("[ \t\n(/]", sig, 1)[0]
@@ -206,10 +208,11 @@ def genPerlStdCIX(filename, stream):
             level += 1
         if line.startswith("=back"):
             level -= 1
-            if level == 0: # done the 'Alphabetical Listing' section
-                if block: blocks.append(block)
+            if level == 0:  # done the 'Alphabetical Listing' section
+                if block:
+                    blocks.append(block)
                 break
-    
+
         if level > 1:
             if block:
                 block["lines"].append(line)
@@ -236,28 +239,31 @@ def genPerlStdCIX(filename, stream):
                 }
         else:
             if not block["lines"] and not line.strip():
-                pass # drop leading empty lines
+                pass  # drop leading empty lines
             elif not line.strip() and block["lines"] and \
-               not block["lines"][-1].strip():
-                pass # collapse multiple blank lines
+                    not block["lines"][-1].strip():
+                pass  # collapse multiple blank lines
             else:
                 block["lines"].append(line)
-    #pprint(blocks)
+    # pprint(blocks)
 
     # Process the blocks into a list of command info dicts.
     def podrender(pod):
         rendered = pod
         rendered = re.sub("F<(.*?)>", r"\1", rendered)
         rendered = re.sub("I<(.*?)>", r"*\1*", rendered)
+
         def quoteifspaced(match):
             if ' ' in match.group(1):
                 return "'%s'" % match.group(1)
             else:
                 return match.group(1)
         rendered = re.sub("C<(.*?)>", quoteifspaced, rendered)
+
         def linkrepl(match):
             content = match.group(1)
-            if content.startswith("/"): content = content[1:]
+            if content.startswith("/"):
+                content = content[1:]
             if "/" in content:
                 page, section = content.split("/", 1)
                 content = "%s in '%s'" % (section, page)
@@ -269,19 +275,19 @@ def genPerlStdCIX(filename, stream):
 
     # These perl built-ins are grouped in perlfunc.pod.
     commands = []
-    WIDTH = 60 # desc field width
+    WIDTH = 60  # desc field width
     syscalls = """
-        getpwnam getgrnam gethostbyname getnetbyname getprotobyname 
-        getpwuid getgrgid getservbyname gethostbyaddr getnetbyaddr 
+        getpwnam getgrnam gethostbyname getnetbyname getprotobyname
+        getpwuid getgrgid getservbyname gethostbyaddr getnetbyaddr
         getprotobynumber getservbyport getpwent getgrent gethostent
-        getnetent getprotoent getservent setpwent setgrent sethostent 
+        getnetent getprotoent getservent setpwent setgrent sethostent
         setnetent setprotoent setservent endpwent endgrent endhostent
         endnetent endprotoent endservent
     """.split()
     calltip_skips = "sub use require".split()
     for block in blocks:
         name, sigs, lines = block["name"], block["sigs"], block["lines"]
-        if name == "-X": # template for -r, -w, -f, ...
+        if name == "-X":  # template for -r, -w, -f, ...
             pattern = re.compile(r"^    (-\w)\t(.*)$")
             tlines = [line for line in lines if pattern.match(line)]
             for tline in tlines:
@@ -431,7 +437,7 @@ def genPerlStdCIX(filename, stream):
                        "desc": textwrap.fill(desc, WIDTH)}
             commands.append(command)
         elif name in calltip_skips:
-            continue # just drop the sub calltip: annoying
+            continue  # just drop the sub calltip: annoying
         else:
             # Parsing the description from the full description:
             # Pull out the first sentence up to a maximum of three lines
@@ -447,7 +453,8 @@ def genPerlStdCIX(filename, stream):
                 end = sentencePat.match(lines[0]).span()[1]
                 lines[0] = lines[0][end:].lstrip()
             for i, line in enumerate(lines):
-                if not line.strip(): break
+                if not line.strip():
+                    break
                 sentences = sentencePat.findall(line)
                 if not sentences:
                     desc += line + ' '
@@ -460,15 +467,16 @@ def genPerlStdCIX(filename, stream):
             command = {"name": name, "sigs": sigs,
                        "desc": textwrap.fill(podrender(desc), WIDTH)}
             commands.append(command)
-    #for command in commands:
+    # for command in commands:
     #    print
     #    print banner(command["name"], '-')
     #    print '\n'.join(command["sigs"])
     #    print
     #    print command["desc"]
-    
+
     # Generate the CIX for each function.
-    module_elt = SubElement(cixfile, "scope", ilk="blob", name="*") # "built-ins" module
+    module_elt = SubElement(
+        cixfile, "scope", ilk="blob", name="*")  # "built-ins" module
     for command in commands:
         name, sigs, desc = command["name"], command["sigs"], command["desc"]
         func_elt = SubElement(module_elt, "scope", ilk="function", name=name)
@@ -476,7 +484,7 @@ def genPerlStdCIX(filename, stream):
             func_elt.set("signature", '\n'.join(sigs))
         if desc:
             doclines = desc.split('\n')[:3]
-            #doclines = parseDocSummary(doclines)
+            # doclines = parseDocSummary(doclines)
             doc = '\n'.join(doclines)
             func_elt.set("doc", doc)
 
@@ -487,9 +495,7 @@ def genPerlStdCIX(filename, stream):
     tree.write(stream)
 
 
-
 #---- public interface
-
 def stdcix(language, filename=None, stream=sys.stdout):
     generator_from_language = {
         "Perl": genPerlStdCIX,
@@ -498,21 +504,20 @@ def stdcix(language, filename=None, stream=sys.stdout):
         generator = generator_from_language[language]
     except KeyError:
         raise Error("unsupported language: %r" % language)
-    if filename is None: filename = language.lower()+'.cix'
+    if filename is None:
+        filename = language.lower()+'.cix'
     cix = generator(filename, stream)
     return cix
 
 
-
 #---- mainline
-
 def main(argv):
     logging.basicConfig()
 
     # Parse options.
     try:
         opts, args = getopt.getopt(argv[1:], "Vvhl:o:",
-            ["version", "verbose", "help", "language=",])
+                                   ["version", "verbose", "help", "language=", ])
     except getopt.GetoptError, ex:
         log.error(str(ex))
         log.error("Try `python bin/stdcix.py --help'.")
@@ -565,5 +570,4 @@ def main(argv):
             stream.close()
 
 if __name__ == "__main__":
-    sys.exit( main(sys.argv) )
-
+    sys.exit(main(sys.argv))

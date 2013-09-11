@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Scrape CSS property definitions from the w3 web site."""
@@ -58,11 +58,12 @@ from pprint import pprint
 import xml.sax.saxutils
 from BeautifulSoup import BeautifulSoup, NavigableString
 
+
 def getCSSFromWebpage():
-    #urlOpener = urllib.urlopen("http://www.python.org")
+    # urlOpener = urllib.urlopen("http://www.python.org")
     urlOpener = urllib.urlopen("http://www.w3.org/TR/REC-CSS2/propidx.html")
     data = urlOpener.read()
-    #print "Read in %d bytes" % (len(data))
+    # print "Read in %d bytes" % (len(data))
     return data
 
 _isident_chars = string.ascii_lowercase + string.digits + "_" + "-"
@@ -70,24 +71,28 @@ _isident_dict = {}
 for c in _isident_chars:
     _isident_dict[c] = 1
 
+
 def _isident(char):
     return _isident_dict.get(char, 0)
+
 
 def _isIdentifierString(s):
     for c in s:
         if not _isident(c):
-            #print "Not _isIdentifierString: %s" % (s)
+            # print "Not _isIdentifierString: %s" % (s)
             return False
     return True
+
 
 def _isLookupIdentifierString(s):
     if s[0] != '<' or s[-1] != '>':
         return False
     for c in s[1:-1]:
         if not _isident(c):
-            #print "Not _isLookupIdentifierString: %s" % (s)
+            # print "Not _isLookupIdentifierString: %s" % (s)
             return False
     return True
+
 
 def cleanupIdentifiers(s):
     s = xml.sax.saxutils.unescape(s)
@@ -105,31 +110,32 @@ def cleanupIdentifiers(s):
     return s
 
 special_attribute_lookups = {
-    'angle'         : [ ],
-    'absolute-size' : [ 'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large' ],
-    'border-width'  : [ 'thin', 'thick', 'medium' ],
-    'border-style'  : [ 'none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset' ],
-    'color'         : [ '#', 'rgb(' ],
-    'counter'       : [ 'counter(' ],
-    'family-name'   : [ ],
-    'frequency'     : [ 'Hz', 'kHz' ],
-    'generic-family': [ 'serif', 'sans-serif', 'cursive', 'fantasy', 'monospace' ],
-    'generic-voice' : [ 'male', 'female', 'child' ],
-    'identifier'    : [ ],
-    'inherit'       : [ 'inherit', '!important' ],
-    'integer'       : [ ],
-    'length'        : [ ],
-    'margin-width'  : [ 'auto' ],
-    'number'        : [ ],
-    'padding-width' : [ ],
-    'percentage'    : [ ],
-    'relative-size' : [ 'larger', 'smaller' ],
-    'shape'         : [ 'rect(' ],
-    'specific-voice': [ ],
-    'string'        : [ '""', "''" ],
-    'time'          : [ 'ms', 's' ],
-    'uri'           : [ 'url(' ],
+    'angle': [],
+    'absolute-size': ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'],
+    'border-width': ['thin', 'thick', 'medium'],
+    'border-style': ['none', 'hidden', 'dotted', 'dashed', 'solid', 'double', 'groove', 'ridge', 'inset', 'outset'],
+    'color': ['#', 'rgb('],
+    'counter': ['counter('],
+    'family-name': [],
+    'frequency': ['Hz', 'kHz'],
+    'generic-family': ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace'],
+    'generic-voice': ['male', 'female', 'child'],
+    'identifier': [],
+    'inherit': ['inherit', '!important'],
+    'integer': [],
+    'length': [],
+    'margin-width': ['auto'],
+    'number': [],
+    'padding-width': [],
+    'percentage': [],
+    'relative-size': ['larger', 'smaller'],
+    'shape': ['rect('],
+    'specific-voice': [],
+    'string': ['""', "''"],
+    'time': ['ms', 's'],
+    'uri': ['url('],
 }
+
 
 def lookup_all_attrs(name, result_dict, lookup_dict, seenSoFar=None):
     if name in seenSoFar:
@@ -154,37 +160,40 @@ def lookup_all_attrs(name, result_dict, lookup_dict, seenSoFar=None):
             if name not in special_attribute_lookups:
                 print "WARNING: Lookup id same as name: '%s', but no matching special_attribute_lookups" % id
         if id not in seenSoFar:
-            attrs.update(lookup_all_attrs(id, result_dict, lookup_dict, seenSoFar))
+            attrs.update(lookup_all_attrs(
+                id, result_dict, lookup_dict, seenSoFar))
     return list(attrs)
 
+
 def processTrTags(soup, taglist):
-    printlist = [ "CSS_ATTR_DICT = {" ]
-    result = {  }
+    printlist = ["CSS_ATTR_DICT = {"]
+    result = {}
     lookups = {}
     for tag in taglist:
-        #print "Tag: %s" % tag
-        #print "Span: %s" % tag.span
-        #print "Td: %s" % tag.findAll('td')[1]
-        #print
-        names = [ cleanupIdentifiers(x.string).strip() for x in tag.td.findAll('span')]
-        #name_links = tag.td.findAll('a')
-        #print name_links
+        # print "Tag: %s" % tag
+        # print "Span: %s" % tag.span
+        # print "Td: %s" % tag.findAll('td')[1]
+        # print
+        names = [cleanupIdentifiers(
+            x.string).strip() for x in tag.td.findAll('span')]
+        # name_links = tag.td.findAll('a')
+        # print name_links
         values = []
         for item in tag.findAll('td')[1]:
-            #if hasattr(item, 'name'): print "item.name:", item.name
+            # if hasattr(item, 'name'): print "item.name:", item.name
             if isinstance(item, NavigableString):
-                #print "anchor:", item.string
+                # print "anchor:", item.string
                 idents = cleanupIdentifiers(item.string)
-                #print "idents:", idents
-                for sp in [ s.strip() for s in idents.split(" ") ]:
-                    v = [ s for s in sp.split() if _isIdentifierString(s) ]
+                # print "idents:", idents
+                for sp in [s.strip() for s in idents.split(" ")]:
+                    v = [s for s in sp.split() if _isIdentifierString(s)]
                     for id in v:
                         if id not in values:
                             values.append(id)
             else:
-                #print "item.span", item.span
+                # print "item.span", item.span
                 id = cleanupIdentifiers(item.span.string).strip()
-                #print id
+                # print id
                 lookup_id = id
                 for name in names:
                     l = lookups.get(name)
@@ -192,9 +201,9 @@ def processTrTags(soup, taglist):
                         lookups[name] = [lookup_id]
                     else:
                         l.append(lookup_id)
-                #if _isIdentifierString(id) and id not in values:
+                # if _isIdentifierString(id) and id not in values:
                 #    values.append(id)
-            #if names[0] == "background-attachment":
+            # if names[0] == "background-attachment":
             #    print "Background"
             #    print tag
             #    print item
@@ -206,7 +215,7 @@ def processTrTags(soup, taglist):
         for name in names:
             result[name] = values
 
-    #pprint(lookups)
+    # pprint(lookups)
     names = result.keys()
     names.sort()
     for name in names:
@@ -225,16 +234,18 @@ def processTrTags(soup, taglist):
         printlist.append("        ],")
     printlist.append("}")
 
-    #printlist.append("")
-    #printlist.append("")
-    #printlist.append("CSS_ATTR_CALLTIPS_DICT = {")
-    #for name in names:
+    # printlist.append("")
+    # printlist.append("")
+    # printlist.append("CSS_ATTR_CALLTIPS_DICT = {")
+    # for name in names:
     #    printlist.append('    %-18s: """ """,' % ("'%s'" % name))
-    #printlist.append("}")
+    # printlist.append("}")
 
     print "\n".join(printlist)
 
 # Soup parsing of CSS properties
+
+
 def main():
     data = getCSSFromWebpage()
     soup = BeautifulSoup(data)

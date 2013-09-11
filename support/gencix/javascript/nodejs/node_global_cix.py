@@ -9,7 +9,10 @@ This is expected to be run manually, and generates node.js.cix
 """
 
 from ciElementTree import parse
-import os, subprocess, sys, time
+import os
+import subprocess
+import sys
+import time
 from os.path import abspath, dirname, join
 
 # make sure python can find ../ecmaToCodeintel.py

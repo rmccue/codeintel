@@ -19,7 +19,6 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, writefile
 
 
-
 log = logging.getLogger("test")
 
 
@@ -37,14 +36,14 @@ class FooTestCase(CodeIntelTestCase):
                     pass
                 def pif(self, aa):
                     pass
-            
+
             # FooHookHandler adds top-level "Foo" class.
             f = Foo()
             f.<|>foo
         """)
         self.assertCompletionsInclude(content,
-            [("function", "foo")],
-            lang="Python")
+                                      [("function", "foo")],
+                                      lang="Python")
 
     def test_via_db(self):
         test_dir = join(self.test_dir, "test_foo_hooks_via_db")
@@ -56,7 +55,7 @@ class FooTestCase(CodeIntelTestCase):
                     pass
                 def pif(self, aa):
                     pass
-            
+
             # FooHookHandler adds top-level "Foo" class.
             f = Foo()
             f.<1>foo
@@ -66,13 +65,9 @@ class FooTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(path, lang="Python")
         buf.scan_if_necessary()
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "foo")])
-
+                                       [("function", "foo")])
 
 
 #---- mainline
-
 if __name__ == "__main__":
     unittest.main()
-
-

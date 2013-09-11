@@ -1,7 +1,8 @@
 # A trivial Python script to serve as a reasonable sample for discussing
 # and designing the Code Intelligence autocomplete and calltip support.
 
-import os, sys
+import os
+import sys
 from urllib import urlopen
 from urlparse import urlparse as myurlparse
 if sys.platform.startswith("win"):
@@ -23,9 +24,10 @@ log = logging.getLogger("websave")
 class WebSaveError(Exception):
     pass
 
+
 def websave(url):
     """Save the given URL to the HOME/My Documents directory.
-    
+
         "url" (string) is the URL to download
     """
     content = urlopen(url).read()

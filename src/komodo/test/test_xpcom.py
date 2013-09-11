@@ -21,6 +21,7 @@ finally:
 
 log = logging.getLogger("test.codeintel.xpcom")
 
+
 class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
     language = "JavaScript"
     longMessage = True
@@ -29,7 +30,8 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
         _BufferTestCaseBase.setUp(self)
         # Must make sure the temporary document has the XPCOM catalog selected
         # so we will actually use the right completions.
-        self.doc.prefs.setStringPref("codeintel_selected_catalogs", '["xpcom"]')
+        self.doc.prefs.setStringPref(
+            "codeintel_selected_catalogs", '["xpcom"]')
 
     def assertCompletionsInclude(self, markedup_content, completions,
                                  implicit=True):
@@ -46,15 +48,16 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             if UIHandler.AutoCompleteInfo(cpln, typ) not in actual_completions:
                 missing_completions.add((typ, cpln))
         self.failIf(missing_completions and True,
-            "%s completions at the given position did not "
-            "include all expected values\n"
-            "  missing:         %r\n"
-            "  expected all of: %r\n"
-            "  got:             %r\n"
-            "  buffer:\n%s"
-            % (self.language, list(missing_completions), completions,
-               [(cpln.type, cpln.completion) for cpln in actual_completions],
-               indent(markedup_content)))
+                    "%s completions at the given position did not "
+                    "include all expected values\n"
+                    "  missing:         %r\n"
+                    "  expected all of: %r\n"
+                    "  got:             %r\n"
+                    "  buffer:\n%s"
+                    % (self.language, list(missing_completions), completions,
+                       [(cpln.type, cpln.completion)
+                        for cpln in actual_completions],
+                       indent(markedup_content)))
 
     def assertCompletionsDoNotInclude(self, markedup_content, completions,
                                       implicit=True):
@@ -71,15 +74,16 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             if UIHandler.AutoCompleteInfo(cpln, typ) in actual_completions:
                 extra_completions.add((typ, cpln))
         self.failIf(extra_completions and True,
-            "%s completions at the given position included "
-            "some unexpected values\n"
-            "  shouldn't have had these: %r\n"
-            "  expected none of:         %r\n"
-            "  got:                      %r\n"
-            "  buffer:\n%s"
-            % (self.language, list(extra_completions), completions,
-               [(cpln.type, cpln.completion) for cpln in actual_completions],
-               indent(markedup_content)))
+                    "%s completions at the given position included "
+                    "some unexpected values\n"
+                    "  shouldn't have had these: %r\n"
+                    "  expected none of:         %r\n"
+                    "  got:                      %r\n"
+                    "  buffer:\n%s"
+                    % (self.language, list(extra_completions), completions,
+                       [(cpln.type, cpln.completion)
+                        for cpln in actual_completions],
+                       indent(markedup_content)))
 
     def assertCalltipIs(self, markedup_content, calltip, implicit=True):
         """Check that the calltip is as expected
@@ -90,16 +94,18 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
         handler = self._doEval(markedup_content, implicit=implicit)
         actual_calltip = getattr(handler, "calltip", None)
         self.assertEqual(calltip, actual_calltip,
-            "unexpected calltip at the given position\n"
-            "  expected:\n%s\n"
-            "  got:\n%s\n"
-            "  buffer:\n%s"
-            % (indent(calltip if calltip else "(none)"),
-               indent(actual_calltip if actual_calltip else "(none)"),
-               indent(markedup_content)))
+                         "unexpected calltip at the given position\n"
+                         "  expected:\n%s\n"
+                         "  got:\n%s\n"
+                         "  buffer:\n%s"
+                         % (indent(calltip if calltip else "(none)"),
+                            indent(
+                                actual_calltip if actual_calltip else "(none)"),
+                            indent(markedup_content)))
 
     def _doEval(self, markedup_content, lang=None, implicit=True):
-        self.doc.buffer, self.positions = unmark_text(dedent(markedup_content).strip())
+        self.doc.buffer, self.positions = unmark_text(
+            dedent(markedup_content).strip())
         spinner = AsyncSpinner(self, callback=partial(setattr, self, "trg"))
         with spinner:
             self.buf.trg_from_pos(self.positions["pos"], implicit, spinner)
@@ -121,17 +127,17 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             observerSvc.addObserver(<5>);
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("namespace", "classes"),
-             ("namespace", "interfaces")])
+                                      [("namespace", "classes"),
+                                     ("namespace", "interfaces")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "createInstance"),
-             ("function", "getService")])
+                                      [("function", "createInstance"),
+                                     ("function", "getService")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("class", "nsIObserverService"),
-             ("class", "nsIFile")])
+                                      [("class", "nsIObserverService"),
+                                     ("class", "nsIFile")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
-            [("function", "addObserver"),
-             ("function", "notifyObservers")])
+                                      [("function", "addObserver"),
+                                     ("function", "notifyObservers")])
         self.assertCalltipIs(markup_text(content, pos=positions[5]),
                              "addObserver(in nsIObserver, in String, in Boolean)")
 
@@ -143,17 +149,18 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             uri.<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "spec"),
-             ("variable", "scheme"),
-             ("function", "clone"),
-             ("variable", "query"),
-             ("function", "getCommonBaseSpec")])
+                                      [("variable", "spec"),
+                                     ("variable", "scheme"),
+                                          ("function", "clone"),
+                                          ("variable", "query"),
+                                          ("function", "getCommonBaseSpec")])
         # clone should return a nsIURI object
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "spec"),
-             ("variable", "scheme"),
-             ("function", "clone")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+                                      [("variable", "spec"),
+                                     ("variable", "scheme"),
+                                          ("function", "clone")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
             [("variable", "query"),
              ("function", "getCommonBaseSpec")])
 
@@ -167,11 +174,11 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             }
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "followLinks"),
-             ("variable", "path"),
-             ("function", "clone"),
-             ("function", "exists"),
-             ("function", "initWithPath")])
+                                      [("variable", "followLinks"),
+                                     ("variable", "path"),
+                                          ("function", "clone"),
+                                          ("function", "exists"),
+                                          ("function", "initWithPath")])
 
     @tag("knownfailure")
     def test_query_interface_2(self):
@@ -184,11 +191,11 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             }
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "followLinks"),
-             ("variable", "path"),
-             ("function", "clone"),
-             ("function", "exists"),
-             ("function", "initWithPath")])
+                                      [("variable", "followLinks"),
+                                     ("variable", "path"),
+                                          ("function", "clone"),
+                                          ("function", "exists"),
+                                          ("function", "initWithPath")])
 
     def test_xpcom_classes_array_cplns(self):
         content, positions = unmark_text(dedent("""\
@@ -196,11 +203,11 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             observerCls.<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "@mozilla.org/observer-service;1"),
-             ("variable", "@mozilla.org/embedcomp/prompt-service;1")])
+                                      [("variable", "@mozilla.org/observer-service;1"),
+                                     ("variable", "@mozilla.org/embedcomp/prompt-service;1")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("function", "getService"),
-             ("function", "createInstance")])
+                                      [("function", "getService"),
+                                     ("function", "createInstance")])
 
     def test_xpcom_full_expression_cplns_bug80581(self):
         content, positions = unmark_text(dedent("""\
@@ -213,14 +220,16 @@ class JavaScriptXPCOMTestCase(_BufferTestCaseBase):
             ko_gPrefs.<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "prefs"),
-             ("function", "saveState")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+                                      [("variable", "prefs"),
+                                     ("function", "saveState")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
             [("variable", "type"),
              ("function", "serialize")])
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("variable", "type"),
              ("function", "serialize")])
-        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
             [("variable", "prefs"),
              ("function", "saveState")])

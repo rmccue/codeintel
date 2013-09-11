@@ -3,6 +3,6 @@
 
 import Queue
 
+
 class MyQueue(Queue.Queue):
     pass
-

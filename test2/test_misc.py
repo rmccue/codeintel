@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """Test miscellaneous bits of the Code Intelligence system."""
@@ -45,26 +45,22 @@ from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase
 
 
-
 #---- globals
-
 log = logging.getLogger("test")
 
 
-
 #---- test cases
-
 class MiscTestCase(unittest.TestCase):
     def test_parsePyFuncDoc(self):
         from codeintel2.util import parsePyFuncDoc as parse
         cases = [
             ("read", "read([s]) -- Read s characters, or the rest of the string",
              ["read([s])"], ["Read s characters, or the rest of the string"]),
-            ("b2a_qp", """b2a_qp(data, quotetabs=0, istext=1, header=0) -> s; 
- Encode a string using quoted-printable encoding. 
+            ("b2a_qp", """b2a_qp(data, quotetabs=0, istext=1, header=0) -> s;
+ Encode a string using quoted-printable encoding.
 
-On encoding, when istext is set, newlines are not encoded, and white 
-space at end of lines is.  When istext is not set, \r and \n (CR/LF) are 
+On encoding, when istext is set, newlines are not encoded, and white
+space at end of lines is.  When istext is not set, \r and \n (CR/LF) are
 both encoded.  When quotetabs is set, space and tabs are encoded.""",
              ["b2a_qp(data, quotetabs=0, istext=1, header=0) -> s;"],
              [" Encode a string using quoted-printable encoding. ",
@@ -160,18 +156,16 @@ value_name is a string indicating the value to query""",
             actual_siglines, actual_desclines = parse(doc, funcname=funcname)
             self.failUnless(
                 (actual_siglines, actual_desclines) == (siglines, desclines),
-                "stdcix._parsePyFuncDoc() returned an unexpected result:\n"+
-                "======================= doc:\n"+str(doc)+
+                "stdcix._parsePyFuncDoc() returned an unexpected result:\n" +
+                "======================= doc:\n"+str(doc) +
                 "\n======================= expected:\n"
-                +pprint.pformat(siglines)+"\n"+pprint.pformat(desclines)+
+                + pprint.pformat(siglines)+"\n"+pprint.pformat(desclines) +
                 "\n======================= actual:\n"
-                +pprint.pformat(actual_siglines)+"\n"+pprint.pformat(actual_desclines)
+                + pprint.pformat(
+                    actual_siglines)+"\n"+pprint.pformat(actual_desclines)
             )
 
 
-
 #---- mainline
-
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# gencix.py: create a CIX file from introspection of a Python module or package.
+# gencix.py: create a CIX file from introspection of a Python module or
+# package.
 
 # TODO:
 #  - properties & slots?  (how frequent in binary modules??)
@@ -15,8 +16,8 @@ try:
     # Codeintel's specialized elementtree.
     from ciElementTree import Element, SubElement, ElementTree
 except ImportError:
-    #import warnings
-    #warnings.warn("Could not import ciElementTree", category="codeintel")
+    # import warnings
+    # warnings.warn("Could not import ciElementTree", category="codeintel")
     try:
         # Python 2.5 or 2.6
         from xml.etree.cElementTree import Element, SubElement, ElementTree
@@ -26,7 +27,9 @@ except ImportError:
         except ImportError:
             from ElementTree import Element, SubElement, ElementTree
 
-import sys, time, os
+import sys
+import time
+import os
 _gIsPy3 = True
 _gLanguage = "Python3"
 if sys.version_info < (3, ):
@@ -54,11 +57,13 @@ except NameError:
 # Add .text and .tail values to an Element tree to make the output
 # pretty. (Only have to avoid "doc" tags: they are the only ones with
 # text content.)
+
+
 def prettify(elem, level=0, indent='  ', youngestsibling=0):
     if elem and elem.tag != "doc":
         elem.text = '\n' + (indent*(level+1))
     for i in range(len(elem)):
-        prettify(elem[i], level+1, indent, i==len(elem)-1)
+        prettify(elem[i], level+1, indent, i == len(elem)-1)
     elem.tail = '\n' + (indent*(level-youngestsibling))
 
 _gPyNamesFromCitdl = {
@@ -101,6 +106,8 @@ _gPyNamesFromCitdl = {
 }
 
 # Perform some cleanup and type inferencing.
+
+
 def improve_citdl_expression(citdl):
     """Returns a tuple (found_an_improvement, improved_citdl)"""
     if citdl.endswith(".__dict__"):
@@ -112,12 +119,14 @@ def improve_citdl_expression(citdl):
 _gPyCitdlFromSignature = re.compile(r'^(.*)\s+->\s+((a|the|returns)\s+)?(.*)$')
 
 # Improve the code intelligence data where possible.
+
+
 def perform_smart_analysis(elem):
     citdl = elem.get("citdl")
     if citdl:
         improved, citdl = improve_citdl_expression(citdl)
         if improved:
-            #print "Improved citdl %s %-10r (%r => %r)" % (
+            # print "Improved citdl %s %-10r (%r => %r)" % (
             #        elem.get("ilk") or elem.tag, elem.get("name"),
             #        elem.get("citdl"), citdl)
             elem.set("citdl", citdl)
@@ -127,7 +136,7 @@ def perform_smart_analysis(elem):
         if citdl:
             improved, citdl = improve_citdl_expression(citdl)
             if improved:
-                #print "Improved citdl %s %-10r (%r => %r)" % (
+                # print "Improved citdl %s %-10r (%r => %r)" % (
                 #        elem.get("ilk") or elem.tag, elem.get("name"),
                 #        elem.get("returns"), citdl)
                 elem.set("returns", citdl)
@@ -140,13 +149,14 @@ def perform_smart_analysis(elem):
                     sp = leftover.split(None, 1)
                     citdl = _gPyNamesFromCitdl.get(sp[0].lower())
                     if citdl:
-                        #print "Returns from signature for func %r => %r (%s)" % (
+                        # print "Returns from signature for func %r => %r (%s)" % (
                         #        elem.get("name"), sp[0], leftover)
                         elem.set("returns", citdl)
-                    #else:
-                    #    print "unknown return type: %r (%r)" % (sp[0], leftover)
+                    # else:
+                    # print "unknown return type: %r (%r)" % (sp[0], leftover)
     for child in elem:
         perform_smart_analysis(child)
+
 
 def getsdoc(obj):
     "like pydoc's getdoc, but shorter docs"
@@ -158,12 +168,12 @@ def getsdoc(obj):
         if not _gPyModelineOrHashBangPat.match(doclines[index]):
             break
         index += 1
-    #doclines = parseDocSummary(doclines, limit=12)
+    # doclines = parseDocSummary(doclines, limit=12)
     if len(doclines) > (index + 1):
         if not doclines[index+1].strip():
             doclines.pop(index+1)
     doc = doclines[index] + '\n' + \
-          ' '.join([x.strip() for x in doclines[index+1:index+11]])
+        ' '.join([x.strip() for x in doclines[index+1:index+11]])
 
     if not _gIsPy3:
         # Try encoding the docs, otherwise we'll run into problems when we want to
@@ -178,10 +188,12 @@ def getsdoc(obj):
 
     return doc
 
+
 def process_class_using_instance(rootElt, obj, name, callables):
     doc = getsdoc(obj) or None
     classElt = SubElement(rootElt, "scope", ilk="class", name=name)
-    if doc: classElt.set('doc', doc)
+    if doc:
+        classElt.set('doc', doc)
     callables[name] = classElt
     classElt.set('attributes', '__hidden__')
 
@@ -198,12 +210,15 @@ def process_class_using_instance(rootElt, obj, name, callables):
                 t = "%s.%s" % (klass.__module__, klass.__name__)
             varElt = SubElement(classElt, "variable", name=key, citdl=t)
         elif isdata(value):
-            varElt = SubElement(classElt, "variable", name=key, citdl=type(value).__name__)
-    
+            varElt = SubElement(
+                classElt, "variable", name=key, citdl=type(value).__name__)
+
+
 def process_class(rootElt, obj, name, callables, __hidden__=False):
     doc = getsdoc(obj) or None
     classElt = SubElement(rootElt, "scope", ilk="class", name=name)
-    if doc: classElt.set('doc', doc)
+    if doc:
+        classElt.set('doc', doc)
     callables[name] = classElt
     if __hidden__:
         classElt.set('attributes', '__hidden__')
@@ -211,6 +226,7 @@ def process_class(rootElt, obj, name, callables, __hidden__=False):
     if classrefs:
         classElt.set('classrefs', ' '.join(classrefs))
     # Functions are method descriptors in Python inspect module parlance.
+
     def attrfilter(attr):
         # Only add methods and attributes of the class to the CIX.
         # - "os._Environ" seems to be a particular problem case in that
@@ -229,20 +245,23 @@ def process_class(rootElt, obj, name, callables, __hidden__=False):
             attrname = attr.__name__
             for base in obj.__bases__:
                 if hasattr(base, attrname) and getattr(base, attrname) is \
-                    getattr(obj, attrname):
+                        getattr(obj, attrname):
                     return False
         except AttributeError:
             # staticmethod and classmethod objects don't have a __name__
             pass
-            #print "Couldn't process: %r, assuming ok" % str(attr)
+            # print "Couldn't process: %r, assuming ok" % str(attr)
         return True
 
-    #attrs = inspect.getmembers(object, attrfilter) # should I be using getmembers or class attr's?
-    attrs = [(name, getattr(obj, name)) for name in obj.__dict__ if name not in ('__abstractmethods__')]
+    # attrs = inspect.getmembers(object, attrfilter) # should I be using
+    # getmembers or class attr's?
+    attrs = [(name, getattr(
+        obj, name)) for name in obj.__dict__ if name not in ('__abstractmethods__')]
     attrs = [(name, attr) for (name, attr) in attrs if attrfilter(attr)]
     for (key, value) in attrs:
         if inspect.isfunction(value) or inspect.ismethod(value) or inspect.ismethoddescriptor(value):
             process_routine(classElt, value, key, callables)
+
 
 def process_module(rootElt, obj, name, callables, modname, __hidden__=False):
     if (modname, name) in module_import_hacks:
@@ -251,7 +270,8 @@ def process_module(rootElt, obj, name, callables, modname, __hidden__=False):
     else:
         moduleElt = SubElement(rootElt, "import", module=name)
 
-def process_routine(rootElt, obj, name, callables):    
+
+def process_routine(rootElt, obj, name, callables):
     if inspect.isfunction(obj):
         if _gIsPy3:
             argspec = inspect.getfullargspec(obj)
@@ -273,10 +293,12 @@ def process_routine(rootElt, obj, name, callables):
             doc = None
         if signature == obj.__init__.__doc__:
             signature = None
-    
+
     funcElt = SubElement(rootElt, "scope", ilk="function", name=name)
-    if doc: funcElt.set('doc', doc)
-    if signature: funcElt.set('signature', signature)
+    if doc:
+        funcElt.set('doc', doc)
+    if signature:
+        funcElt.set('signature', signature)
 
     callables[name] = funcElt
 
@@ -293,6 +315,7 @@ module_skips = {
     '*': ["_", "__name__", "__doc__", "__debug__", "exit", "copyright",
           "license"],
 }
+
 
 def docmodule(modname, root, force=False, usefile=False, dir=None):
     name = modname
@@ -342,8 +365,10 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         cixfile = root
     module = obj
     doc = getsdoc(obj) or None
-    moduleElt = SubElement(cixfile, "scope", ilk="blob", name=name, lang=_gLanguage)
-    if doc: moduleElt.set('doc', doc)
+    moduleElt = SubElement(
+        cixfile, "scope", ilk="blob", name=name, lang=_gLanguage)
+    if doc:
+        moduleElt.set('doc', doc)
     skips = module_skips.get(name, [])
     callables = {}
     for key, value in sorted(inspect.getmembers(obj)):
@@ -352,13 +377,13 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         if inspect.ismodule(value):
             process_module(moduleElt, value, key, callables, modname)
             continue
-        if not visiblename(key): # forget about __all__ 
+        if not visiblename(key):  # forget about __all__
             continue
         if (inspect.isfunction(value) or
             inspect.ismethod(value) or
             inspect.ismethoddescriptor(value) or
             inspect.isroutine(value) or
-            inspect.isbuiltin(value)):
+                inspect.isbuiltin(value)):
             process_routine(moduleElt, value, key, callables)
         elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, types.TypeType)):
             process_class(moduleElt, value, key, callables)
@@ -372,7 +397,8 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             # make sure we also process the type of instances
             process_class(moduleElt, klass, klass.__name__, callables)
         elif isdata(value):
-            varElt = SubElement(moduleElt, "variable", name=key, citdl=type(value).__name__)
+            varElt = SubElement(
+                moduleElt, "variable", name=key, citdl=type(value).__name__)
         else:
             log.warn("unexpected element in module '%s': '%s' is %r",
                      modulename, name, type(value))
@@ -382,12 +408,14 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
     if os.path.exists(helpername):
         sys.stderr.write("Found helper module: %r\n" % helpername)
         if _gIsPy3:
-            exec(compile(open(helpername).read(), os.path.basename(helpername), 'exec'), namespace, namespace)
+            exec(compile(open(helpername).read(), os.path.basename(
+                helpername), 'exec'), namespace, namespace)
         else:
             execfile(helpername, namespace, namespace)
         # look in helpername for analyze_retval_exprs, which is a list of (callable_string, *args)
         # and which corresponds to callables which when called w/ the specified args, will return
-        # variables which should be used to specify the <return> subelement of the callable.
+        # variables which should be used to specify the <return> subelement of
+        # the callable.
         analyze_retval_exprs = namespace.get('analyze_retval_exprs', [])
         signatures = namespace.get('signatures', {})
         for retval_expr in analyze_retval_exprs:
@@ -396,14 +424,14 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
                 callableElt = callables[name]
                 if name in signatures:
                     sig = signatures[name]
-                    callableElt.set('signature', sig) # XXX???
+                    callableElt.set('signature', sig)  # XXX???
                 playarea = module.__dict__
                 var = eval(name, playarea)(*args)
                 # find out what type that is
                 callableElt.set("returns", type(var).__name__)
             else:
                 print("Don't know about: %r" % expr)
-                
+
         hidden_classes_exprs = namespace.get('hidden_classes_exprs', [])
         for expr in hidden_classes_exprs:
             playarea = module.__dict__
@@ -429,8 +457,10 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
                     continue
                 overrides = function_overrides[name]
                 for setting, value in overrides.items():
-                    print("  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value))
+                    print("  overriding %s.%s %s attribute from %r to %r" % (
+                        modname, name, setting, callableElt.get(setting), value))
                     callableElt.set(setting, value)
+
 
 def writeCixFileForElement(filename, root):
     stream = open(filename, 'wb')
@@ -439,4 +469,3 @@ def writeCixFileForElement(filename, root):
     tree = ElementTree(root)
     tree.write(stream, encoding="utf-8")
     stream.close()
-
