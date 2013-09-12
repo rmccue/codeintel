@@ -92,11 +92,11 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
         def get_quoted_string(ch):
             quote = ch
             local_buffer = []
-            for ch, next in chars:
+            for ch, next_ in chars:
                 # print "quote: quote=[%s] ch=[%s] next=[%s] token=%r" % (
-                #    quote, ch, next, local_buffer)
+                #    quote, ch, next_, local_buffer)
                 if ch == "\\":
-                    local_buffer.append(chars.next()[0])
+                    local_buffer.append(next(chars)[0])
                 elif ch == quote:
                     if local_buffer:
                         yield "".join(local_buffer)
@@ -106,8 +106,8 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
 
         BLOCK_MAP = {"(": ")", "[": "]"}
 
-        for ch, next in chars:
-            # print "ch=[%s] next=[%s] token=%r" % (ch, next, buffer)
+        for ch, next_ in chars:
+            # print "ch=[%s] next=[%s] token=%r" % (ch, next_, buffer)
             if ch in ('"', "'"):  # quoted string
                 for token in get_pending_token():
                     yield token
@@ -122,13 +122,13 @@ class CandidatesForTreeEvaluator(TreeEvaluator):
                 emit = ch in ("[",)
                 for token in get_pending_token():
                     yield token
-                if next == block[1]:
+                if next_ == block[1]:
                     next(chars)  # consume close quote
                     yield block[0] + block[1]
-                elif next in ('"', "'"):  # quoted string
+                elif next_ in ('"', "'"):  # quoted string
                     next(chars)  # consume open bracket
-                    next_tokens = list(get_quoted_string(next))
-                    ch, next = next(chars)
+                    next_tokens = list(get_quoted_string(next_))
+                    ch, next_ = next(chars)
                     if ch == block[1] and emit:
                         for next_token in next_tokens:
                             yield next_token
