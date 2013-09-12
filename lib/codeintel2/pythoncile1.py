@@ -1664,8 +1664,6 @@ def scan_et(content, filename, md5sum=None, mtime=None, lang="Python"):
         if _gClockIt:
             sys.stdout.write(" (convert:%.3fs)" % (_gClock() - _gStartTime))
 
-    if isinstance(filename, str):
-        filename = filename.encode('utf-8')
     # The 'path' attribute must use normalized dir separators.
     if sys.platform.startswith("win"):
         path = filename.replace('\\', '/')
