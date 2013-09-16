@@ -180,7 +180,7 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
     from os.path import basename, exists, isdir, join
     from glob import glob
 
-    assert not isinstance(path_patterns, basestring), \
+    assert not isinstance(path_patterns, str), \
         "'path_patterns' must be a sequence, not a string: %r" % path_patterns
     GLOB_CHARS = '*?['
 
@@ -275,7 +275,7 @@ def _update_cix_file(path, content, p4_edit=False):
     if p4_edit:
         os.system('p4 edit "%s"' % path)
     open(path, "w").write(content)
-    print "`%s' updated" % path
+    print("`%s' updated" % path)
 
 
 def _get_komodo_dev_dir():
@@ -301,7 +301,7 @@ def _get_komodo_dev_dir():
 
 #---- main module functionality
 def komodo_to_cix(output_path, p4_edit=False):
-    print "komodo_to_cix `%s'" % output_path
+    print("komodo_to_cix `%s'" % output_path)
 
     cix_komodo = createCixRoot(name="Komodo",
         description="Komodo JavaScript API - version %s" % komodo_js_api_version)
@@ -327,10 +327,10 @@ def komodo_to_cix(output_path, p4_edit=False):
             # cile logging.
             jscile.cile.name = path
             jscile.scan_puretext(file(path).read(), updateAllScopeNames=False)
-        except Exception, e:
+        except Exception as e:
             # Report the file that had problems scanning.
-            print "komodo_to_cix:: failed, exception scanning: %r, " \
-                  "near line: %r" % (path, jscile.lineno)
+            print("komodo_to_cix:: failed, exception scanning: %r, " \
+                  "near line: %r" % (path, jscile.lineno))
             raise
     # Restore the filename before converting to CIX.
     jscile.cile.name = "komodo"
@@ -348,7 +348,7 @@ def komodo_to_cix(output_path, p4_edit=False):
     _update_cix_file(output_path, get_cix_string(cix_komodo), p4_edit)
 
     # Finalize the codeintel manager.
-    print "Finalizing the codeintel manager."
+    print("Finalizing the codeintel manager.")
     mgr.finalize()
 
 #---- mainline

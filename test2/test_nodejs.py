@@ -73,7 +73,7 @@ def write_files(test_case, manifest={}, name="unnamed"):
     assert "test.js" in manifest, "No test.js to run"
     test_dir = join(test_case.test_dir, "test_nodejs_%s" % name)
     test_js = None
-    for name, content in manifest.items():
+    for name, content in list(manifest.items()):
         content = dedent(content)
         path = join(test_dir, name)
         if name == "test.js":
@@ -87,7 +87,7 @@ def write_files(test_case, manifest={}, name="unnamed"):
     # ensure everything is scanned here.
     curdirlib = buf.libs[0]  # XXX: make this not so fragile
     dirs = set(curdirlib.dirs)
-    for name in manifest.keys():
+    for name in list(manifest.keys()):
         dirname, basename = os.path.split(name)
         absdir = join(test_dir, dirname).rstrip(os.path.sep)
         if not absdir in dirs:

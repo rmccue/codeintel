@@ -64,7 +64,7 @@ import traceback
 import logging
 import optparse
 
-import which
+from . import which
 
 
 #---- exceptions
@@ -296,7 +296,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

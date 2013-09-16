@@ -46,10 +46,10 @@ myglobal = [1, 2, 3]
 bar = 1
 bar = "trent"
 foo, bar = 1, 2
-Foo.bar.spam = 4L
+Foo.bar.spam = 4
 Foo.blam.spam = 5  # we bail on this because Foo.blam doesn't exist
 bar[1:2] = "foo"  # we bail on this because it is too hard
-[foo, Foo.bar.spam] = 1L, 2
+[foo, Foo.bar.spam] = 1, 2
 key1, key2 = {'one': 1, 'two': 2}
 foo, bar, blam = sys.exc_info()  # bail on this, too hard for now
 bar[1] = 1
@@ -74,11 +74,11 @@ ORAND = 1 and (2.0 or "three")
 LC = [i for i in range(4)]
 NOT = not 1
 POWER_II = 2**3
-POWER_IL = 2**3L
-POWER_LI = 2L**3
+POWER_IL = 2**3
+POWER_LI = 2**3
 POWER_FF = 2.0**3.0
 POWER_IF = 2**3.0
-POWER_LF = 2L**3.0
+POWER_LF = 2**3.0
 POWER_IC = 2**3j
 POWER_CF = 2j**3.0
 RSHIFT = 4 >> 2
@@ -141,6 +141,7 @@ newline = ('=%02x' % ord('F')).upper()
 _getnext = re.compile(r"""...""", re.VERBOSE | re.DOTALL | re.MULTILINE).search
 
 
-def foo(a, (b, c)=(1, 2), *args, **kwargs):
+def foo(a, xxx_todo_changeme=(1, 2), *args, **kwargs):
+    (b, c) = xxx_todo_changeme
     pass
 bar = lambda a, (b, c), *args, **kwargs: cmp(a, b)

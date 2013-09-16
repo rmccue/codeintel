@@ -16,13 +16,13 @@ import logging
 import os.path
 import operator
 import process
-import Queue
+import queue
 import re
 import socket
 import sys
 import threading
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import weakref
 
 import koprocessutils
@@ -55,7 +55,7 @@ class KoCodeIntelService:
         # The key is the request id; the value is ???
         self.requests = {}
 
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
 
         self.buffers = weakref.WeakKeyDictionary()
 
@@ -66,7 +66,7 @@ class KoCodeIntelService:
 
         self._mgr_lock = threading.Lock()
 
-        self._init_callbacks = Queue.Queue()
+        self._init_callbacks = queue.Queue()
         """Callbacks that should be invoked on init"""
 
         try:
@@ -102,7 +102,7 @@ class KoCodeIntelService:
         try:
             self._init_callbacks.put(xpcom_callback.koIAsyncCallback.callback)
         except AttributeError:
-            if callable(xpcom_callback):
+            if isinstance(xpcom_callback, collections.Callable):
                 self._init_callbacks.put(xpcom_callback)
 
         def callback(result=Cr.NS_OK, message=None, success=None):
@@ -122,7 +122,7 @@ class KoCodeIntelService:
                     except:
                         self.log.exception(
                             "Failed to invoke init callback %r", cb)
-                except Queue.Empty:
+                except queue.Empty:
                     break  # no more callbacks
 
         self._db_preloader.callback = callback
@@ -142,11 +142,11 @@ class KoCodeIntelService:
                         # will get queued by the manager for now, since we haven't
                         # actually started the manager.
                         self.mgr.send(**self._queue.get(False))
-                    except Queue.Empty:
+                    except queue.Empty:
                         break  # no more items
                 # new codeintel manager; update all the buffers to use this new
                 # one
-                for buf in self.buffers.values():
+                for buf in list(self.buffers.values()):
                     buf.mgr = self.mgr
 
         # run the new manager
@@ -249,13 +249,13 @@ class KoCodeIntelService:
         path = os.path.normpath(path)  # Fix case on Windows
         if path.startswith("<Unsaved>"):
             baseName = path.split(os.sep, 1)[-1]
-            for doc, buf in self.buffers.items():
+            for doc, buf in list(self.buffers.items()):
                 if doc.file:
                     continue
                 if os.path.normcase(buf.baseName) == baseName:
                     return buf
         else:
-            for doc, buf in self.buffers.items():
+            for doc, buf in list(self.buffers.items()):
                 if not doc.file:
                     continue
                 if os.path.normcase(doc.file.displayPath) == path:
@@ -323,7 +323,7 @@ class KoCodeIntelService:
         have_response = set()
 
         def on_have_report(request, response):
-            for path, data in response.get("memory", {}).items():
+            for path, data in list(response.get("memory", {}).items()):
                 amount = data.get("amount")
                 if amount is None:
                     continue  # This value was unavailable
@@ -609,7 +609,7 @@ class KoCodeIntelManager(threading.Thread):
         self.requests = {}  # keyed by request id; value is tuple
                            # (callback, request data, time sent)
                            # requests will time out at some point...
-        self.unsent_requests = Queue.Queue()
+        self.unsent_requests = queue.Queue()
         threading.Thread.__init__(self,
                                   name="Komodo Codeintel Manager %s" % (id(self)))
         self.daemon = True
@@ -674,7 +674,7 @@ class KoCodeIntelManager(threading.Thread):
 
             # Logging
             try:
-                for log_name in logging.Logger.manager.loggerDict.keys():
+                for log_name in list(logging.Logger.manager.loggerDict.keys()):
                     if not log_name.startswith("codeintel"):
                         continue
                     if logging.getLogger(log_name).level is logging.NOTSET:
@@ -897,7 +897,7 @@ class KoCodeIntelManager(threading.Thread):
                     try:
                         contractIdIface = extension_contract_ids.getNext()
                         contractIdIface.QueryInterface(Ci.nsISupportsCString)
-                        contractId = urllib.unquote(contractIdIface.data)
+                        contractId = urllib.parse.unquote(contractIdIface.data)
                         self.debug("got contract id: %s", contractId)
                         extension_data = Cc[contractId].createInstance()
                         for path, name in UnwrapObject(extension_data):
@@ -915,7 +915,7 @@ class KoCodeIntelManager(threading.Thread):
         # Extra catlogs
         extra_dirs = {}
         extra_dirs["catalog-dirs"] = \
-            filter(os.path.exists, self.svc._genDBCatalogDirs())
+            list(filter(os.path.exists, self.svc._genDBCatalogDirs()))
 
         # Find extensions that may have codeintel lang-support modules.
         ext_module_dirs = set()
@@ -1053,7 +1053,7 @@ class KoCodeIntelManager(threading.Thread):
                     buf += ch
                 now = time.time()
                 if now - discard_time > 60:  # discard some stale results
-                    for req_id, (callback, request, sent_time) in self.requests.items():
+                    for req_id, (callback, request, sent_time) in list(self.requests.items()):
                         if sent_time < now - 30 * 60:
                             # sent 30 minutes ago - it's irrelevant now
                             try:
@@ -1198,7 +1198,7 @@ class KoCodeIntelManager(threading.Thread):
                                                  "status_message", None)
             else:
                 self.notificationMgr.removeNotification(self._notification)
-        except COMException, ex:
+        except COMException as ex:
             pass
 
     def do_global_prefs_observe(self, response):
@@ -1285,7 +1285,7 @@ class KoCodeIntelManager(threading.Thread):
         if topic == "xmlCatalogPaths":
             prefSvc = Cc["@activestate.com/koPrefService;1"].getService()
             catalogs = prefSvc.prefs.getString("xmlCatalogPaths", "")
-            catalogs = filter(None, catalogs.split(os.pathsep))
+            catalogs = [_f for _f in catalogs.split(os.pathsep) if _f]
 
             # get xml catalogs from extensions
             from directoryServiceUtils import getExtensionDirectories
@@ -1493,7 +1493,7 @@ class KoCodeIntelBuffer(object):
 
                 if "cplns" in response:
                     # split into separate lists
-                    types, strings = zip(*response["cplns"])
+                    types, strings = list(zip(*response["cplns"]))
                     try:
                         handler.setAutoCompleteInfo(strings, types, trg)
                     except:
@@ -1506,8 +1506,8 @@ class KoCodeIntelBuffer(object):
                     except:
                         self.log.exception("Error calling setCallTipInfo")
                 elif "defns" in response:
-                    defns = map(KoCodeIntelDefinition,
-                                response["defns"])
+                    defns = list(map(KoCodeIntelDefinition,
+                                response["defns"]))
                     handler.setDefinitionsInfo(defns, trg)
             finally:
                 handler.done()
@@ -1586,7 +1586,7 @@ class KoCodeIntelEnvironment(object):
         result = {"prefs": []}
         if self.environment:
             result["env"] = dict((name, self.environment.get(name))
-                                 for name in self.environment.keys())
+                                 for name in list(self.environment.keys()))
         prefsets = (doc_prefs,
                     proj_prefs,
                     self._global_prefs)
@@ -1594,7 +1594,7 @@ class KoCodeIntelEnvironment(object):
             if not prefset:
                 continue
             level = {}
-            for name, data in self._prefs_allowed.items():
+            for name, data in list(self._prefs_allowed.items()):
                 komodo_name = data.komodo_name or name
                 if not prefset.hasPref(komodo_name):
                     continue
@@ -1639,7 +1639,7 @@ class KoCodeIntelEnvironment(object):
             del self._observed_prefs[name]
 
     def clear_pref_observers(self):
-        for name in self._observed_prefs.keys()[:]:
+        for name in list(self._observed_prefs.keys())[:]:
             self.remove_pref_observer(name)
 
     @LazyProperty

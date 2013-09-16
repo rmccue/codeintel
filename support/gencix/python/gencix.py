@@ -43,7 +43,7 @@ import optparse
 import sys
 import logging
 
-from gencixcore import *
+from .gencixcore import *
 
 log = logging.getLogger("stdcix")
 
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         sys.exit(0)
     root = None
     for arg in args:
-        print("Generating CIX for", arg)
+        print(("Generating CIX for", arg))
         if root is None or not options.onefile:
             root = Element("codeintel", name=arg, version="2.0")
             if options.name:

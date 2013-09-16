@@ -8,7 +8,7 @@ This file handles doing code intelligence for XPCOM interfaces"""
 import json
 import logging
 import operator
-import Queue
+import queue
 import socket
 import threading
 from os.path import basename, dirname, splitext
@@ -129,11 +129,11 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
 
     def do_list_interface_names(self, **kwargs):
         """List the available XPCOM interfaces"""
-        self.send(names=Ci.keys())
+        self.send(names=list(Ci.keys()))
 
     def do_list_contract_ids(self, **kwargs):
         """List the available contract ids"""
-        self.send(ids=Cc.keys())
+        self.send(ids=list(Cc.keys()))
 
     _LANG_TYPE_FROM_XPT_TAG = {
         "JavaScript": {
@@ -249,7 +249,7 @@ class KoCodeIntelXPCOMSupport(threading.Thread):
                                             "attributes": "constant"}
 
         name_getter = operator.itemgetter("name")
-        results = methods.values() + attributes.values() + constants.values()
+        results = list(methods.values()) + list(attributes.values()) + list(constants.values())
         self.send(results=sorted(results, key=name_getter))
 
 
@@ -276,7 +276,7 @@ class KoCodeIntelXPCOMSupportReigstrationHelper(object):
         """Iteration for codeintel command extension registration"""
         return self
 
-    def next(self):
+    def __next__(self):
         try:
             return self.data.pop(0)
         except IndexError:

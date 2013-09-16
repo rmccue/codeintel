@@ -168,7 +168,7 @@ class CodeIntelTestCase(unittest.TestCase):
             # Try to ensure no accidental re-use of the same buffer name
             # across the whole test suite. Also try to keep the buffer
             # names relatively short (keeps tracebacks cleaner).
-            if isinstance(markedup_content, unicode):
+            if isinstance(markedup_content, str):
                 markedup_bytes = markedup_content.encode("utf-8")
             else:
                 markedup_bytes = markedup_content
@@ -250,7 +250,7 @@ class CodeIntelTestCase(unittest.TestCase):
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
         defn = defns[0]
-        for name, value in fields.items():
+        for name, value in list(fields.items()):
             try:
                 actual_value = getattr(defn, name)
             except AttributeError:
@@ -301,7 +301,7 @@ class CodeIntelTestCase(unittest.TestCase):
         filtered_defns = []
         for defn in defns:
             filtered_defn = dict((key, getattr(defn, key, None))
-                                 for key in fields.keys())
+                                 for key in list(fields.keys()))
             filtered_defns.append(filtered_defn)
         self.assertIn(fields, filtered_defns)
 
@@ -327,7 +327,7 @@ class CodeIntelTestCase(unittest.TestCase):
                 count_from_defn_repr[defn_repr] = 0
             count_from_defn_repr[defn_repr] += 1
         defn_dupes = [(count, defn_repr)
-                      for defn_repr, count in count_from_defn_repr.items()
+                      for defn_repr, count in list(count_from_defn_repr.items())
                       if count > 1]
         self.failIf(defn_dupes,
                     "unexpectedly got duplicate completions at the given position\n"
@@ -350,7 +350,7 @@ class CodeIntelTestCase(unittest.TestCase):
                       % (lang, indent(markedup_content)))
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
-        for name, value in fields.items():
+        for name, value in list(fields.items()):
             try:
                 actual_value = getattr(trg, name)
             except AttributeError:
@@ -373,7 +373,7 @@ class CodeIntelTestCase(unittest.TestCase):
             return
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
-        for name, value in fields.items():
+        for name, value in list(fields.items()):
             try:
                 actual_value = getattr(trg, name)
             except AttributeError:
@@ -409,7 +409,7 @@ class CodeIntelTestCase(unittest.TestCase):
                       "buffer:\n%s" % (lang, indent(markedup_content)))
         if "pos" in fields:
             fields["pos"] = self.adjust_pos(fields["pos"])
-        for name, value in fields.items():
+        for name, value in list(fields.items()):
             actual_value = getattr(trg, name)
             self.assertEqual(actual_value, value,
                              "unexpected preceding %s trigger '%s' value: expected %r, "
@@ -517,7 +517,7 @@ class CodeIntelTestCase(unittest.TestCase):
             if cpln not in count_from_cpln:
                 count_from_cpln[cpln] = 0
             count_from_cpln[cpln] += 1
-        cpln_dupes = [(count, cpln) for cpln, count in count_from_cpln.items()
+        cpln_dupes = [(count, cpln) for cpln, count in list(count_from_cpln.items())
                       if count > 1]
         self.failIf(cpln_dupes,
             "unexpectedly got duplicate completions at the given position\n"
@@ -1001,7 +1001,7 @@ def init_xml_catalogs():
 def _rmtree_OnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 

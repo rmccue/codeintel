@@ -27,12 +27,12 @@ def merge_missing(elem, names, lpath, mergedElem):
         elem_type = childElem.get("ilk") or childElem.tag
         if elem_type == "variable" and len(childElem):
             elem_type = "namespace"
-        print "  %-10s %r" % (elem_type, lpath + [name])
-        for key, value in childElem.items():
+        print("  %-10s %r" % (elem_type, lpath + [name]))
+        for key, value in list(childElem.items()):
             if len(value) > 60:
                 value = value[:60] + "..."
-            print "      %-10s: %s" % (key, value)
-        answer = raw_input("merge this %r? [Yn]" % (elem_type, ))
+            print("      %-10s: %s" % (key, value))
+        answer = input("merge this %r? [Yn]" % (elem_type, ))
         if answer.lower() not in ("n", "no"):
             # Ensure we remove first, otherwise we generate double elements
             elem.remove(childElem)
@@ -45,22 +45,22 @@ def report_additional(elem, names):
         elem_type = childElem.get("ilk") or childElem.tag
         if elem_type == "variable" and len(childElem):
             elem_type = "namespace"
-        print "  additional %-10s %r" % (elem_type, name)
+        print("  additional %-10s %r" % (elem_type, name))
 
 
 def report_missing_attributes(elem, names):
     for name in sorted(names):
-        print "  missing attr %-10r => %r" % (name, elem.get(name))
+        print("  missing attr %-10r => %r" % (name, elem.get(name)))
 
 
 def report_additional_attributes(elem, names):
     for name in sorted(names):
-        print "  additional attr %-10r => %r" % (name, elem.get(name))
+        print("  additional attr %-10r => %r" % (name, elem.get(name)))
 
 
 def report_attribute_differences(elem1, elem2, names):
     for name in sorted(names):
-        print "  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name))
+        print("  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name)))
 
 
 def diffElements(opts, lpath, e1, e2):
@@ -84,7 +84,7 @@ def diffElements(opts, lpath, e1, e2):
     if names_in_e1_only or names_in_e2_only or attrs_in_e1_only or \
        attrs_in_e2_only or attrs_that_differ:
         if names_in_e1_only:
-            answer = raw_input("%r differs, merge? [Yn]" % (lpath, ))
+            answer = input("%r differs, merge? [Yn]" % (lpath, ))
             if answer.lower() not in ("n", "no"):
                 merge_missing(e1, names_in_e1_only, lpath, e2)
         # if attrs_in_e1_only:
@@ -114,10 +114,10 @@ def mergeCixFiles(opts, filename1, filename2, outputfilename):
                 new_elem1 = elem1.names.get(name)
                 new_elem2 = elem2.names.get(name)
                 if new_elem1 is None and new_elem2 is None:
-                    print "lpath not found in either cix file: %r (skipping it)" % (lpath, )
+                    print("lpath not found in either cix file: %r (skipping it)" % (lpath, ))
                     break
                 elif new_elem2 is None:
-                    answer = raw_input(
+                    answer = input(
                         "lpath %r only found in first cix file, copy over? [Yn]" % (lpath, ))
                     if answer.lower() not in ("n", "no"):
                         merge_missing(elem1, [name], lpath_split[:i-1], e2)
@@ -134,7 +134,7 @@ def mergeCixFiles(opts, filename1, filename2, outputfilename):
         elems1 = [e1]
         elems2 = [e2]
     for e1, e2 in zip(elems1, elems2):
-        print "Diffing elements: %r, %r" % (e1, e2)
+        print("Diffing elements: %r, %r" % (e1, e2))
         diffElements(opts, [], e1, e2)
 
     pretty_tree_from_tree(mergedcixroot)

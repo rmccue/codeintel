@@ -55,9 +55,9 @@
 import os
 import sys
 import glob
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import zipfile
-from cStringIO import StringIO
+from io import StringIO
 from optparse import OptionParser
 
 from codeintel2.manager import Manager
@@ -107,7 +107,7 @@ def getFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
     zippath = "%s_%s.zip" % (library_name, library_version)
     if not os.path.exists(zippath):
-        urlOpener = urllib.urlopen(library_info["download_url"])
+        urlOpener = urllib.request.urlopen(library_info["download_url"])
         f = file(zippath, "wb")
         f.write(urlOpener.read())
         f.close()
@@ -120,7 +120,7 @@ def getFilesFromWebpage():
         for zfile in zf.filelist:
             dirpath, filename = os.path.split(zfile.filename)
             # print "dirpath: %r" % (dirpath, )
-            for build_type, prefix in library_info["zip_file_prefix"].items():
+            for build_type, prefix in list(library_info["zip_file_prefix"].items()):
                 if isinstance(prefix, str):
                     prefixes = [prefix]
                 else:
@@ -137,7 +137,7 @@ def getFilesFromWebpage():
                                 dirpath, filename, data)
                         break
     finally:
-        print "Leaving zip file: %s" % (zippath)
+        print("Leaving zip file: %s" % (zippath))
         # os.remove(zippath)
     return files
 
@@ -153,11 +153,11 @@ def main(cix_filename):
                         library_name, library_version))
     files = getFilesFromWebpage()
     jscile = JavaScriptCiler(Manager(), "extjs")
-    for path, (dirname, filename, content) in files["source"].items():
+    for path, (dirname, filename, content) in list(files["source"].items()):
         dir_split = dirname.split("/")
         if ("source" in dir_split and not filename.startswith("ext-lang-")) or \
            ("src" in dir_split and not "adapter" in dir_split):
-            print "filename: %r" % (filename)
+            print("filename: %r" % (filename))
             jscile.path = filename
             jscile.scan_puretext(content.decode(
                 "utf-8"), updateAllScopeNames=False)

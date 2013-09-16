@@ -59,7 +59,7 @@ Tested with prototype versions:
 
 import os
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pprint import pprint
 from optparse import OptionParser
 
@@ -77,7 +77,7 @@ def getSubElementText(elem):
     """Return all the text of elem child elements"""
 
     return condenseSpaces(''.join([e for e in elem.recursiveChildGenerator()
-                                   if isinstance(e, unicode)]))
+                                   if isinstance(e, str)]))
 
 
 def processTableMethods(cix_element, table_tag):
@@ -164,13 +164,13 @@ def processScope(cix_module, h4_tag):
                 raise "Could not find scope: %r for: %r" % (
                     parentScopeName, scopeName)
         if h4_text_split[0] == "The" and h4_text_split[-1] == "class":
-            print "Class:",
+            print("Class:", end=' ')
             cix_element = createCixClass(cix_module, scopeNames[-1])
         else:
-            print "Object:",
+            print("Object:", end=' ')
             cix_element = createCixVariable(cix_module, scopeNames[-1])
         cix_scopes[scopeName] = cix_element
-        print "%s - %s" % (scopeName, h4_text)
+        print("%s - %s" % (scopeName, h4_text))
         processScopeFields(cix_element, h4_tag)
 
 
@@ -254,7 +254,7 @@ def processH4Tag(cix_module, h4_tag):
 
 
 def getPrototypeDocsFromWebpage():
-    urlOpener = urllib.urlopen(
+    urlOpener = urllib.request.urlopen(
         "http://www.sergiopereira.com/articles/prototype.js.html")
     return urlOpener.read()
     # return file("prototype.js.html").read()
@@ -262,12 +262,12 @@ def getPrototypeDocsFromWebpage():
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 # Soup parsing of API documentation from webpage
 

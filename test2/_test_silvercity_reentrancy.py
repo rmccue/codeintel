@@ -84,13 +84,13 @@ class MyThread(threading.Thread):
     def run(self):
         time.sleep(random.random())
         tokens = list(self.lexer.tokenize_by_style(self.content))
-        print "%15s tokens md5: %s" % (self.lexer.__class__.__name__, md5(repr(tokens)).hexdigest())
+        print("%15s tokens md5: %s" % (self.lexer.__class__.__name__, md5(repr(tokens)).hexdigest()))
 
 
 def doit():
     lexers = []
 
-    print "_test_silvercity_reentrancy ..."
+    print("_test_silvercity_reentrancy ...")
 
     threads = []
     pick_me = True

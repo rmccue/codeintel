@@ -1451,7 +1451,7 @@ class CplnTestCase(CodeintelPythonTestCase):
     @tag("bug52648")
     def test_tkinter(self):
         try:
-            import Tkinter
+            import tkinter
         except ImportError:
             raise TestSkipped("can't test without Tkinter")
         else:

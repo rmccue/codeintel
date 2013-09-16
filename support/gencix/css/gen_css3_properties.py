@@ -9,10 +9,10 @@
 import os
 import sys
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import htmllib
 import textwrap
-import htmlentitydefs
+import html.entities
 from os.path import exists, join
 from pprint import pprint, pformat
 from optparse import OptionParser
@@ -36,18 +36,18 @@ def unescape(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -61,16 +61,16 @@ def unescape(text):
     text = text.replace("\xad".decode("iso_8859-1"), "")  # soft hyphen
     text = text.replace("\xb0".decode("iso_8859-1"), "")  # degree symbol
     text = text.replace("\xbb".decode("iso_8859-1"), ">")
-    text = text.replace(u'\u2014', "-")  # mdash
-    text = text.replace(u'\u2018', "'")
-    text = text.replace(u'\u2019', "'")
-    text = text.replace(u'\u201c', "\"")  # left double quotation mark
-    text = text.replace(u'\u201d', "\"")  # right double quotation mark
-    text = text.replace(u'\u2026', "...")  # horizontal ellipsis
-    text = text.replace(u'\u2208', "?")
-    text = text.replace(u'\u2260', "!=")
-    text = text.replace(u'\u2264', "<=")
-    text = text.replace(u'\u2265', ">=")
+    text = text.replace('\u2014', "-")  # mdash
+    text = text.replace('\u2018', "'")
+    text = text.replace('\u2019', "'")
+    text = text.replace('\u201c', "\"")  # left double quotation mark
+    text = text.replace('\u201d', "\"")  # right double quotation mark
+    text = text.replace('\u2026', "...")  # horizontal ellipsis
+    text = text.replace('\u2208', "?")
+    text = text.replace('\u2260', "!=")
+    text = text.replace('\u2264', "<=")
+    text = text.replace('\u2265', ">=")
     text = text.encode('ascii', 'replace')
     return text
 
@@ -138,12 +138,12 @@ def parseExtraValuesFromDl(dl_tag, values):
 
 
 def parseExtraData(property_name, properties, page_info):
-    print "%r" % (property_name, )
+    print("%r" % (property_name, ))
     data = getHtmlForUrl(page_info[0])
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return
 
     property_details = {}
@@ -151,13 +151,13 @@ def parseExtraData(property_name, properties, page_info):
 
     tag = soup.html.body.find(True, {'id': page_info[1]})
     if not tag:
-        print "Unable to find HTML element with id: %r" % (page_info[1], )
+        print("Unable to find HTML element with id: %r" % (page_info[1], ))
         return
 
     description = ''
     values = {}
     while tag:
-        tag = tag.next
+        tag = tag.__next__
         if not tag:
             break
         if isinstance(tag, NavigableString):
@@ -179,7 +179,7 @@ def getHtmlForUrl(url):
     cache_filename = join(".cache", urlhash)
     if exists(cache_filename):
         return file(cache_filename).read()
-    urlOpener = urllib.urlopen(url)
+    urlOpener = urllib.request.urlopen(url)
     content = urlOpener.read()
     file(cache_filename, "wb").write(content)
     return content
@@ -465,16 +465,16 @@ css3_property_details = {
         'url': 'http://www.w3.org/TR/css3-content/#moving',
     },
     'nav-down': {
-        'url': u'http://www.w3.org/TR/css3-ui/#nav-down',
+        'url': 'http://www.w3.org/TR/css3-ui/#nav-down',
     },
     'nav-index': {
-        'url': u'http://www.w3.org/TR/css3-ui/#nav-index',
+        'url': 'http://www.w3.org/TR/css3-ui/#nav-index',
     },
     'nav-left': {
-        'url': u'http://www.w3.org/TR/css3-ui/#nav-left',
+        'url': 'http://www.w3.org/TR/css3-ui/#nav-left',
     },
     'nav-right': {
-        'url': u'http://www.w3.org/TR/css3-ui/#nav-right',
+        'url': 'http://www.w3.org/TR/css3-ui/#nav-right',
     },
     'nav-up': {
         'url': 'http://www.w3.org/TR/css3-ui/#nav-up',

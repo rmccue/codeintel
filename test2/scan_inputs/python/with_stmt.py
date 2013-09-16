@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 import threading
 
 
@@ -6,7 +6,7 @@ def do_something():
     with open('/etc/passwd:', 'r') \
             as f:  # making this: hard
         for line in f:
-            print line
+            print(line)
 
 
 def foo():

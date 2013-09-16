@@ -58,9 +58,9 @@
 import os
 import glob
 import string
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import zipfile
-from cStringIO import StringIO
+from io import StringIO
 
 # Shared code for cix generation
 from codeintel2.gencix_utils import *
@@ -207,7 +207,7 @@ def getDom2XMLFilesFromWebpage():
         "http://www.w3.org/TR/2000/REC-DOM-Level-2-Views-20001113/DOM2-Views.zip",
     )
     for url in urls:
-        urlOpener = urllib.urlopen(url)
+        urlOpener = urllib.request.urlopen(url)
     # When testing using local files
     # urls = ("/home/toddw/downloads/javascript/DOM2-Core.zip",
     #        "/home/toddw/downloads/javascript/DOM2-HTML.zip",
@@ -226,7 +226,7 @@ def getDom2XMLFilesFromWebpage():
             xml_source = ""
             try:
                 zipdata = zf.read(zippath)
-                print "File %r okay" % (os.path.basename(url))
+                print("File %r okay" % (os.path.basename(url)))
             except KeyError:
                 # print "No %s in file %r" % (zippath, os.path.basename(url))
                 xml_source = zf.read("xml-source.xml")
@@ -265,7 +265,7 @@ def getDom2XMLFilesFromWebpage():
             elif xml_source:
                 files[os.path.basename(url)] = StringIO(
                     fixXMLEntities(xml_source))
-                print "Special casing for %s" % (os.path.basename(url))
+                print("Special casing for %s" % (os.path.basename(url)))
             zf.close()
         finally:
             os.remove(zippath)
@@ -279,19 +279,19 @@ def main():
     cix_dom2_module = createCixModule(cix_dom2_file, "*", lang="JavaScript")
 
     files = getDom2XMLFilesFromWebpage()
-    for filename, xml_file in files.items():
+    for filename, xml_file in list(files.items()):
         # print "filename: %r" % (filename)
         tree = ElementTree()
         try:
             tree.parse(xml_file)
-        except SyntaxError, e:
+        except SyntaxError as e:
             message = str(e)
             if message.find("(invalid token)") > 0:
                 linesp = message.split("line ", 1)
                 linesp = linesp[1].split(",", 1)
                 line = int(linesp[0])
                 lines_split = xml_file.getvalue().splitlines(0)
-                print "Invalid character on line: %r" % (lines_split[line])
+                print("Invalid character on line: %r" % (lines_split[line]))
             raise e
 
         root = tree.getroot()

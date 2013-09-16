@@ -161,13 +161,13 @@ class Maker(object):
 
     def _process_makefile(self):
         func_from_target = {}
-        for name, attr in self.module.__dict__.items():
+        for name, attr in list(self.module.__dict__.items()):
             if name.startswith('make_'):
                 func_from_target[name[len('make_'):]] = attr
         self.func_from_target = func_from_target
 
         default_targets = []
-        for target, target_func in func_from_target.items():
+        for target, target_func in list(func_from_target.items()):
             if hasattr(target_func, "default") and target_func.default:
                 default_targets.append(target)
         if not default_targets:
@@ -513,7 +513,7 @@ if __name__ == "__main__":
             log.error(exc_info[0])
         if log.isEnabledFor(logging.DEBUG):
             import traceback
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:

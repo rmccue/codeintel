@@ -48,7 +48,7 @@ from os.path import isfile, isdir, exists, dirname, abspath, splitext, join
 import sys
 import getopt
 import stat
-from cStringIO import StringIO
+from io import StringIO
 import logging
 import time
 import re
@@ -58,7 +58,7 @@ import traceback
 from pprint import pprint
 import random
 from glob import glob
-import cStringIO
+import io
 
 import ciElementTree as ET
 from codeintel2.manager import Manager
@@ -180,7 +180,7 @@ def _escaped_text_from_text(text, escapes="eol"):
     # - Add _escaped_html_from_text() with a similar call sig.
     import re
 
-    if isinstance(escapes, basestring):
+    if isinstance(escapes, str):
         if escapes == "eol":
             escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
         elif escapes == "whitespace":
@@ -195,7 +195,7 @@ def _escaped_text_from_text(text, escapes="eol"):
 
     # Sort longer replacements first to allow, e.g. '\r\n' to beat '\r' and
     # '\n'.
-    escapes_keys = escapes.keys()
+    escapes_keys = list(escapes.keys())
     escapes_keys.sort(key=lambda a: len(a), reverse=True)
 
     def repl(match):
@@ -326,7 +326,7 @@ class Shell(cmdln.Cmdln):
                 if trg is None:
                     raise Error("unexpected trigger: %r" % trg)
                 completions = buf.cplns_from_trg(trg)
-                print "COMPLETIONS: %r" % completions
+                print("COMPLETIONS: %r" % completions)
             finally:
                 mgr.finalize()
 
@@ -344,21 +344,21 @@ class Shell(cmdln.Cmdln):
                 f = Foo()
                 """)
             content, data = unmark_text(markedup_content)
-            print banner(path)
-            print _escaped_text_from_text(content, "whitespace")
+            print(banner(path))
+            print(_escaped_text_from_text(content, "whitespace"))
             pos = data["pos"]
             mgr = Manager()
             mgr.upgrade()
             mgr.initialize()
             try:
                 buf = mgr.buf_from_content(content, lang=lang, path=path)
-                print banner("cix", '-')
-                print buf.cix
+                print(banner("cix", '-'))
+                print(buf.cix)
 
                 trg = buf.trg_from_pos(pos)
                 if trg is None:
                     raise Error("unexpected trigger: %r" % trg)
-                print banner("completions", '-')
+                print(banner("completions", '-'))
                 ctlr = LogEvalController(log)
                 buf.async_eval_at_trg(trg, ctlr)
                 ctlr.wait(2)  # XXX
@@ -366,7 +366,7 @@ class Shell(cmdln.Cmdln):
                     ctlr.abort()
                     raise Error("XXX async eval timed out")
                 pprint(ctlr.cplns)
-                print banner(None)
+                print(banner(None))
             finally:
                 mgr.finalize()
         elif False:
@@ -379,22 +379,22 @@ class Shell(cmdln.Cmdln):
             req.<2>get()
             """)
             content, data = unmark_text(markedup_content)
-            print banner(path)
-            print _escaped_text_from_text(content, "whitespace")
+            print(banner(path))
+            print(_escaped_text_from_text(content, "whitespace"))
             pos = data[1]
             mgr = Manager()
             mgr.upgrade()
             mgr.initialize()
             try:
                 buf = mgr.buf_from_content(content, lang=lang, path=path)
-                print banner("cix", '-')
+                print(banner("cix", '-'))
                 cix = buf.cix
-                print ET.tostring(pretty_tree_from_tree(tree_from_cix(buf.cix)))
+                print(ET.tostring(pretty_tree_from_tree(tree_from_cix(buf.cix))))
 
                 trg = buf.trg_from_pos(pos, implicit=False)
                 if trg is None:
                     raise Error("unexpected trigger: %r" % trg)
-                print banner("completions", '-')
+                print(banner("completions", '-'))
                 ctlr = LogEvalController(log)
                 buf.async_eval_at_trg(trg, ctlr)
                 ctlr.wait(30)  # XXX
@@ -402,7 +402,7 @@ class Shell(cmdln.Cmdln):
                     ctlr.abort()
                     raise Error("XXX async eval timed out")
                 pprint(ctlr.cplns)
-                print banner(None)
+                print(banner(None))
             finally:
                 mgr.finalize()
 
@@ -413,7 +413,7 @@ class Shell(cmdln.Cmdln):
         ${cmd_usage}
         ${cmd_option_list}
         """
-        import cPickle as pickle
+        import pickle as pickle
         for path in _paths_from_path_patterns(path_patterns):
             fin = open(path, 'rb')
             try:
@@ -438,7 +438,7 @@ class Shell(cmdln.Cmdln):
         finally:
             mgr.finalize()
         for error in errors:
-            print error
+            print(error)
         return len(errors)
 
     @cmdln.option("-l", "--language", dest="lang",
@@ -514,7 +514,7 @@ class Shell(cmdln.Cmdln):
 
             try:
                 _outline_ci_elem(elem, brief=opts.brief, doSort=opts.doSort)
-            except IOError, ex:
+            except IOError as ex:
                 if ex.errno == 0:
                     # Ignore this error from aborting 'less' of 'ci2 outline'
                     # output:
@@ -543,7 +543,7 @@ class Shell(cmdln.Cmdln):
             tree = tree_from_cix(cix)
             for sev, msg in check_tree(tree):
                 num_results += 1
-                print "%s: %s: %s" % (path, sev, msg)
+                print("%s: %s: %s" % (path, sev, msg))
         return num_results
 
     @cmdln.option("-2", dest="convert", action="store_true",
@@ -796,7 +796,7 @@ class Shell(cmdln.Cmdln):
                 if name is not None:
                     data["name"] = name
                 data["tag"] = elem.tag
-                for attr_name, attr in elem.attrib.items():
+                for attr_name, attr in list(elem.attrib.items()):
                     data[attr_name] = attr
                 parent["children"].append(data)
                 for child in elem:
@@ -1023,7 +1023,7 @@ def main(argv=sys.argv):
             log.error(exc_info[0])
         if not skip_it:
             if True or log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 traceback.print_exception(*exc_info)
             sys.exit(1)
     else:

@@ -134,4 +134,4 @@ def thirty():
 def thirty_one():
     "(us)   31 0037 0x1f \x1f"
 
-print __doc__
+print(__doc__)

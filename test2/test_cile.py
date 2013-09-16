@@ -66,7 +66,7 @@ import unittest
 import difflib
 import pprint
 import shutil
-import StringIO
+import io
 import pprint
 import warnings
 import traceback
@@ -145,8 +145,8 @@ def _testOneInputFile(self, fpath, tags=None):
     optsfile = os.path.join(gInputsDir, fpath+'.options')  # input options
 
     if _debug:
-        print
-        print "*"*50, "codeintel '%s'" % fpath
+        print()
+        print("*"*50, "codeintel '%s'" % fpath)
 
     # Set standard options:
     opts = {"mtime": "42"}
@@ -163,7 +163,7 @@ def _testOneInputFile(self, fpath, tags=None):
                 pass
             opts[name] = value
         if _debug:
-            print "*"*50, "options"
+            print("*"*50, "options")
             pprint.pprint(opts)
 
     # Scan the file, capturing stdout and stderr and any possible
@@ -173,8 +173,8 @@ def _testOneInputFile(self, fpath, tags=None):
     #   <scope ilk="blob" src="..."> attributes).
     oldStdout = sys.stdout
     oldStderr = sys.stderr
-    sys.stdout = StringIO.StringIO()
-    sys.stderr = StringIO.StringIO()
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
     try:
         try:
             lang = None
@@ -210,11 +210,11 @@ def _testOneInputFile(self, fpath, tags=None):
                     cile_error) < 30 and cile_error or (cile_error[:30] + "..."))
             cix = ET.tostring(tree)
 
-        except CodeIntelError, ex:
+        except CodeIntelError as ex:
             error = traceback.format_exc()
         else:
             error = None
-            if isinstance(cix, unicode):
+            if isinstance(cix, str):
                 with io.open(tmpfile, mode="wt", encoding="utf-8") as fout:
                     fout.write(cix)
             else:
@@ -226,13 +226,13 @@ def _testOneInputFile(self, fpath, tags=None):
         sys.stdout = oldStdout
         sys.stderr = oldStderr
     if _debug:
-        print "*"*50, "stdout"
-        print stdout
-        print "*"*50, "stderr"
-        print stderr
-        print "*"*50, "error"
-        print str(error)
-        print "*" * 50
+        print("*"*50, "stdout")
+        print(stdout)
+        print("*"*50, "stderr")
+        print(stderr)
+        print("*"*50, "error")
+        print(str(error))
+        print("*" * 50)
 
     # Verify that the results are as expected.
     if os.path.exists(outfile) and error:
@@ -364,8 +364,8 @@ def _fillScanInputsTestCase():
 def _addUnicodeScanInputTests():
     fs_encoding = sys.getfilesystemencoding().lower()
     unicode_markers = {
-        "russian": u'\u043b\u0449',  # 'ko' on russian keyboard
-        "latin-1": u'k\xf2m\xf3d\xf4',
+        "russian": '\u043b\u0449',  # 'ko' on russian keyboard
+        "latin-1": 'k\xf2m\xf3d\xf4',
     }
     if fs_encoding not in ("mbcs", "utf-8"):
         unicode_marker = unicode_markers["latin-1"]
@@ -381,7 +381,7 @@ def _addUnicodeScanInputTests():
     content_and_cix_from_lang = {
         "perl": (
             r"sub foo { print 'hi\n'; }",
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="Perl" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.pl">
     <scope ilk="blob" lang="Perl" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.pl">
@@ -392,7 +392,7 @@ def _addUnicodeScanInputTests():
 """),
         "python": (
             r"def foo(): print 'hi'",
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="Python" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.py">
     <scope ilk="blob" lang="Python" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.py">
@@ -403,7 +403,7 @@ def _addUnicodeScanInputTests():
 """),
         "php": (
             r"<?php function foo() { echo 'hi\n'; } ?>",
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="PHP" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.php">
     <scope ilk="blob" lang="PHP" name="foo.php" src="scan_inputs/unicode/&#1083;&#1097;/foo.php">
@@ -418,7 +418,7 @@ def foo
     puts 'hi\n'
 end
 """,
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="Ruby" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.rb">
     <scope ilk="blob" lang="Ruby" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.rb">
@@ -429,7 +429,7 @@ end
 """),
         "tcl": (
             r'proc foo {} { puts "hi\n"; }',
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="Tcl" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.tcl">
     <scope ilk="blob" lang="Tcl" name="foo" src="scan_inputs/unicode/&#1083;&#1097;/foo.tcl">
@@ -440,7 +440,7 @@ end
 """),
         "javascript": (
             r"function foo { dump('hi\n'); }",
-            u"""\
+            """\
 <codeintel version="2.0">
   <file lang="JavaScript" mtime="42" path="scan_inputs/unicode/&#1083;&#1097;/foo.js">
     <scope ilk="blob" lang="JavaScript" name="foo.js" src="scan_inputs/unicode/&#1083;&#1097;/foo.js">

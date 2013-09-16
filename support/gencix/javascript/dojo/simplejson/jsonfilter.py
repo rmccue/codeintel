@@ -18,7 +18,7 @@ class JSONFilter(object):
         if environ.get('REQUEST_METHOD', '') == 'POST':
             if environ.get('CONTENT_TYPE', '') == self.mime_type:
                 args = [_ for _ in [environ.get('CONTENT_LENGTH')] if _]
-                data = environ['wsgi.input'].read(*map(int, args))
+                data = environ['wsgi.input'].read(*list(map(int, args)))
                 environ['jsonfilter.json'] = simplejson.loads(data)
         res = simplejson.dumps(self.app(environ, json_start_response))
         jsonp = cgi.parse_qs(environ.get('QUERY_STRING', '')).get('jsonp')

@@ -47,7 +47,7 @@ class PythonBufferTestCase(_BufferTestCaseBase):
 
     def setUp(self):
         _BufferTestCaseBase.setUp(self)
-        self.doc.buffer, self.positions = unmark_text(dedent(u"""
+        self.doc.buffer, self.positions = unmark_text(dedent("""
             # Ťĥíš ƒíłé ĥáš Ůɳíčóďé ťéхť ťó ťéšť ƀýťé νš čĥář ƿóšíťíóɳš
             def silly():
                 indent = 4<5>
@@ -144,7 +144,7 @@ class PerlBufferTestCase(_BufferTestCaseBase):
 
     @tag("bug99676")
     def test_unicode_in_defn(self):
-        self.doc.buffer, self.positions = unmark_text(dedent(u"""
+        self.doc.buffer, self.positions = unmark_text(dedent("""
             #Ůɳíčóďé<3>
             my $pCnt = 0;<1>
             # Some filler text to make sure we do not accidentally find the

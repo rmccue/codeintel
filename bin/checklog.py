@@ -53,7 +53,7 @@ for i, line in enumerate(open(sqllog, 'r')):
 dupes = []
 numdupes = 0
 numwastes = 0
-for query, linenums in queries.items():
+for query, linenums in list(queries.items()):
     if len(linenums) > 1:
         dupes.append((len(linenums), query))
         numdupes += 1
@@ -61,8 +61,8 @@ for query, linenums in queries.items():
 
 dupes.sort()
 for dupe in dupes:
-    print "%4d repeats: %s" % dupe
+    print("%4d repeats: %s" % dupe)
 
-print
-print "Number of dupes: %r" % numdupes
-print "Theoretical max number of wasted queries: %r" % numwastes
+print()
+print("Number of dupes: %r" % numdupes)
+print("Theoretical max number of wasted queries: %r" % numwastes)

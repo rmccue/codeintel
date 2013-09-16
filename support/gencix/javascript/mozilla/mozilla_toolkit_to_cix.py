@@ -86,12 +86,12 @@ def remove_private_elements(tree):
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 
 def main(cix_filename, toolkit_jar_file, updatePerforce=False):
@@ -100,11 +100,11 @@ def main(cix_filename, toolkit_jar_file, updatePerforce=False):
     # cix_yui_file = createCixFile(cix_yui, "yui", lang="JavaScript")
     # cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
-    print "cix_filename: %r" % (cix_filename, )
+    print("cix_filename: %r" % (cix_filename, ))
     filenames_and_content = getMozillaToolkitFilenamesAndContent(
         toolkit_jar_file)
     jscile = JavaScriptCiler(Manager(), "Mozilla Toolkit")
-    for filename, content in filenames_and_content.items():
+    for filename, content in list(filenames_and_content.items()):
         jscile.scan_puretext(content)
     jscile.convertToElementTreeFile(cix_komodo, "JavaScript")
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                       action="store_true", help="edit perforce cix for this file")
     (opts, args) = parser.parse_args()
     if len(args) != 1:
-        print "Usage: python %s path/to/mozilla/toolkit.jar" % (__file__, )
+        print("Usage: python %s path/to/mozilla/toolkit.jar" % (__file__, ))
         sys.exit(1)
     toolkit_jar_file = args[0]
 

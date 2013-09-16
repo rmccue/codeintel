@@ -65,7 +65,7 @@ class CSSLintTest(CodeIntelTestCase):
 
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
-        print "Test files in path %s" % test_dir
+        print("Test files in path %s" % test_dir)
         for path in glob.glob(join(test_dir, "*.css")):
             fd = open(path, 'r')
             code = fd.read().decode("utf-8")
@@ -132,7 +132,7 @@ class CSSLintTest(CodeIntelTestCase):
         fd = open(path, 'r')
         code = fd.read().decode("utf-8")
         fd.close()
-        print "Test file %s" % basename(path)
+        print("Test file %s" % basename(path))
         results = self.csslinter.lint(code)
         self.assertTrue(len(results) > 0)
 
@@ -1650,7 +1650,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
-    _bug_94548_full_code = dedent(u"""\
+    _bug_94548_full_code = dedent("""\
 /* Bug caused by non-ascii text at line 1274 */
 
 /*EM 'reset baseline' style rules*/

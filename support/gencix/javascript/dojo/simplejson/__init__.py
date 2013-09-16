@@ -77,8 +77,8 @@ __all__ = [
     'JSONDecoder', 'JSONEncoder',
 ]
 
-from decoder import JSONDecoder
-from encoder import JSONEncoder
+from .decoder import JSONDecoder
+from .encoder import JSONEncoder
 
 
 def dump(obj, fp, skipkeys=False, ensure_ascii=True, check_circular=True,

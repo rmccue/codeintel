@@ -47,11 +47,11 @@ import ciElementTree
 
 
 def p4update(filename, content):
-    print os.popen("p4 edit %s" % (filename)).read()
+    print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     diff = os.popen("p4 diff %s" % (filename)).read()
     if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-        print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+        print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 
 def update_documentation_sentences(tree):

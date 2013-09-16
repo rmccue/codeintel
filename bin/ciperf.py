@@ -137,7 +137,7 @@ def perf_cidb_size(dbpath):
     mgr.initialize(dbpath)
     starttime = time.time()
     try:
-        print "load directory '%s'" % perllib
+        print("load directory '%s'" % perllib)
         mgr.batchUpdateRequest("directory", perllib, "Perl")
         mgr.batchUpdateStart()
         mgr.batchUpdateWait()
@@ -148,13 +148,13 @@ def perf_cidb_size(dbpath):
     results.append({"dname": perllib,
                     "seconds": endtime-starttime,
                     "dbsize": os.stat(dbpath).st_size})
-    print "Results:"
+    print("Results:")
     for res in results:
-        print res["dname"]+':'
+        print(res["dname"]+':')
         seconds = res["seconds"]
         h, m, s = seconds/3600.0, seconds/60.0, seconds % 60.0
-        print "\tTime: %02dh%02dm%02.1fs" % (h, m, s)
-        print "\tSize: %.2f KB" % (res["dbsize"]/1024.0)
+        print("\tTime: %02dh%02dm%02.1fs" % (h, m, s))
+        print("\tSize: %.2f KB" % (res["dbsize"]/1024.0))
 
 
 def perf_setup_perl_completion(dbpath):
@@ -495,7 +495,7 @@ def _get_komodo_user_data_dir(kover):
         from win32com.shell import shellcon, shell
         userdatadir = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
         try:
-            userdatadir = unicode(userdatadir)
+            userdatadir = str(userdatadir)
         except:
             pass
         userdatadir = os.path.join(userdatadir, "ActiveState", "Komodo")
@@ -527,7 +527,7 @@ def find_komodo_cidb_path():
     kodir = wd
     try:
         file, path, desc = imp.find_module("bkconfig", [kodir])
-    except ImportError, ex:
+    except ImportError as ex:
         raise Error("could not determine Komodo version: %s" % ex)
     bkconfig = imp.load_module("bkconfig", file, path, desc)
     kover = '.'.join(bkconfig.version.split('.', 2)[:2])
@@ -547,30 +547,30 @@ def _list_perf_funcs(verbose=False):
     """
     prefix = "perf_"
     docmap = {}
-    for perffunc, attr in sys.modules[__name__].__dict__.items():
+    for perffunc, attr in list(sys.modules[__name__].__dict__.items()):
         if perffunc.startswith(prefix):
             if attr.__doc__:
                 doc = attr.__doc__
             else:
                 doc = ''
             docmap[perffunc[len(prefix):]] = doc
-    perffuncs = docmap.keys()
+    perffuncs = list(docmap.keys())
 
-    print banner("Performance Functions")
+    print(banner("Performance Functions"))
     for i, perffunc in enumerate(perffuncs):
         doc = docmap[perffunc]
         if verbose:
             if i:
-                print
-            print perffunc
+                print()
+            print(perffunc)
             if doc:
-                print "    "+doc
+                print("    "+doc)
         else:
             if doc:
                 doc = doc.splitlines()[0]
             if len(doc) > 53:
                 doc = doc[:50] + "..."
-            print "  %-20s  %s" % (perffunc, doc)
+            print("  %-20s  %s" % (perffunc, doc))
 
 
 #---- mainline
@@ -578,9 +578,9 @@ def time_perffunc(dbpath, perffunc, number=0, header=True):
     precision = 3
     repeat = 1
     if header:
-        print banner("time perf_%s()" % perffunc)
-        print "CIDB path:", dbpath
-        print banner(None, ch='-')
+        print(banner("time perf_%s()" % perffunc))
+        print("CIDB path:", dbpath)
+        print(banner(None, ch='-'))
 
     pysetup = "import ciperf"
     pystmt = "ciperf.perf_%s(%r)" % (perffunc, dbpath)
@@ -606,9 +606,9 @@ def time_perffunc(dbpath, perffunc, number=0, header=True):
         return
     best = min(r)
     log.debug("raw times: %s", " ".join(["%.*g" % (precision, x) for x in r]))
-    print "%d loops," % number,
+    print("%d loops," % number, end=' ')
     sec = best / number
-    print "best of %d: %.*g sec per loop" % (repeat, precision, sec)
+    print("best of %d: %.*g sec per loop" % (repeat, precision, sec))
 
 
 def main(argv):
@@ -619,7 +619,7 @@ def main(argv):
         opts, args = getopt.getopt(argv[1:], "Vvhf:Sltrcn:",
                                    ["version", "verbose", "help", "suite", "list", "timeit", "run",
                                     "coverage", "number="])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `ciperf --help'.")
         return 1
@@ -632,7 +632,7 @@ def main(argv):
             return
         elif opt in ("-V", "--version"):
             ver = '.'.join([str(part) for part in _version_])
-            print "ciperf.py %s" % ver
+            print("ciperf.py %s" % ver)
             return
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -659,30 +659,30 @@ def main(argv):
             dbpath = "ciperf.suite.db"
             if os.path.exists(dbpath):
                 os.remove(dbpath)
-            print banner("CodeIntel Performance Suite")
-            print "dbpath:      %s" % dbpath
-            print "machine:     %s (%s)" % (getHostname(), sys.platform)
+            print(banner("CodeIntel Performance Suite"))
+            print("dbpath:      %s" % dbpath)
+            print("machine:     %s (%s)" % (getHostname(), sys.platform))
             i, o, e = os.popen3("p4 changes -m1 ./...")
             output = o.read()
             i.close()
             o.close()
             retval = e.close()
-            print "last change: %s" % output.split("'", 1)[0].strip()
-            print banner(None, ch='-')
-            print "setup database..."
+            print("last change: %s" % output.split("'", 1)[0].strip())
+            print(banner(None, ch='-'))
+            print("setup database...")
             perf_setup_perl_completion(dbpath)
             perf_setup_python_completion(dbpath)
-            print "time 'perl_scan'..."
+            print("time 'perl_scan'...")
             time_perffunc(dbpath, "perl_scan", number=number, header=False)
-            print "time 'perl_completion'..."
+            print("time 'perl_completion'...")
             time_perffunc(
                 dbpath, "perl_completion", number=number, header=False)
-            print "time 'python_scan'..."
+            print("time 'python_scan'...")
             time_perffunc(dbpath, "python_scan", number=number, header=False)
-            print "time 'python_completion'..."
+            print("time 'python_completion'...")
             time_perffunc(
                 dbpath, "python_completion", number=number, header=False)
-            print banner(None, ch='-')
+            print(banner(None, ch='-'))
         if dbpath is None:
             dbpath = find_komodo_cidb_path()
         if mode == "suite":
@@ -694,7 +694,7 @@ def main(argv):
                 time_perffunc(dbpath, perffunc, number=number)
         elif mode == "run":
             for perffunc in perffuncs:
-                print banner("run perf_%s()" % perffunc)
+                print(banner("run perf_%s()" % perffunc))
                 func = getattr(sys.modules[__name__], 'perf_'+perffunc)
                 func(dbpath)
         elif mode == "coverage":
@@ -714,10 +714,10 @@ def main(argv):
                 stats.print_stats(20)
         else:
             raise Error("unexpected mode: '%r'" % mode)
-    except Error, ex:
+    except Error as ex:
         log.error(str(ex))
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             import traceback
             traceback.print_exception(*sys.exc_info())
         return 1

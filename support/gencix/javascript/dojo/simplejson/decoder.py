@@ -2,7 +2,7 @@
 Implementation of JSONDecoder
 """
 import re
-from odict import OrderedDict
+from .odict import OrderedDict
 
 from simplejson.scanner import Scanner, pattern
 
@@ -65,8 +65,8 @@ pattern(r'(-?(?:0|[1-9]\d*))(\.\d+)?([eE][-+]?\d+)?')(JSONNumber)
 
 STRINGCHUNK = re.compile(r'(.*?)(["\\])', FLAGS)
 BACKSLASH = {
-    '"': u'"', '\\': u'\\', '/': u'/',
-    'b': u'\b', 'f': u'\f', 'n': u'\n', 'r': u'\r', 't': u'\t',
+    '"': '"', '\\': '\\', '/': '/',
+    'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t',
 }
 
 DEFAULT_ENCODING = "utf-8"
@@ -86,8 +86,8 @@ def scanstring(s, end, encoding=None, _b=BACKSLASH, _m=STRINGCHUNK.match):
         end = chunk.end()
         content, terminator = chunk.groups()
         if content:
-            if not isinstance(content, unicode):
-                content = unicode(content, encoding)
+            if not isinstance(content, str):
+                content = str(content, encoding)
             _append(content)
         if terminator == '"':
             break
@@ -106,14 +106,14 @@ def scanstring(s, end, encoding=None, _b=BACKSLASH, _m=STRINGCHUNK.match):
         else:
             esc = s[end + 1:end + 5]
             try:
-                m = unichr(int(esc, 16))
+                m = chr(int(esc, 16))
                 if len(esc) != 4 or not esc.isalnum():
                     raise ValueError
             except ValueError:
                 raise ValueError(errmsg("Invalid \\uXXXX escape", s, end))
             end += 5
         _append(m)
-    return u''.join(chunks), end
+    return ''.join(chunks), end
 
 
 def JSONString(match, context):
@@ -143,7 +143,7 @@ def JSONObject(match, context, _w=WHITESPACE.match):
             raise ValueError(errmsg("Expecting : delimiter", s, end))
         end = _w(s, end + 1).end()
         try:
-            value, end = JSONScanner.iterscan(s, idx=end).next()
+            value, end = next(JSONScanner.iterscan(s, idx=end))
         except StopIteration:
             raise ValueError(errmsg("Expecting object", s, end))
         pairs[key] = value
@@ -176,7 +176,7 @@ def JSONArray(match, context, _w=WHITESPACE.match):
         return values, end + 1
     while True:
         try:
-            value, end = JSONScanner.iterscan(s, idx=end).next()
+            value, end = next(JSONScanner.iterscan(s, idx=end))
         except StopIteration:
             raise ValueError(errmsg("Expecting object", s, end))
         values.append(value)
@@ -274,7 +274,7 @@ class JSONDecoder(object):
         """
         kw.setdefault('context', self)
         try:
-            obj, end = self._scanner.iterscan(s, **kw).next()
+            obj, end = next(self._scanner.iterscan(s, **kw))
         except StopIteration:
             raise ValueError("No JSON object could be decoded")
         return obj, end

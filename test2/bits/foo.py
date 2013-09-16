@@ -19,7 +19,7 @@ sys.path    # should have path in completion list
 f = Foo()
 f.bar()
 
-print "this is ", os.path.abspath(__file__)
+print("this is ", os.path.abspath(__file__))
 
-print (sys
-       .path)
+print((sys
+       .path))

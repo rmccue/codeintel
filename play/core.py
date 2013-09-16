@@ -788,7 +788,7 @@ class Size(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0, 0)
     __safe_for_unpickling__ = True
 
@@ -907,7 +907,7 @@ class RealPoint(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0.0, 0.0)
     __safe_for_unpickling__ = True
 
@@ -1042,7 +1042,7 @@ class Point(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0, 0)
     __safe_for_unpickling__ = True
 
@@ -1340,7 +1340,7 @@ class Rect(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0, 0, 0, 0)
     __safe_for_unpickling__ = True
 
@@ -1537,7 +1537,7 @@ class Point2D(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0.0, 0.0)
     __safe_for_unpickling__ = True
 
@@ -2449,7 +2449,7 @@ class Image(Object):
         """ConvertToMonoBitmap(unsigned char red, unsigned char green, unsigned char blue) -> Bitmap"""
         return _core.Image_ConvertToMonoBitmap(*args, **kwargs)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Ok()
 
 
@@ -5512,10 +5512,10 @@ class App(wx.PyApp):
             try:
                 import MacOS
                 if not MacOS.WMAvailable():
-                    print """\
+                    print("""\
 This program needs access to the screen. Please run with 'pythonw',
 not 'python', and only when you are logged in on the main display of
-your Mac."""
+your Mac.""")
                     _sys.exit(1)
             except:
                 pass
@@ -9357,7 +9357,7 @@ class GBPosition(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0, 0)
     __safe_for_unpickling__ = True
 
@@ -9442,7 +9442,7 @@ class GBSpan(object):
         else:
             raise IndexError
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.Get() != (0, 0)
     __safe_for_unpickling__ = True
 
@@ -10020,7 +10020,7 @@ class _wxPyDeadObject(object):
             self._name = "[unknown]"
         raise PyDeadObjectError(self.attrStr % self._name)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return 0
 
 
@@ -10051,7 +10051,7 @@ class _wxPyUnbornObject(object):
         #    self._name = "[unknown]"
         raise PyUnbornObjectError(self.attrStr)  # % self._name )
 
-    def __nonzero__(self):
+    def __bool__(self):
         return 0
 
 

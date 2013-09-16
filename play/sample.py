@@ -71,6 +71,6 @@ class ClassOneBase(ClassNoBase):
     def __private_method(self, a):
         pass
 
-print "hi"
+print("hi")
 func_args("foo", "bar", "blam")
-print "bye"
+print("bye")

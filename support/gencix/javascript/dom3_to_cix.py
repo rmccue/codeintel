@@ -115,7 +115,7 @@ def generateCIXFromXML(root):
         interface = interfacenode.attrib["name"]
         # if interface not in ("Node", "Document"):
         #    continue
-        print "interface: %r" % (interface)
+        print("interface: %r" % (interface))
 
         cixinterface = SubElement(cixmodule, "interface", name=interface)
         inherits = interfacenode.get("inherits")

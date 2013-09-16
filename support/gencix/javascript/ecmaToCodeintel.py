@@ -139,11 +139,11 @@ def fixTags():
                            childnode.get("signature") == objChildNode.get("signature") and \
                            childnode.get("doc") == objChildNode.get("doc"):
                             # They match, remove the duplicate from scope
-                            print "Removing duplicated Object item: %s, from %s" % (
-                                name, scope.get("name"))
+                            print("Removing duplicated Object item: %s, from %s" % (
+                                name, scope.get("name")))
                             scope.remove(childnode)
                         else:
-                            print "Duplicate %s differed in %s" % (name, scope.get("name"))
+                            print("Duplicate %s differed in %s" % (name, scope.get("name")))
                     except KeyError:
                         # Not found, so that is okay
                         pass

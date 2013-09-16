@@ -73,8 +73,7 @@ class OOPTestCase(unittest.TestCase):
                                 "util",
                                 "contrib/smallstuff",
                                 "src/dbgp/PyDBGP")]
-        pythonpath[0:0] = filter(None,
-                                 env.get("PYTHONPATH", "").split(os.pathsep))
+        pythonpath[0:0] = [_f for _f in env.get("PYTHONPATH", "").split(os.pathsep) if _f]
         env["PYTHONPATH"] = os.pathsep.join(pythonpath)
 
     def setUp(self):
@@ -87,7 +86,7 @@ class OOPTestCase(unittest.TestCase):
         log.debug("bin: %s", bin)
         argv = [os.path.abspath(os.path.normpath(bin)),
                 "--connect", "%s:%s" % self.conn.getsockname()]
-        for log_name in logging.Logger.manager.loggerDict.keys():
+        for log_name in list(logging.Logger.manager.loggerDict.keys()):
             if logging.getLogger(log_name).level is logging.NOTSET:
                 continue
             argv.extend(["--log-level", "%s:%s" % (
@@ -194,52 +193,52 @@ class OOPTestCase(unittest.TestCase):
                     buf += ch
             if expected is not None:
                 expected = dict(expected)
-                expected[u"req_id"] = unicode(i)
-                if not u"success" in expected:
-                    expected[u"success"] = True
+                expected["req_id"] = str(i)
+                if not "success" in expected:
+                    expected["success"] = True
                 self.assertEqual(expected, result)
 
 
 class BaiscTest(OOPTestCase):
     def test_object_members(self):
         self._test_with_commands([
-            ({u"command": u"trg-from-pos",
-              u"path": u"<Unsaved>/1",
-              u"language": u"Python",
-              u"text": u"import array\narray.",
-              u"pos": 1},
-             {u"trg": None}),
-            ({u"command": u"trg-from-pos",
-              u"path": u"<Unsaved>/1",
-              u"language": u"Python",
-              u"text": u"import array\narray.",
-              u"pos": 19},
-             {u"trg": {u"form": 0,
-                       u"type": u"object-members",
-                       u"lang": u"Python",
-                       u"pos": 19,
-                       u"implicit": True,
-                       u"length": 1,
-                       u"extentLength": 0,
-                       u"retriggerOnCompletion": False,
-                       u"path": u"<Unsaved>/1",
+            ({"command": "trg-from-pos",
+              "path": "<Unsaved>/1",
+              "language": "Python",
+              "text": "import array\narray.",
+              "pos": 1},
+             {"trg": None}),
+            ({"command": "trg-from-pos",
+              "path": "<Unsaved>/1",
+              "language": "Python",
+              "text": "import array\narray.",
+              "pos": 19},
+             {"trg": {"form": 0,
+                       "type": "object-members",
+                       "lang": "Python",
+                       "pos": 19,
+                       "implicit": True,
+                       "length": 1,
+                       "extentLength": 0,
+                       "retriggerOnCompletion": False,
+                       "path": "<Unsaved>/1",
                        }}),
-            ({u"command": u"eval",
-              u"trg": {u"form": 0,
-                       u"type": u"object-members",
-                       u"lang": u"Python",
-                       u"pos": 19,
-                       u"implicit": True,
-                       u"length": 1,
-                       u"extentLength": 0,
-                       u"retriggerOnCompletion": False,
-                       u"path": u"<Unsaved>/1",
+            ({"command": "eval",
+              "trg": {"form": 0,
+                       "type": "object-members",
+                       "lang": "Python",
+                       "pos": 19,
+                       "implicit": True,
+                       "length": 1,
+                       "extentLength": 0,
+                       "retriggerOnCompletion": False,
+                       "path": "<Unsaved>/1",
                        }},
-             {u"cplns": [[u"class", u"array"],
-                         [u"class", u"ArrayType"],
-                         [u"variable", u"__doc__"]],
-              u"retrigger": False}),
-            {u"command": u"quit"},
+             {"cplns": [["class", "array"],
+                         ["class", "ArrayType"],
+                         ["variable", "__doc__"]],
+              "retrigger": False}),
+            {"command": "quit"},
         ])
 
 

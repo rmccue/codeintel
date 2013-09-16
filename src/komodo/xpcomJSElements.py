@@ -15,7 +15,7 @@ mechanism.
 import json
 import logging
 import os
-import Queue
+import queue
 import socket
 import subprocess
 import sys
@@ -131,7 +131,7 @@ class XPCOMInterfaceElement(Element):
 class CreateInstanceElement(Element):
     def resolve(self, evlr, action, scoperef, param):
         evlr.log("Resolve! creating %r (scoperef %r)", param, scoperef)
-        if not isinstance(param, basestring):
+        if not isinstance(param, str):
             return None  # Unexpected arguments
         try:
             hits = evlr._hits_from_citdl(param, scoperef)
@@ -160,7 +160,7 @@ class XPCOMSupport(CommandHandler, threading.Thread):
     def __init__(self):
         CommandHandler.__init__(self)
         threading.Thread.__init__(self, name="XPCOM Support Sending Thread")
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._read_buffer = ""
         self.daemon = True
         self.start()
@@ -225,14 +225,14 @@ class XPCOMSupport(CommandHandler, threading.Thread):
             blob.append(self.xpcom_components_elem)
 
             # Add some common aliases
-            for alias_name, citdl in {
+            for alias_name, citdl in list({
                 "CI": "Components.interfaces",
                 "Ci": "Components.interfaces",
                 "CC": "Components.classes",
                 "Cc": "Components.classes",
                 "CU": "Components.utils",
                 "Cu": "Components.utils",
-            }.items():
+            }.items()):
                 if blob.get(alias_name) is None:
                     SubElement(blob, "variable", citdl=citdl, name=alias_name)
 

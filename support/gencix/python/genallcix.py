@@ -59,7 +59,7 @@ Generation guide:
 # * Have a mechanism to override modules and elements, like the "re."
 # Update citdl/returns expressions of the form "x.__dict__" to "dict".
 
-import gencix
+from . import gencix
 import os
 import re
 import sys
@@ -148,7 +148,7 @@ def tree_from_cix(cix):
     if sys.version_info[0] >= 3:
         cix = str(cix, "UTF-8")
     else:
-        if isinstance(cix, unicode):
+        if isinstance(cix, str):
             cix = cix.encode("UTF-8", "xmlcharrefreplace")
     tree = ET.XML(cix)
     version = tree.get("version")
@@ -208,10 +208,10 @@ def gen_modules():
     for path in paths:
         # filter out junk like '' and things in user's PYTHONPATH
         if not path.lower().startswith(sys.prefix.lower()):
-            print("SKIPPING: %r" % (path, ))
+            print(("SKIPPING: %r" % (path, )))
             continue
 
-        print("EXPLORING %r" % (path, ))
+        print(("EXPLORING %r" % (path, )))
         for (dirpath, dirnames, filenames) in os.walk(path, True):
             dirnames[:] = [d for d in dirnames if d.lower() not in (
                 'demo', 'demos', 'test', 'tests')]
@@ -240,17 +240,17 @@ for mod, path in gen_modules():
     module_names.append(mod)
     module_paths[mod] = path
 
-print("Found %d modules" % len(module_names))
+print(("Found %d modules" % len(module_names)))
 
 if sys.platform.startswith('win'):
     pywin32_module_names = list(filter(pywin32_filter, module_names))
     # Manually add certain win32 modules - bug 87357.
     pywin32_module_names += ["win32ui", "win32uiole", "dde"]
-    print("Found %d PyWin32 modules" % len(pywin32_module_names))
+    print(("Found %d PyWin32 modules" % len(pywin32_module_names)))
 
 module_names = list(filter(keep_module, module_names))
 
-print("Kept %d modules" % len(module_names))
+print(("Kept %d modules" % len(module_names)))
 
 if sys.platform.startswith('win'):
     # Remove the pywin32 names from the default scan.
@@ -284,7 +284,7 @@ def apply_module_overrides(modname, modelem):
             exec(compile(open(helpername).read(), os.path.basename(
                 helpername), 'exec'), namespace, namespace)
         else:
-            execfile(helpername, namespace, namespace)
+            exec(compile(open(helpername).read(), helpername, 'exec'), namespace, namespace)
 
         childelems = create_names_dict(modelem)
         function_overrides = namespace.get('function_overrides')
@@ -292,10 +292,10 @@ def apply_module_overrides(modname, modelem):
             for name in function_overrides:
                 override_elem = childelems[name]
                 overrides = function_overrides[name]
-                for setting, value in overrides.items():
+                for setting, value in list(overrides.items()):
                     if override_elem.get(setting) != value:
-                        print("  overriding %s.%s %s attribute from %r to %r" % (
-                            modname, name, setting, override_elem.get(setting), value))
+                        print(("  overriding %s.%s %s attribute from %r to %r" % (
+                            modname, name, setting, override_elem.get(setting), value)))
                         override_elem.set(setting, value)
 
 
@@ -355,13 +355,13 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
     root_file = root.find("file")
     tree_file = tree.find("file")
     if log:
-        print("mod: %r" % (mod, ))
+        print(("mod: %r" % (mod, )))
         print("root_file names")
         print([x.get("name") for x in root_file.getchildren()])
-        print
+        print()
         print("tree names")
         print([x.get("name") for x in tree.getchildren()])
-        print
+        print()
     lastname = mod.split(".")[-1]
     try:
         root_file_children = create_names_dict(root_file)
@@ -372,7 +372,7 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
                                tree_file_children[lastname],
                                appendChildrenAsPrivate=True)
         except KeyError:
-            print("  %r not found in tree" % (mod, ))
+            print(("  %r not found in tree" % (mod, )))
             if not use_init_fallback:
                 raise
             print("    trying '__init__'")
@@ -476,7 +476,7 @@ def get_pythoncile_cix_tree_for_path(mod_path):
             # Convert env to strings (not unicode).
             encoding = sys.getfilesystemencoding()
             _enc_env = {}
-            for key, value in env.items():
+            for key, value in list(env.items()):
                 try:
                     _enc_env[key.encode(encoding)] = value.encode(encoding)
                 except UnicodeEncodeError:
@@ -530,12 +530,12 @@ def process_module_list(module_list, fname, catalog_name=None,
                                     log=False)
         except Exception:
             import traceback
-            print("\nEXCEPTION:", sys.exc_info()[1], "when processing", mod)
+            print(("\nEXCEPTION:", sys.exc_info()[1], "when processing", mod))
             traceback.print_exc()
 
     gencix.writeCixFileForElement(fname, root)
 
-    print("done writing generic bits: %r." % fname)
+    print(("done writing generic bits: %r." % fname))
 
 
 fname = '../../../lib/codeintel2/stdlibs/%s-%d.%d.cix' % (

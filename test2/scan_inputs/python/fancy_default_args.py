@@ -41,8 +41,8 @@ def lambdafuncdefaults(argsarg=lambda a, b: 'foo',
 # From xmlrpclib.py
 def _decode(data, encoding, is8bit=re.compile("[\x80-\xff]").search):
     # decode non-ascii string (if possible)
-    if unicode and encoding and is8bit(data):
-        data = unicode(data, encoding)
+    if str and encoding and is8bit(data):
+        data = str(data, encoding)
     return data
 
 # From tempfile.py

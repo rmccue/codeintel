@@ -57,9 +57,9 @@
 
 import os
 import glob
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import zipfile
-from cStringIO import StringIO
+from io import StringIO
 
 # Shared code for cix generation
 from cix_utils import *
@@ -133,7 +133,7 @@ def getDom1XMLFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
     zippath = "DOM.zip"
     if not os.path.exists(zippath):
-        urlOpener = urllib.urlopen(
+        urlOpener = urllib.request.urlopen(
             "http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/DOM.zip")
         file(zippath, "wb").write(urlOpener.read())
 
@@ -181,10 +181,10 @@ def main():
     cix_dom1_module = createCixModule(cix_dom1_file, "*", lang="JavaScript")
 
     files = getDom1XMLFilesFromWebpage()
-    for filename, xml_file in files.items():
+    for filename, xml_file in list(files.items()):
     # for xml_file in glob.glob(os.path.join("dom2_docs", "definitions",
     # "*.xml")):
-        print "filename: %r" % (filename)
+        print("filename: %r" % (filename))
         tree = ElementTree()
         tree.parse(xml_file)
         root = tree.getroot()

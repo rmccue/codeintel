@@ -13,7 +13,7 @@ class Raven(Character):
     def speak(self, dialog=None):
         if dialog is None:
             dialog = self.quoth
-        print dialog
+        print(dialog)
 
 
 class Person(Character):
@@ -21,7 +21,7 @@ class Person(Character):
         self.name = name
 
     def lament(self):
-        print "sorrow for the lost %s" % self.name
+        print("sorrow for the lost %s" % self.name)
 
 
 def recite():

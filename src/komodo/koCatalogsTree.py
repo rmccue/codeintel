@@ -99,7 +99,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         prefStr = self.prefSet.getStringPref(self.prefName)
         try:
             self.selections = eval(prefStr)
-        except ValueError, ex:
+        except ValueError as ex:
             self.selections = []
         self._sortData = (None, None)
         self._reload()
@@ -197,7 +197,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             for row_idx in range(start, end+1):
                 try:
                     row = self._rows[row_idx]
-                except IndexError, ex:
+                except IndexError as ex:
                     # Selection is screwed up.
                     return False
                 norm_cix_path = normpath(normcase(row["cix_path"]))
@@ -247,7 +247,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             try:
                 key = col.id[len("catalogs-"):]
                 return self._rows[row_idx][key]
-            except KeyError, ex:
+            except KeyError as ex:
                 raise ValueError("getCellText: unexpected col.id: %r" % col.id)
 
     def isEditable(self, row_idx, col):
@@ -273,7 +273,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
                     return langprop
                 else:
                     properties.AppendElement(self.atomSvc.getAtom(langprop))
-            except KeyError, ex:
+            except KeyError as ex:
                 raise ValueError("getCellText: unexpected col.id: %r" % col.id)
 
     def isSorted(self):
@@ -365,7 +365,7 @@ class KoCodeIntelCatalogAdder(threading.Thread):
                     shutil.copy(src_path, dst_path)
 
                     added_cix_paths.append(dst_path)
-                except Exception, ex:
+                except Exception as ex:
                     errors.append((
                         "error adding `%s' API catalog: %s" % (src_path, ex),
                         traceback.format_exc()
@@ -384,7 +384,7 @@ class KoCodeIntelCatalogAdder(threading.Thread):
             if self.on_complete:
                 try:
                     self.on_complete(added_cix_paths)
-                except Exception, ex:
+                except Exception as ex:
                     log.warn("error in on_complete callback (ignoring): %s",
                              ex)
         finally:
@@ -459,7 +459,7 @@ class KoCodeIntelCatalogRemover(threading.Thread):
                         os.remove(cix_path)
 
                     removed_cix_paths.append(cix_path)
-                except Exception, ex:
+                except Exception as ex:
                     errors.append((
                         "error removing `%s' API catalog: %s" % (cix_path, ex),
                         traceback.format_exc()
@@ -478,7 +478,7 @@ class KoCodeIntelCatalogRemover(threading.Thread):
             if self.on_complete:
                 try:
                     self.on_complete(removed_cix_paths)
-                except Exception, ex:
+                except Exception as ex:
                     log.warn("error in on_complete callback (ignoring): %s",
                              ex)
         finally:

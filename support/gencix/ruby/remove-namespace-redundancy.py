@@ -78,8 +78,8 @@ parser.add_option("-q", "--quiet",
 
 
 def Usage():
-        print "Usage: %s (-i | --in-file f) (-o | --out-file f)" % sys.argv[0]
-        print "   or: %s in-file out-file" % sys.argv[0]
+        print("Usage: %s (-i | --in-file f) (-o | --out-file f)" % sys.argv[0])
+        print("   or: %s in-file out-file" % sys.argv[0])
         sys.exit()
 
 if not options.infile:
@@ -102,7 +102,7 @@ else:
     outfile = args[0]
 
 if infile == outfile:
-    print "Trying to overwrite file %s" % outfile
+    print("Trying to overwrite file %s" % outfile)
     Usage()
 
 origTree = ET.parse(infile)
@@ -160,16 +160,16 @@ def convert_mixinrefs(elem):
 
 origTopLevel = origTree.getroot()
 check_redundant_namespace(origTopLevel)
-print "check_redundant_namespace: # changes: %d" % (adjusted_node)
+print("check_redundant_namespace: # changes: %d" % (adjusted_node))
 adjusted_node = 0
 cull_doc(origTopLevel)
-print "cull_doc: # changes: %d" % (adjusted_node)
+print("cull_doc: # changes: %d" % (adjusted_node))
 
 adjusted_node = 0
 convert_mixinrefs(origTopLevel)
-print "convert_mixinrefs: # changes: %d" % (adjusted_node)
+print("convert_mixinrefs: # changes: %d" % (adjusted_node))
 
 fd = outfile == "-" and sys.stdin or open(outfile, "w")
 fd.write(ET.tostring(pretty_tree_from_tree(origTopLevel)))
 fd.close()
-print "Done writing to file %s" % outfile
+print("Done writing to file %s" % outfile)

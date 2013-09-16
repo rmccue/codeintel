@@ -92,7 +92,7 @@ import re
 from pprint import pprint
 import textwrap
 import subprocess
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from elementtree.ElementTree import Element, SubElement, ElementTree
 import sys
@@ -408,7 +408,7 @@ def genPerlStdCIX(filename, stream):
                 "getservbyport":    "$name = %s",
                 "getservent":       "$name = %s",
             }
-            for prefix, template in getterListContext.items():
+            for prefix, template in list(getterListContext.items()):
                 if name.startswith(prefix):
                     desc += template % sigs[0]
                     if name in getterScalarContext:
@@ -518,7 +518,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], "Vvhl:o:",
                                    ["version", "verbose", "help", "language=", ])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `python bin/stdcix.py --help'.")
         return 1
@@ -529,7 +529,7 @@ def main(argv):
             return
         elif opt in ("-V", "--version"):
             ver = '.'.join([str(part) for part in _version_])
-            print "stdcix %s" % ver
+            print("stdcix %s" % ver)
             return
         elif opt in ("-v", "--verbose"):
             if log.level == logging.NOTSET:
@@ -555,10 +555,10 @@ def main(argv):
     try:
         try:
             stdcix(language, filename, stream)
-        except Error, ex:
+        except Error as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 import traceback
                 traceback.print_exception(*sys.exc_info())
             return 1

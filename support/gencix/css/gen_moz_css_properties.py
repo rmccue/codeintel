@@ -7,8 +7,8 @@
 #
 
 import re
-import urllib
-import htmlentitydefs
+import urllib.request, urllib.parse, urllib.error
+import html.entities
 from os.path import exists, join
 from pprint import pprint, pformat
 from hashlib import md5
@@ -31,18 +31,18 @@ def unescape(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -61,7 +61,7 @@ def getHtmlForUrl(url):
     cache_filename = join(".cache", urlhash)
     if exists(cache_filename):
         return file(cache_filename).read()
-    urlOpener = urllib.urlopen(url)
+    urlOpener = urllib.request.urlopen(url)
     content = urlOpener.read()
     file(cache_filename, "wb").write(content)
     return content
@@ -128,7 +128,7 @@ def parseProperty(property_name, property_details):
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return
 
     tags = soup.html.body("h3", {'class': "editable"})
@@ -169,7 +169,7 @@ def parseProperty(property_name, property_details):
 
     if property_name == '-moz-background-origin':
         values = property_details["values"]
-        for value, desc in values.items():
+        for value, desc in list(values.items()):
             split = desc.split("New in Firefox 4")
             if len(split) > 1:
                 alt_value, alt_desc = split[1].split(None, 1)
@@ -178,7 +178,7 @@ def parseProperty(property_name, property_details):
                     alt_desc.split(". ", 1)[1], )
     elif property_name == '-moz-background-clip':
         values = property_details["values"]
-        for value, desc in values.items():
+        for value, desc in list(values.items()):
             split = desc.split("Requires Gecko 1.9.3 ")
             if len(split) > 1:
                 alt_value, alt_desc = split[1].split(None, 1)
@@ -193,7 +193,7 @@ def parseProperty(property_name, property_details):
 def processProperty(property_name, properties):
     property_details = {}
     properties[property_name] = property_details
-    print property_name
+    print(property_name)
     parseProperty(property_name, property_details)
 
 # Soup parsing of API documentation from webpage
@@ -292,7 +292,7 @@ def main(filename):
             data["description"] = str(description)
         values = data.get("values")
         if values:
-            for key, value in values.items():
+            for key, value in list(values.items()):
                 values.pop(key)
                 values[key.encode("ascii")] = value.encode("ascii")
 

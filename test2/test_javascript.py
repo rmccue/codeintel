@@ -1047,7 +1047,7 @@ class CplnTestCase(CodeIntelTestCase):
              """),
             "target.js": target_js_content,
         }
-        for file, content in manifest.items():
+        for file, content in list(manifest.items()):
             path = join(test_dir, file)
             writefile(path, content)
 

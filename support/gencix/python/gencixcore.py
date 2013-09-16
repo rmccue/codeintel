@@ -33,12 +33,12 @@ import os
 _gIsPy3 = True
 _gLanguage = "Python3"
 if sys.version_info < (3, ):
-    import __builtin__
+    import builtins
     _gIsPy3 = False
     _gLanguage = "Python"
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import re
-from parsedocs import parseDocSummary, parsePyFuncDoc
+from .parsedocs import parseDocSummary, parsePyFuncDoc
 import logging
 
 log = logging.getLogger("codeintel.gencix")
@@ -343,7 +343,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         try:
             obj, modulename = pydoc.resolve(modname)
         except Exception:
-            print(sys.exc_info()[1])
+            print((sys.exc_info()[1]))
             return
 
     result = ''
@@ -385,7 +385,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             inspect.isroutine(value) or
                 inspect.isbuiltin(value)):
             process_routine(moduleElt, value, key, callables)
-        elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, types.TypeType)):
+        elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, type)):
             process_class(moduleElt, value, key, callables)
         elif (_gIsPy3 and hasattr(value, 'class')) or (not _gIsPy3 and isinstance(value, types.InstanceType)):
             klass = value.__class__
@@ -411,7 +411,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             exec(compile(open(helpername).read(), os.path.basename(
                 helpername), 'exec'), namespace, namespace)
         else:
-            execfile(helpername, namespace, namespace)
+            exec(compile(open(helpername).read(), helpername, 'exec'), namespace, namespace)
         # look in helpername for analyze_retval_exprs, which is a list of (callable_string, *args)
         # and which corresponds to callables which when called w/ the specified args, will return
         # variables which should be used to specify the <return> subelement of
@@ -430,7 +430,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
                 # find out what type that is
                 callableElt.set("returns", type(var).__name__)
             else:
-                print("Don't know about: %r" % expr)
+                print(("Don't know about: %r" % expr))
 
         hidden_classes_exprs = namespace.get('hidden_classes_exprs', [])
         for expr in hidden_classes_exprs:
@@ -453,12 +453,12 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
                         callableElt = None
                         break
                 if callableElt is None:
-                    print("  couldn't find elem with name: %r" % (name, ))
+                    print(("  couldn't find elem with name: %r" % (name, )))
                     continue
                 overrides = function_overrides[name]
-                for setting, value in overrides.items():
-                    print("  overriding %s.%s %s attribute from %r to %r" % (
-                        modname, name, setting, callableElt.get(setting), value))
+                for setting, value in list(overrides.items()):
+                    print(("  overriding %s.%s %s attribute from %r to %r" % (
+                        modname, name, setting, callableElt.get(setting), value)))
                     callableElt.set(setting, value)
 
 

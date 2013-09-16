@@ -22,10 +22,10 @@ class _PriorityQueue:
     #   - calls are always blocking
     #   - add .prepend() and .remove_id() methods and re-ordering sematics
     def __init__(self):
-        import thread
+        import _thread
         self._init()
-        self.mutex = thread.allocate_lock()
-        self.esema = thread.allocate_lock()  # if acquired, then queue is empty
+        self.mutex = _thread.allocate_lock()
+        self.esema = _thread.allocate_lock()  # if acquired, then queue is empty
         self.esema.acquire()
 
     def put(self, priority, item):

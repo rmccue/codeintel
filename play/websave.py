@@ -3,8 +3,8 @@
 
 import os
 import sys
-from urllib import urlopen
-from urlparse import urlparse as myurlparse
+from urllib.request import urlopen
+from urllib.parse import urlparse as myurlparse
 if sys.platform.startswith("win"):
     import win32api
 from os.path import *

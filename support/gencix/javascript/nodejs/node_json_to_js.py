@@ -58,7 +58,7 @@ class Processor(object):
         """ Get the given file and return a file-like object """
         cache_name = "docs_%s_%s" % (self.version.replace(".", "_"), filename)
         if not os.path.exists(cache_name):
-            import urllib
+            import urllib.request, urllib.parse, urllib.error
             if filename.endswith(".markdown"):
                 url = "https://raw.github.com/joyent/node/v%s/doc/api/%s" % (
                     self.version, filename)
@@ -68,10 +68,10 @@ class Processor(object):
             if self.cache:
                 log.info(
                     "Downloading from %s and saving to %s", url, cache_name)
-                urllib.urlretrieve(url, cache_name)
+                urllib.request.urlretrieve(url, cache_name)
             else:
                 log.info("Downloading from %s (not saving)", url)
-                return urllib.urlopen(url)
+                return urllib.request.urlopen(url)
         else:
             log.info("Re-using existing documentation from %s", cache_name)
         return open(cache_name, "r")
@@ -107,7 +107,7 @@ class Processor(object):
                     del data["vars"]
                 for kind in ["globals"]:
                     if kind in section_overrides:
-                        for name, mapping in section_overrides[kind].items():
+                        for name, mapping in list(section_overrides[kind].items()):
                             new_kind = mapping.get("kind")
                             if not new_kind:
                                 continue
@@ -133,7 +133,7 @@ class Processor(object):
                         module_overrides = default_get(
                             self.overrides, section, "module")
                     for kind in ("properties", "classes", "methods", "modules"):
-                        for name, mapping in default_get(module_overrides, kind).items():
+                        for name, mapping in list(default_get(module_overrides, kind).items()):
                             new_kind = mapping.get("kind")
                             if not new_kind:
                                 continue
@@ -181,7 +181,7 @@ class Processor(object):
             log.warning("Writing section %s to %s", section.name, filename)
 
             if not os.path.isdir(dirname):
-                os.makedirs(dirname, mode=0755)
+                os.makedirs(dirname, mode=0o755)
 
             overrides = self.overrides.get(section.name, {})
 
@@ -239,7 +239,7 @@ class Node(object):
         while i < len(self.name):
             try:
                 c = self.name[i]
-                u = unicodedata.category(unicode(c))
+                u = unicodedata.category(str(c))
                 if u in ("Lu", "Ll", "Lt", "Lm", "Lo", "Nl"):
                     continue
                 if c in "$_":
@@ -257,7 +257,7 @@ class Node(object):
                 if i != 0:
                     if u in ("Mn", "Mc", "Nd", "Pc"):
                         continue
-                    if c in u"\u200c\u200d":  # ZWNJ, ZWJ
+                    if c in "\u200c\u200d":  # ZWNJ, ZWJ
                         continue
                 return False
             finally:
@@ -499,7 +499,7 @@ class Param(object):
 
         desc = [d.strip() for d in self.data.get("desc", "").split(", ")]
         if not value:
-            descDefault = filter(lambda x: x.startswith("Default: "), desc)
+            descDefault = [x for x in desc if x.startswith("Default: ")]
             if descDefault:
                 # have a default value in the description
                 value = descDefault[0].split(":", 1)[1].strip()
@@ -568,7 +568,7 @@ class Event(Node):
             params = []
             for param in param_overrides:
                 if isinstance(param, dict):
-                    name = param.keys()[0]
+                    name = list(param.keys())[0]
                     value = param[name]
                     data = {"name": name}
                     if isinstance(value, dict):

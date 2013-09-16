@@ -55,9 +55,9 @@
 import os
 import sys
 import glob
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import zipfile
-from cStringIO import StringIO
+from io import StringIO
 from optparse import OptionParser
 
 from codeintel2.manager import Manager
@@ -108,8 +108,8 @@ def getYUIFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
     zippath = "yui_%s.zip" % (yui_version, )
     if not os.path.exists(zippath):
-        print "Downloading yui version %s" % (yui_version, )
-        urlOpener = urllib.urlopen(yui_info["download_url"])
+        print("Downloading yui version %s" % (yui_version, ))
+        urlOpener = urllib.request.urlopen(yui_info["download_url"])
         f = file(zippath, "wb")
         f.write(urlOpener.read())
         f.close()
@@ -127,19 +127,19 @@ def getYUIFilesFromWebpage():
                     data = zf.read(zfile.filename)
                     files[filename] = data
     finally:
-        print "Leaving zip file: %s" % (zippath)
+        print("Leaving zip file: %s" % (zippath))
         # os.remove(zippath)
     return files
 
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 
 def main(cix_filename, updatePerforce=False):
@@ -150,21 +150,21 @@ def main(cix_filename, updatePerforce=False):
 
     files = getYUIFilesFromWebpage()
     jscile = JavaScriptCiler(Manager(), "yui")
-    for filename, content in files.items():
+    for filename, content in list(files.items()):
         if filename in ("utilities.js",
                         "yahoo-dom-event.js",   # v2.2.0
                         "yahoo-event-dom.js",
                         "yuiloader-dom-event.js"):  # v2.7.0
             # This is just a compressed up version of multiple files
             continue
-        print "filename: %r" % (filename)
+        print("filename: %r" % (filename))
         jscile.path = filename
         jscile.scan_puretext(content, updateAllScopeNames=False)
-    print "updating scope names"
+    print("updating scope names")
     jscile.cile.updateAllScopeNames()
     # Convert the Javascript to CIX, content goes into cix element
     # jscile.toElementTree(cix)
-    print "converting to cix"
+    print("converting to cix")
     jscile.convertToElementTreeFile(cix_yui, "JavaScript")
 
     # mergeElementTreeScopes(cix_yui_module)
@@ -172,9 +172,9 @@ def main(cix_filename, updatePerforce=False):
     # remove_cix_line_numbers_from_tree(cix_yui)
 
     # Write out the tree
-    print "writing cix"
+    print("writing cix")
     updateCix(cix_filename, get_cix_string(cix_yui), updatePerforce)
-    print "done"
+    print("done")
 
 # When run from command line
 if __name__ == '__main__':

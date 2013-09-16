@@ -12,9 +12,9 @@ class Greeter(object):
 
     def greet(self):
         if self.name:
-            print "hi,", self.name
+            print("hi,", self.name)
         else:
-            print "hi there"
+            print("hi there")
 
 
 def hi(name=None):
@@ -25,12 +25,12 @@ def hi(name=None):
 def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], "hn:")
-    except getopt.GetoptError, ex:
-        print "illegal options: %s" % ex
+    except getopt.GetoptError as ex:
+        print("illegal options: %s" % ex)
     name = None
     for opt, optarg in opts:
         if opt == "-h":
-            print __doc__
+            print(__doc__)
         elif opt == "-n":
             name = optarg
     return hi(name)

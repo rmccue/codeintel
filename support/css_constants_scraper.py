@@ -53,7 +53,7 @@ from codeintel2.util import CompareNPunctLast
 #
 
 import string
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from pprint import pprint
 import xml.sax.saxutils
 from BeautifulSoup import BeautifulSoup, NavigableString
@@ -61,7 +61,7 @@ from BeautifulSoup import BeautifulSoup, NavigableString
 
 def getCSSFromWebpage():
     # urlOpener = urllib.urlopen("http://www.python.org")
-    urlOpener = urllib.urlopen("http://www.w3.org/TR/REC-CSS2/propidx.html")
+    urlOpener = urllib.request.urlopen("http://www.w3.org/TR/REC-CSS2/propidx.html")
     data = urlOpener.read()
     # print "Read in %d bytes" % (len(data))
     return data
@@ -151,14 +151,14 @@ def lookup_all_attrs(name, result_dict, lookup_dict, seenSoFar=None):
     else:
         attrs = result_dict.get(name)
     if attrs == None:
-        print "WARNING: No attributes found for: %s" % (name)
+        print("WARNING: No attributes found for: %s" % (name))
         return []
     attrs = set(attrs)
     lookup_ids = lookup_dict.get(name, [])
     for id in lookup_ids:
         if id[1:-1] == name:
             if name not in special_attribute_lookups:
-                print "WARNING: Lookup id same as name: '%s', but no matching special_attribute_lookups" % id
+                print("WARNING: Lookup id same as name: '%s', but no matching special_attribute_lookups" % id)
         if id not in seenSoFar:
             attrs.update(lookup_all_attrs(
                 id, result_dict, lookup_dict, seenSoFar))
@@ -216,7 +216,7 @@ def processTrTags(soup, taglist):
             result[name] = values
 
     # pprint(lookups)
-    names = result.keys()
+    names = list(result.keys())
     names.sort()
     for name in names:
         printvalues = []
@@ -241,7 +241,7 @@ def processTrTags(soup, taglist):
     #    printlist.append('    %-18s: """ """,' % ("'%s'" % name))
     # printlist.append("}")
 
-    print "\n".join(printlist)
+    print("\n".join(printlist))
 
 # Soup parsing of CSS properties
 

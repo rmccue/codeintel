@@ -26,8 +26,8 @@ def policymethod(policyid):
     class PolicyMethod(object):
         def __init__(self, function):
             self.func = function
-            self.name = function.func_name
-            self.__doc__ = function.func_doc
+            self.name = function.__name__
+            self.__doc__ = function.__doc__
 
         def __get__(self, servlet, servlet_class):
             policy = db.getItem(policyid)
@@ -36,9 +36,8 @@ def policymethod(policyid):
             if self.userHasPolicy(user, policy):
                 return types.MethodType(self.func, servlet, servlet_class)
             else:
-                raise serverExceptions.PolicyViolation, \
-                    "This action is restricted due to policy '%s'" \
-                    % policy.displayName.value
+                raise serverExceptions.PolicyViolation("This action is restricted due to policy '%s'" \
+                    % policy.displayName.value)
 
         def userHasPolicy(self, user, policy):
             policyGranted = policy.policyGranted.value

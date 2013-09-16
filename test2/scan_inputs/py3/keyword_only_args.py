@@ -32,4 +32,4 @@ class Pack(object):
     def haul(self, item: Haulable, *vargs: PackAnimal) -> Distance:
         pass
 
-print(Pack().sub())
+print((Pack().sub()))

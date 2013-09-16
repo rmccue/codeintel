@@ -13,8 +13,8 @@ Uses the web pages found here:
 """
 
 import re
-import urllib
-import htmlentitydefs
+import urllib.request, urllib.parse, urllib.error
+import html.entities
 from os.path import exists, join
 from pprint import pprint, pformat
 from hashlib import md5
@@ -36,18 +36,18 @@ def unescape(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text  # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -102,7 +102,7 @@ def getHtmlForUrl(url):
     cache_filename = join(".cache", urlhash)
     if exists(cache_filename):
         return file(cache_filename).read()
-    urlOpener = urllib.urlopen(url)
+    urlOpener = urllib.request.urlopen(url)
     content = urlOpener.read()
     file(cache_filename, "wb").write(content)
     return content
@@ -146,7 +146,7 @@ def parseProperty(property_name):
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return property_details
 
     tags = soup.html.body("h2")
@@ -171,7 +171,7 @@ def parseWebKitProperties():
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to obtain HTML for url: %r" % (url, )
+        print("Unable to obtain HTML for url: %r" % (url, ))
         return
 
     tags = soup.html.body.table.tbody.findAll('td', {'class': 'element'})

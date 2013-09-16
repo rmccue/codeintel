@@ -56,7 +56,7 @@
 
 import os
 import string
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from optparse import OptionParser
 
 # Shared code for cix generation
@@ -85,7 +85,7 @@ library_filepath = os.path.join(base_filepath, library_info["xml_filename"])
 def getContent():
     # Gets the file contents, downloading from the website if necessary.
     if not os.path.exists(library_filepath):
-        urlOpener = urllib.urlopen(library_info["download_url"])
+        urlOpener = urllib.request.urlopen(library_info["download_url"])
         file(library_filepath, "w").write(urlOpener.read())
     return file(library_filepath).read()
 
@@ -133,25 +133,25 @@ which is then used to match a set of elements.""")
     # Add the methods.
     for categoryElem in root.getchildren():
         if categoryElem.tag != "cat":
-            print "Unknown category tag: %r" % (categoryElem.tag, )
+            print("Unknown category tag: %r" % (categoryElem.tag, ))
             continue
         category = categoryElem.get("value")
-        print "%r" % (category, )
+        print("%r" % (category, ))
         for subCategoryElem in categoryElem.getchildren():
             if subCategoryElem.tag != "subcat":
-                print "Unknown subcategory tag: %r" % (subCategoryElem.tag, )
+                print("Unknown subcategory tag: %r" % (subCategoryElem.tag, ))
                 continue
             subcategory = subCategoryElem.get("value")
-            print "  %r" % (subcategory, )
+            print("  %r" % (subcategory, ))
             for element in subCategoryElem.getchildren():
                 elementname = element.get("name")
                 scope = cixscope
                 if element.tag in ("function", "property"):
-                    print "    %r: %r" % (element.tag, element.get("name"), )
+                    print("    %r: %r" % (element.tag, element.get("name"), ))
                     sp = elementname.split(".")
                     if sp[0] == "jQuery":
                         if len(sp) == 1:
-                            print "      ** Ignoring this function: %r **" % (sp[0], )
+                            print("      ** Ignoring this function: %r **" % (sp[0], ))
                             continue
                         sp = sp[1:]
                     elementname = sp[0]
@@ -161,14 +161,14 @@ which is then used to match a set of elements.""")
                             raise "Namespace too long: %r" % elementname
                         subname = sp[0]
                         if subname not in cixscope.names:
-                            print "      ** Ignoring this function: %r **" % (subname, )
+                            print("      ** Ignoring this function: %r **" % (subname, ))
                             # print sorted(cixscope.names.keys())
                             continue
                         scope = cixscope.names[subname]
                         elementname = sp[1]
 
                     if elementname in scope.names:
-                        print "      ** Element already exists in scope, ignoring **"
+                        print("      ** Element already exists in scope, ignoring **")
 
                     isFunction = False
                     if element.tag == "property":
@@ -220,7 +220,7 @@ which is then used to match a set of elements.""")
                 elif element.tag == "selector":
                     pass    # Not much we can do here...
                 else:
-                    print "Unknown tag: %r" % (element.tag, )
+                    print("Unknown tag: %r" % (element.tag, ))
     return cix
 
 

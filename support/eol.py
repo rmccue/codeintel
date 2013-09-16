@@ -276,7 +276,7 @@ def eol_info_from_path_patterns(path_patterns, recursive=False,
     Yields 3-tuples: (PATH, EOL, SUGGESTED-EOL)
     See eol_info_from_text() docstring for details.
     """
-    assert not isinstance(path_patterns, basestring), \
+    assert not isinstance(path_patterns, str), \
         "'path_patterns' must be a sequence, not a string: %r" % path_patterns
     for path in _paths_from_path_patterns(path_patterns,
                                           recursive=recursive,
@@ -341,7 +341,7 @@ def convert_path_patterns_eol(path_patterns, eol, recursive=False,
     """Convert the given paths (in-place) to the given EOL.  If no
     changes are necessary the file is not touched.
     """
-    assert not isinstance(path_patterns, basestring), \
+    assert not isinstance(path_patterns, str), \
         "'path_patterns' must be a sequence, not a string: %r" % path_patterns
     for path in _paths_from_path_patterns(path_patterns,
                                           recursive=recursive,
@@ -613,7 +613,7 @@ def main(argv):
         opts, path_patterns = getopt.getopt(argv[1:], "Vvqhrc:x:",
             ["version", "verbose", "quiet", "help", "test",
              "recursive", "convert=", "skip="])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `eol --help'.")
         return 1
@@ -625,7 +625,7 @@ def main(argv):
             sys.stdout.write(__doc__)
             return
         elif opt in ("-V", "--version"):
-            print "eol %s" % __version__
+            print("eol %s" % __version__)
             return
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -672,7 +672,7 @@ if __name__ == "__main__":
             log.error(exc_info[0])
         if log.isEnabledFor(logging.DEBUG):
             import traceback
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:
