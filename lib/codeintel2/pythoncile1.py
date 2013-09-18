@@ -1515,18 +1515,44 @@ def _convert3to2(src):
 
     return src
 
-def _convert2to3(src):
-    # print foo => print_(foo)
-    src = _rx(r'\bprint\s+([^(][^\n]*)').sub(r'print_(\1)', src)
+def _convert2to3(src, full=True):
+    """
+    This might be much faster to do all this stuff by manipulating
+    parse trees produced by tdparser.
 
-    # raise et, ei, tb => raise et(ei).with_traceback(tb)
-    src = _rx(r'\braise\s+([^(),]+?)\s*,\s*([^(),]+?)\s*,\s*([^(),]+?)(?=\s|\n|$)').sub(r'raise \1(\2).with_traceback(\3)', src)
+    full - converts all of the 2 code to 3 as much as possible for syntax not to fail.
+    """
+    if full:
+        src = src.replace('\\\n', '\\\x00')
 
-    # raise et, ei, tb => raise et(ei).with_traceback(tb)
-    src = _rx(r'\braise\s+([^(),]+?)\s*,\s*([^(),]+?)(?=\s|\n|$)').sub(r'raise \1 as \2', src)
+        # Remove comments (as stuff that looks like code within comments could break other rules below)
+        src = _rx(r'(^|\n)[ \t]*#[^\n]*').sub('\\1', src)
+
+        # print foo => print_(foo)
+        src = _rx(r'((?:^|\n|;)[ \t]*)print[ \t]+(?:>>[ \t]*)?([^(\n][^\n]*)').sub('\\1print_(\\2\n)', src)
+
+        # exec foo => exec_(foo)
+        src = _rx(r'((?:^|\n|;)[ \t]*)exec[ \t]+([^(\n][^\n]*)').sub('\\1exec_(\\2\n)', src)
+
+        # raise et, ei, tb => raise et(ei).with_traceback(tb)
+        src = _rx(r'((?:^|\n|;)[ \t]*)raise[ \t]+([^(),\n]+?)[ \t]*,[ \t]*([^(),\n]+)[ \t]*,[ \t]*([^(),\n]+?)(?=[ \t]|\n|$)').sub('\\1raise \\2(\\3).with_traceback(\\4\n)', src)
+
+        # raise et, ei => raise et(ei)
+        src = _rx(r'((?:^|\n|;)[ \t]*)raise[ \t]+([^(),\n]+?)[ \t]*,[ \t]*([^\n]+)(?=[ \t]|\n|$)').sub('\\1raise \\2(\\3\n)', src)
+
+        # except (Foo,) bar => except Foo as bar
+        src = _rx(r'((?:^|\n|;)[ \t]*)except[ \t]+((?:[^(), \t\n:]+?)(?:[ \t]*,[ \t]*(?!as[ \t])[^(), \t\n:]+?)*,?|\((?:[^(), \t\n:]+?)(?:[ \t]*,[ \t]*(?!as[ \t])[^(), \t\n:]+?)*,?\))(?:[ \t]*,[ \t]*|[ \t]+)([_a-zA-Z]+[_a-zA-Z0-9]*)(?=:)').sub('\\1except (\\2) as \\3', src)
+
+        src = src.replace('\\\x00', '\\\n')
 
     # 0123 => 0o123
-    src = _rx(r'\b0(\d+)').sub(r'0[oO]\1', src)
+    src = _rx(r'\b(?<!\.)0(\d+)').sub(r'0o\1', src)
+
+    # unicode => str
+    src = _rx(r'\b(?:unicode|basestring)\b').sub(r'str', src)
+
+    # long => int
+    src = _rx(r'\blong\b').sub(r'int', src)
 
     return src
 
@@ -1657,7 +1683,7 @@ def scan_et(content, filename, md5sum=None, mtime=None, lang="Python"):
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
 
-    if lang == 'Python':
+    if lang != 'Python3':
         # Make Python2 code as compatible with pythoncile's Python3
         # parser as neessary for codeintel purposes.
         content = _convert2to3(content)
