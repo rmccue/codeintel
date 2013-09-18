@@ -637,13 +637,13 @@ class AST2CIXVisitor(ast.NodeVisitor):
             defaultArgsBaseIndex -= 1
             if node_args.vararg:
                 defaultArgsBaseIndex -= 1
-                varargsIndex = len(node_args.args)-2
+                varargsIndex = len(node_args.args) - 2
             else:
                 varargsIndex = None
-            kwargsIndex = len(node_args.args)-1
+            kwargsIndex = len(node_args.args) - 1
         elif node_args.vararg:
             defaultArgsBaseIndex -= 1
-            varargsIndex = len(node_args.args)-1
+            varargsIndex = len(node_args.args) - 1
             kwargsIndex = None
         else:
             varargsIndex = kwargsIndex = None
@@ -651,7 +651,7 @@ class AST2CIXVisitor(ast.NodeVisitor):
         for i in range(len(node_args.args)):
             argName = node_args.args[i].arg
             argument = {"name": argName,
-                        "nspath": nspath+(argName,),
+                        "nspath": nspath + (argName,),
                         "doc": None,
                         "types": {},
                         "line": node.lineno,
@@ -670,7 +670,7 @@ class AST2CIXVisitor(ast.NodeVisitor):
                     raise PythonCILEError("unexpected default argument node "
                                           "type for Function '%s': %s"
                                           % (node.name, ex))
-                sigArgs.append(argName+'='+argument["default"])
+                sigArgs.append(argName + '=' + argument["default"])
                 for t in self._guessTypes(defaultNode):
                     log.info("guessed type: %s ::= %s", argName, t)
                     if t not in argument["types"]:
