@@ -745,7 +745,7 @@ class AST2CIXVisitor(ast.NodeVisitor):
     def visit_ImportFrom(self, node):
         log.info("visit_%s:%s: %r %r", node.__class__.__name__, getattr(node, 'lineno', '?'), self.lines and hasattr(node, 'lineno') and self.lines[node.lineno - 1], node._fields)
         imports = self.nsstack[-1].setdefault("imports", [])
-        module = node.module
+        module = node.module or ''
         if node.level > 0:
             module = ("." * node.level) + module
         for alias in node.names:
@@ -1321,7 +1321,7 @@ class AST2CIXVisitor(ast.NodeVisitor):
             except PythonCILEError:
                 # XXX Work around some trouble cases.
                 s += ":..."
-        else:
+        if s is None:
             raise PythonCILEError("don't know how to get string repr "
                                   "of expression: %r" % node)
         return s
